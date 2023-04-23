@@ -58,7 +58,7 @@ const Modal = ({ open, gameMode, onHide, getNickNames }) => {
                 ref={nickName1Input}
               />
             </div>
-            {gameMode == "PVP" && (
+            {gameMode == "pvp" && (
               <div className="info" id="nicknickName2">
                 Player's 2 Nick Name:
                 <input
