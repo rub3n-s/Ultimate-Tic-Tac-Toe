@@ -1,7 +1,10 @@
 import "./Modal.css";
-import {useRef} from 'react';
+import {useState} from 'react';
 
-const Modal = ({ open, gameMode, onHide }) => {  
+const Modal = ({ open, gameMode, onHide, getNickNames}) => {  
+  const [nickName1,setNickName1] = useState('');
+  const [nickName2,setNickName2] = useState('');
+
   switch (gameMode) {
     case "PVC":
       console.log("Player vs Computer Modal");
@@ -36,7 +39,8 @@ const Modal = ({ open, gameMode, onHide }) => {
                 id="inputNick1"
                 size="16"
                 width="100"
-                placeholder="Insert your NickName"
+                placeholder="Insert Player's 1 NickName"
+                onChange={e => setNickName1(e.target.value)}
               />
             </div>
             {gameMode == "PVP" && (
@@ -46,12 +50,13 @@ const Modal = ({ open, gameMode, onHide }) => {
                   type="text"
                   id="inputNick2"
                   size="16"
-                  placeholder="Insert your NickName"
+                  placeholder="Insert Player's 2 NickName"
+                  onChange={e => setNickName2(e.target.value)}
                 />
               </div>
             )}
             <div className="info-button">
-              <button id="okNickName">ok</button>
+              <button id="okNickName" onClick={() => getNickNames(nickName1,nickName2)}>Ok</button>
             </div>
           </div>
         </div>

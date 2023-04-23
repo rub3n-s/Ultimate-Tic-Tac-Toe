@@ -22,6 +22,11 @@ function App() {
 
   const handleClose = () => setOpen(false);
 
+  const getNickNames = (nickName1,nickName2) => {
+    console.log(`Player 1: ${nickName1}\nPlayer 2: ${nickName2}\n`)
+    handleClose();
+  }
+
   return (
     <>
     {/*===== Navigation Bar =====*/}
@@ -39,7 +44,7 @@ function App() {
         </div>
       </div>
 
-      <Modal open={open} onHide={handleClose} gameMode={gameMode}/>
+      <Modal open={open} onHide={handleClose} gameMode={gameMode} getNickNames={getNickNames}/>
 
       <Footer />
     </>
