@@ -8,7 +8,7 @@ import {useState} from 'react';
 
 function App() {
   const [open, setOpen] = useState(false);
-  const [gameMode, setGameMode] = useState(false);
+  const [gameMode, setGameMode] = useState(null);
 
   const pvcClickHandle = () => {
     setOpen(true);
@@ -19,6 +19,8 @@ function App() {
     setOpen(true);
     setGameMode('PVP');
   };
+
+  const handleClose = () => setOpen(false);
 
   return (
     <>
@@ -37,7 +39,7 @@ function App() {
         </div>
       </div>
 
-      <Modal open={open} gameMode={gameMode}/>
+      <Modal open={open} onHide={handleClose} gameMode={gameMode}/>
 
       <Footer />
     </>

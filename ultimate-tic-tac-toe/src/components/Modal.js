@@ -1,7 +1,7 @@
 import "./Modal.css";
+import {useRef} from 'react';
 
-const Modal = ({ open, gameMode }) => {
-  console.log("Game Mode: ", gameMode);
+const Modal = ({ open, gameMode, onHide }) => {  
   switch (gameMode) {
     case "PVC":
       console.log("Player vs Computer Modal");
@@ -9,11 +9,8 @@ const Modal = ({ open, gameMode }) => {
     case "PVP":
       console.log("Player vs Player Modal");
       break;
-    default:
-      console.log("None");
-      break;
   }
-
+  
   return (
     <>
       {open && (
@@ -26,7 +23,7 @@ const Modal = ({ open, gameMode }) => {
             <header>
               <span
                 className="w3-button w3-display-topright closeModal"
-                data-modalid="playersName"
+                data-modalid="playersName" onClick={onHide}
               >
                 &times;
               </span>
