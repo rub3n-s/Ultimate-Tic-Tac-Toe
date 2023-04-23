@@ -1,0 +1,98 @@
+/*================== Modal Windows Styles ==================*/
+[id^="modal-"] .info div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  text-align: center;
+  justify-content: center;
+  font-size: smaller;
+}
+
+[id^="modal-"] .info div p {
+  text-align: left;
+  border-right: rgb(155, 149, 149) 1px solid;
+}
+
+[id^="modal-"] header,
+[id^="modal-"] footer {
+  text-align: center;
+  color: white;
+}
+
+[id^="modal-"] header {
+  font-weight: bold;
+  padding: 8px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+[id^="modal-"] header span {
+  font-size: smaller;
+  border-top-right-radius: 6px;
+  padding: 9px;
+}
+
+[id^="modal-"] .styles {
+  box-shadow: 0px 10px 50px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  max-width: 350px;
+}
+
+[id^="modal-"] input {
+  padding: 2px 3px;
+  border-radius: 5px;
+  background-color: #e9e7e7;
+  width: 210px;
+  font-weight: lighter;
+}
+
+[id^="modal-"] button {
+  padding: 0px 5px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+#modal-playersName {
+    display: block;
+}
+
+#modal-playersName header,
+#modal-playersName footer {
+  background-color: rgb(137, 255, 172);
+  color: #444444;
+}
+
+#modal-playersName .styles {
+  border: 3px solid var(--gameOverColor);
+  background-color: var(--gameOverColor);
+}
+
+#modal-playersName .styles .info {
+  background-color: white;
+}
+
+#modal-playersName .info,
+#modal-playersName .info-button {
+  padding: 10px;
+  text-align: center;
+  font-weight: bolder;
+  background-color: white;
+}
+
+#modal-playersName .info-button {
+  border-bottom-left-radius: 0.5em;
+  border-bottom-right-radius: 0.5em;
+}
+
+#modal-playersName .info-button button {
+  cursor: pointer;
+}
+
+#modal-playersName #nickname1,
+#modal-playersName #nickname2 {
+  font-weight: lighter;
+  font-size: smaller;
+}
+
+.invalid-input {
+  background-color: rgba(199, 27, 27, 0.628) !important;
+}

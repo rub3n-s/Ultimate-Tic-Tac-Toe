@@ -1,0 +1,57 @@
+/*================== Container (Game Section) ==================*/
+.container {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.gameMode {    
+    margin: 0;
+    position: absolute;
+    top: 44%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.gameMode button {
+    display: block;
+    margin: 1.2em auto;
+    width: 12.5em;
+    height: 2.5em;
+    font-size: 1.2em;
+    color: #444444;
+    background-color: rgb(137, 255, 172);
+    border-radius: 2em;
+    border-style: hidden;
+    cursor: pointer;
+    transition: all 0.5s;
+}
+
+.gameMode button:hover {
+    background-color: rgb(118, 219, 148);
+}
+
+.gameMode button span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+  }
+  
+.gameMode button span:after {
+    content: '\00bb';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -20px;
+    transition: 0.5s;
+}
+  
+.gameMode button:hover span {
+    padding-right: 25px;
+}
+  
+.gameMode button:hover span:after {
+    opacity: 1;
+    right: 0;
+}

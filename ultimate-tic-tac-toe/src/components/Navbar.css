@@ -28,7 +28,7 @@ header .logo img {
   width: 100%;
   background-color: white;
   padding: 20px;
-  transition: left 0.3s;
+  transition: 0.3s ease-in-out;
 }
 
 .navbar.show {
