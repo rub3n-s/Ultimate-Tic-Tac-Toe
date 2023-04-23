@@ -7,18 +7,9 @@ const Modal = ({ open, gameMode, onHide, getNickNames }) => {
   const nickName1Input = useRef(null);
   const nickName2Input = useRef(null);
 
-  switch (gameMode) {
-    case "PVC":
-      console.log("Player vs Computer Modal");
-      break;
-    case "PVP":
-      console.log("Player vs Player Modal");
-      break;
-  }
-
   const nickNameValidation = () => {
     switch (gameMode) {
-      case "PVC":
+      case "pvc":
         if (nickName1 == "")
           nickName1Input.current.classList.add("invalid-input");
         else {
@@ -26,7 +17,7 @@ const Modal = ({ open, gameMode, onHide, getNickNames }) => {
           getNickNames(nickName1, nickName2);
         }
         break;
-      case "PVC":
+      case "pvp":
         if (nickName1 == "")
           nickName1Input.current.classList.add("invalid-input");
         else if (nickName2 == "")
