@@ -1,15 +1,15 @@
 import "./App.css";
-import "./components/GameMode.css";
-import Footer from "./components/Footer";
-import GameMode from "./components/GameMode";
 import Navbar from "./components/Navbar";
+import GameMode from "./components/GameMode";
+import GamePanel from "./components/GamePanel";
 import Modal from "./components/Modal";
+import Footer from "./components/Footer";
 import { useState } from "react";
 
 function App() {
   const [open, setOpen] = useState(false);
-  const [showGrid, setShowGrid] = useState(false);
   const [gameMode, setGameMode] = useState(null);
+  const [showGrid, setShowGrid] = useState(false);
   const [showGameMode, setShowGameMode] = useState(true);
 
   const handleGameMode = (mode) => {
@@ -31,6 +31,7 @@ function App() {
     console.log(`Player 1: ${nickName1}\nPlayer 2: ${nickName2}\n`);
     handleClose();
     setShowGameMode(false);
+    setShowGrid(true);
   };
 
   return (
@@ -41,8 +42,8 @@ function App() {
       {/*===== GameMode Buttons =====*/}
       <GameMode showGameMode={showGameMode} handleGameMode={handleGameMode} />
 
-      {/* <Grid /> */}
-
+      <GamePanel showGrid={showGrid}/>
+      
       <Modal
         open={open}
         onHide={handleClose}
