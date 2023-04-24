@@ -19,11 +19,20 @@
   align-items: center;
 }
 
-.grid {
+.cell {
   width:40px;
   height:40px;
   background-color: #ccc;
   color: #444;
   margin: auto;
   border-radius: .5em;
+}
+
+.cell:hover {
+  cursor: pointer;
+  background-color: rgba(255, 0, 0, 0.514);
+}
+
+.clicked {
+  background-color: red;
 }
