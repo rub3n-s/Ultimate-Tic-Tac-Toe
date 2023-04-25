@@ -10,12 +10,13 @@
 
 .box {
   display: grid;
-  grid-template-columns: repeat(3, [col] 50px ) ;
-  grid-template-rows: repeat(3, [row] 50px  );
+  grid-template-columns: repeat(3, [col] 42.5px ) ;
+  grid-template-rows: repeat(3, [row] 42.5px  );
   background-color: #444;
   color: #fff;
   border-radius: 5px;
   margin: auto;
+  padding: 0.2em;
   align-items: center;
 }
 
