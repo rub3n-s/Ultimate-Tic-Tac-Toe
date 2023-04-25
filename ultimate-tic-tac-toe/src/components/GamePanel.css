@@ -30,9 +30,21 @@
 
 .cell:hover {
   cursor: pointer;
-  background-color: rgba(255, 0, 0, 0.514);
+  background-color: rgba(126, 126, 126, 0.72);
 }
 
 .clicked {
   background-color: red;
+}
+
+.playX {
+  background: url('../../public/x.png') no-repeat center;
+  background-size: 2em;
+  background-color: #ccc;
+}
+
+.playO {
+  background: url('../../public/o.png') no-repeat center;
+  background-size: 3.5em;
+  background-color: #ccc;
 }

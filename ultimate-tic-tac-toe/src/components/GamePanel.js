@@ -1,21 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./GamePanel.css";
 
-const GamePanel = ({ showGrid }) => {
-  // const clickHandle = (event, grid, line, column) => {
-  //   const style = {
-  //     backgroundColor:'red',
-  //     gridLine: `${line}`,
-  //     gridColumn: `${column}`
-  //   }
-  //   const element = event.target;
-  //   //element.classList
-  //   console.log(`[Cell Click] grid:${grid}, cell(${line},${column})`);
-  // };
+const GamePanel = ({
+  showGrid,
+  gameMode,
+  firstPlay,
+  player1Name,
+  player2Name,
+}) => {
+  const [playerTurn, setPlayerTurn] = useState(null);
 
   const clickHandle = (event, gridIndex, line, column) => {
-    event.target.className = "cell clicked";
-    console.log(`[Cell Click] grid:${gridIndex}, cell(${line},${column})`);
+    switch (playerTurn) {
+      case player1Name:
+        console.log(
+          `Player 1 clicked [grid:${gridIndex}, cell(${line},${column})]`
+        );
+        event.target.className = "cell playX";
+        setPlayerTurn(player2Name);
+        break;
+      case player2Name:
+        console.log(
+          `Player 2 clicked [grid:${gridIndex}, cell(${line},${column})]`
+        );
+        event.target.className = "cell playO";
+        setPlayerTurn(player1Name);
+        break;
+      case "computer":
+        console.log(
+          `Computer played [grid:${gridIndex}, cell(${line},${column})]`
+        );
+        event.target.className = "cell playO";
+        setPlayerTurn(player1Name);
+        break;
+      default:
+        console.log(`Error clickHandle event`);
+    }
   };
 
   const buildGrids = () => {
@@ -32,7 +52,7 @@ const GamePanel = ({ showGrid }) => {
     // Each cell has a click event, where the cell index is sent
     // to a separate function to handle click events
     return (
-      <div className="box">
+      <div key={i} className="box">
         <div
           className="cell"
           onClick={(event) => clickHandle(event, i, 0, 0)}
@@ -72,6 +92,11 @@ const GamePanel = ({ showGrid }) => {
       </div>
     );
   };
+
+  useEffect(() => {
+    if (playerTurn == null) setPlayerTurn(firstPlay);
+  });
+
   return <>{showGrid && <div className="grid-wrapper">{buildGrids()}</div>}</>;
 };
 
