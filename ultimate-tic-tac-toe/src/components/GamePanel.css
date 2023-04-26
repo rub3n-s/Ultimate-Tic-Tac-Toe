@@ -1,9 +1,9 @@
 .grid-wrapper {
   display: grid;
   grid-gap: 10px;
-  grid-template-columns: repeat(3, [col] auto ) ;
-  grid-template-rows: repeat(3, [row] auto  );
-  margin:2.25em auto;
+  grid-template-columns: repeat(3, [col] auto);
+  grid-template-rows: repeat(3, [row] auto);
+  margin: 2.25em auto;
   width: fit-content;
   height: fit-content;
   /* position: absolute;
@@ -14,8 +14,8 @@
 
 .box {
   display: grid;
-  grid-template-columns: repeat(3, [col] 42.5px ) ;
-  grid-template-rows: repeat(3, [row] 42.5px  );
+  grid-template-columns: repeat(3, [col] 42.5px);
+  grid-template-rows: repeat(3, [row] 42.5px);
   background-color: #444;
   color: #fff;
   border-radius: 5px;
@@ -25,12 +25,12 @@
 }
 
 .cell {
-  width:90%;
-  height:90%;
+  width: 90%;
+  height: 90%;
   background-color: #ccc;
   color: #444;
   margin: auto;
-  border-radius: .5em;
+  border-radius: 0.5em;
 }
 
 .cell:hover {
@@ -43,13 +43,29 @@
 }
 
 .playX {
-  background: url('../../public/x.png') no-repeat center;
+  background: url("../../public/x.png") no-repeat center;
   background-size: 2em;
   background-color: #ccc;
+  transition: ease-out 0.3s;
+  transform: rotate(180deg);
 }
 
 .playO {
-  background: url('../../public/o.png') no-repeat center;
+  background: url("../../public/o.png") no-repeat center;
   background-size: 3.5em;
   background-color: #ccc;
+  transition: ease-out 0.3s;
+  transform: rotate(180deg);
+}
+
+.winX {
+  background-color: rgba(223, 69, 69, 0.72);
+}
+
+.winO {
+  background-color: rgba(69, 95, 223, 0.72);
+}
+
+.disabled {
+  background-color: #0000006f;
 }
