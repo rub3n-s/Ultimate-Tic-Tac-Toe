@@ -17,6 +17,8 @@ const GamePanel = ({
 }) => {
   const [playerTurn, setPlayerTurn] = useState(null);
   const grids = useRef(null);
+  const [player1Points, setPlayer1Points] = useState(0);
+  const [player2Points, setPlayer2Points] = useState(0);
 
   const clickHandle = (event, gridIndex, line, column) => {
     // Verifies if the element (cell) already has been clicked
@@ -87,7 +89,7 @@ const GamePanel = ({
         // (2,0)=6 (2,1)=7 (2,2)=8
 
         //============================================================
-        //                    Verify 'X' Win
+        //                    Verify 'X' Win  (Player 1)
         //============================================================
         // Vertically, Horizontally and Diagonal validation
         if (
@@ -101,11 +103,14 @@ const GamePanel = ({
           // add a class to disable the click event on the cells
           for (let child of children) child.classList.add("disabled");
 
+          // Update Player 2 points
+          setPlayer1Points(player1Points + 1);
+
           return;
         }
 
         //============================================================
-        //                    Verify 'O' Win
+        //                    Verify 'O' Win  (Player2 or Computer)
         //============================================================
         // Vertically, Horizontally and Diagonal validation
         if (
@@ -119,6 +124,8 @@ const GamePanel = ({
           // add a class to disable the click event on the cells
           for (let child of children) child.classList.add("disabled");
 
+          // Update Player 2 points
+          setPlayer2Points(player2Points + 1);
           return;
         }
       }
@@ -260,26 +267,20 @@ const GamePanel = ({
   });
 
   const buildPlayersInfo = () => {
-    switch (gameMode) {
-      case "pvc":
-        return (
-          <div className="playersInfo">
-            <p>Points</p>
-            <p>[Player 1] {player1Name}: </p>
-            <p>Computer: </p>
-          </div>
-        );
-        break;
-      case "pvp":
-        return (
-          <div className="playersInfo">
-            <p>Points</p>
-            <p>[Player 1] {player1Name}: </p>
-            <p>[Player 2] {player1Name}: </p>
-          </div>
-        );
-        break;
-    }
+    return (
+      <div className="playersInfo">
+        <p>Points</p>
+        <p>
+          [Player 1] {player1Name}: {player1Points}
+        </p>
+        {gameMode == "pvc" && <p>Computer: {player2Points}</p>}
+        {gameMode == "pvp" && (
+          <p>
+            [Player 2] {player1Name}: {player2Points}
+          </p>
+        )}
+      </div>
+    );
   };
 
   return (
