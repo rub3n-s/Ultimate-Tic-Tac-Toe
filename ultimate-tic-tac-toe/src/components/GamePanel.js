@@ -97,7 +97,15 @@ const GamePanel = ({
     if (playerTurn == null) setPlayerTurn(firstPlay);
   });
 
-  return <>{showGrid && <div className="grid-wrapper">{buildGrids()}</div>}</>;
+  return (
+    <>
+      {showGrid && (
+        <main>
+          <div className="grid-wrapper">{buildGrids()}</div>
+        </main>
+      )}
+    </>
+  );
 };
 
 export default GamePanel;

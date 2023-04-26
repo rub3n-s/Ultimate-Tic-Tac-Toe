@@ -1,39 +1,39 @@
 /*================== Footer ==================*/
 footer {
-    position:fixed;
-    width: 100%;
-    bottom: 0;
-    margin: 0;
-    text-align: center;
-    background-color: rgb(137, 255, 172);
-    color: #444444;
+  clear: both;
+  position: relative;
+  width: 100%;
+  text-align: center;
+  background-color: rgb(137, 255, 172);
+  color: #444444;
+  height: 155px;
+}
+
+footer p {
+  margin: 0.5em;
+}
+
+footer p:first-child {
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+footer p:nth-child(2) {
+  font-size: 0.9em;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+@media (min-width: 550px) {
+  footer {
+    padding-right: 1em;
+    text-align: right;
+    right: 0;
   }
-  
-  footer p {
-    margin: 0.5em;
-  }
-  
+
   footer p:first-child {
+    font-size: large;
     text-transform: uppercase;
     font-weight: 900;
   }
-  
-  footer p:nth-child(2) {
-    font-size: .9em;
-    text-transform: uppercase;
-    font-weight: 900;
-  }
-  
-  @media (min-width: 550px) {
-    footer {
-        padding-right: 1em;
-        text-align: right;
-        right: 0;
-    }
-    
-    footer p:first-child {
-        font-size: large;
-        text-transform: uppercase;
-        font-weight: 900;
-    }
-  }
+}

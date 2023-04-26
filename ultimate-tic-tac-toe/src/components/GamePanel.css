@@ -6,6 +6,11 @@
   margin:2.25em auto;
   width: fit-content;
   height: fit-content;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* bring your own prefixes */
+  transform: translate(-50%, -50%);
 }
 
 .box {
@@ -21,8 +26,8 @@
 }
 
 .cell {
-  width:40px;
-  height:40px;
+  width:90%;
+  height:90%;
   background-color: #ccc;
   color: #444;
   margin: auto;

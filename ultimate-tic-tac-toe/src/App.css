@@ -10,16 +10,30 @@
 
 html, body {
     margin: 0;
-    height: 100%;
-    overflow: hidden;
+    min-height: 760px;
 }
+
 html {
     font-size: 16px;
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    overflow: auto;
 }
 
 body {
+    display: flex;
+    flex-direction: column;
     font-family: "Open Sans", sans-serif;
     background-color: #f7f7f7;
+    overflow: hidden;
+
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    flex-wrap: nowrap;
+    align-content: space-around;
+    justify-content: space-between;
 }
