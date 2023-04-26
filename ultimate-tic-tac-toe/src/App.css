@@ -32,8 +32,9 @@ body {
 #root {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
     flex-wrap: nowrap;
     align-content: space-around;
     justify-content: space-between;
+    height: 100vh;
+    min-height: 760px;
 }

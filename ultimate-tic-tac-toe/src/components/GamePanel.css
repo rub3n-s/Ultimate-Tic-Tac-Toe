@@ -6,11 +6,10 @@
   margin:2.25em auto;
   width: fit-content;
   height: fit-content;
-  position: absolute;
+  /* position: absolute;
   top: 50%;
   left: 50%;
-  /* bring your own prefixes */
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); */
 }
 
 .box {
