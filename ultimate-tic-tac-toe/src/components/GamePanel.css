@@ -18,6 +18,7 @@
   margin: auto;
   padding: 0.2em;
   align-items: center;
+  transition: 1s;
 }
 
 .cell {
