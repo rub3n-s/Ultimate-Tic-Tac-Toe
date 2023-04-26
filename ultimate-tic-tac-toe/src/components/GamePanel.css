@@ -1,15 +1,11 @@
 .grid-wrapper {
   display: grid;
   grid-gap: 10px;
-  grid-template-columns: repeat(3, [col] auto);
-  grid-template-rows: repeat(3, [row] auto);
-  margin: 2.25em auto;
+  grid-template-columns: repeat(3, [col] 1fr);
+  grid-template-rows: repeat(3, [row] 1fr);
+  margin: auto 2em;
   width: fit-content;
   height: fit-content;
-  /* position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); */
 }
 
 .box {
@@ -68,4 +64,59 @@
 
 .disabled {
   background-color: #0000006f;
+}
+
+.filler {
+  width: 33%;
+}
+
+.playersInfo {
+  width: 33%;
+}
+
+.playersInfo p:first-child {
+  font-weight: 900;
+  font-size: larger;
+}
+
+main {
+  display: flex;
+  flex-direction: row;
+}
+
+/*=================== 
+    Media Queries 
+===================*/
+@media (max-width: 750px) {
+  .box {
+    grid-template-columns: repeat(3, [col] 35px);
+    grid-template-rows: repeat(3, [row] 35px);
+    transition: 1s;
+  }
+}
+
+@media (max-width: 680px) {
+  main {
+    flex-direction: column;
+    justify-content: center;
+    margin: auto;
+  }
+
+  .box {
+    grid-template-columns: repeat(3, [col] 32.5px);
+    grid-template-rows: repeat(3, [row] 32.5px);
+    transition: 1s;
+  }
+
+  .playersInfo {
+    margin: auto 2em;
+  }
+
+  .playersInfo p {
+    font-size: 1em;
+  }
+
+  .playersInfo p:first-child {
+    font-size: 1.1em;
+  }
 }

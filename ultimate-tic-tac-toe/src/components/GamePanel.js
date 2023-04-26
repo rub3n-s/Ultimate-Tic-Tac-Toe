@@ -259,13 +259,38 @@ const GamePanel = ({
     if (playerTurn == null) setPlayerTurn(firstPlay);
   });
 
+  const buildPlayersInfo = () => {
+    switch (gameMode) {
+      case "pvc":
+        return (
+          <div className="playersInfo">
+            <p>Points</p>
+            <p>[Player 1] {player1Name}: </p>
+            <p>Computer: </p>
+          </div>
+        );
+        break;
+      case "pvp":
+        return (
+          <div className="playersInfo">
+            <p>Points</p>
+            <p>[Player 1] {player1Name}: </p>
+            <p>[Player 2] {player1Name}: </p>
+          </div>
+        );
+        break;
+    }
+  };
+
   return (
     <>
       {showGrid && (
         <main>
+          <div className="filler"></div>
           <div className="grid-wrapper" ref={grids}>
             {buildGrids()}
           </div>
+          {buildPlayersInfo()}
         </main>
       )}
     </>
