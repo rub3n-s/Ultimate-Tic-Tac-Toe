@@ -75,6 +75,10 @@
   width: 33%;
 }
 
+.playersInfo p {
+  transition: 1s;
+}
+
 .playersInfo .title {
   font-weight: 900;
   font-size: larger;
@@ -88,11 +92,25 @@ main {
 /*=================== 
     Media Queries 
 ===================*/
+@media (max-width: 850px) {
+  .box {
+    grid-template-columns: repeat(3, [col] 37px);
+    grid-template-rows: repeat(3, [row] 37px);
+  }
+
+  .X {
+    background-size: 1.75em;
+  }
+
+  .O {
+    background-size: 3.3em;
+  }
+}
+
 @media (max-width: 750px) {
   .box {
     grid-template-columns: repeat(3, [col] 35px);
     grid-template-rows: repeat(3, [row] 35px);
-    transition: 1s;
   }
 
   .X {
@@ -102,9 +120,17 @@ main {
   .O {
     background-size: 3em;
   }
+
+  .playersInfo p {
+    font-size: .9em;
+  }
+
+  .playersInfo .title {
+    font-size: 1.1em;
+  }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 700px) {
   main {
     flex-direction: column;
     justify-content: center;
@@ -112,8 +138,8 @@ main {
   }
 
   .box {
-    grid-template-columns: repeat(3, [col] 32.5px);
-    grid-template-rows: repeat(3, [row] 32.5px);
+    grid-template-columns: repeat(3, [col] 38px);
+    grid-template-rows: repeat(3, [row] 38px);
     transition: 1s;
   }
 
@@ -124,21 +150,13 @@ main {
   }
 
   .playersInfo p {
-    font-size: 1em;
+    font-size: .9em;
   }
 
   .playersInfo .title {
     font-size: 1.1em;
   }
-
-  .X {
-    background-size: 1.4em;
-  }
-
-  .O {
-    background-size: 2.6em;
-  }
-
+  
   .container {
     width: 100%;
     height: 100%;
@@ -147,6 +165,26 @@ main {
   }
 
   .grid-wrapper {
+    margin: auto;
+  }
+}
+
+@media (max-width: 550px) {
+  .box {
+    grid-template-columns: repeat(3, [col] 35px);
+    grid-template-rows: repeat(3, [row] 35px);
+  }
+
+  .playersInfo p {
+    font-size: .9em;
+  }
+
+  .playersInfo .title {
+    font-size: 1.1em;
+  }  
+  
+  .playersInfo {
+    width: 90%;
     margin: auto;
   }
 }
