@@ -51,46 +51,40 @@
   margin-bottom: 5px;
 }
 
-#modal-playersName {
+#modal-generic {
     display: block;
 }
 
-#modal-playersName header,
-#modal-playersName footer {
+#modal-generic header,
+#modal-generic footer {
   background-color: rgb(137, 255, 172);
   color: #444444;
 }
 
-#modal-playersName .styles {
+#modal-generic .styles {
   border: 3px solid var(--gameOverColor);
   background-color: var(--gameOverColor);
 }
 
-#modal-playersName .styles .info {
+#modal-generic .styles .info {
   background-color: white;
 }
 
-#modal-playersName .info,
-#modal-playersName .info-button {
+#modal-generic .info,
+#modal-generic .info-button {
   padding: 10px;
   text-align: center;
   font-weight: bolder;
   background-color: white;
 }
 
-#modal-playersName .info-button {
+#modal-generic .info-button {
   border-bottom-left-radius: 0.5em;
   border-bottom-right-radius: 0.5em;
 }
 
-#modal-playersName .info-button button {
+#modal-generic .info-button button {
   cursor: pointer;
-}
-
-#modal-playersName #nickname1,
-#modal-playersName #nickname2 {
-  font-weight: lighter;
-  font-size: smaller;
 }
 
 .invalid-input {

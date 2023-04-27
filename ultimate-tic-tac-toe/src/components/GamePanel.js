@@ -1,12 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import "./GamePanel.css";
-
-// ======================================================
-//  TODO
-//    When a player wins disable the click event
-//      on that grid
-//
-// ======================================================
+import Modal from "./Modal.js";
 
 const GamePanel = ({
   showGrid,
@@ -17,8 +11,14 @@ const GamePanel = ({
 }) => {
   const [playerTurn, setPlayerTurn] = useState(null);
   const grids = useRef(null);
-  const [player1Points, setPlayer1Points] = useState(0);
-  const [player2Points, setPlayer2Points] = useState(0);
+  const [player1PointsState, setPlayer1PointsState] = useState(0);
+  const [player2PointsState, setPlayer2PointsState] = useState(0);
+
+  let player1Points = 0;
+  let player2Points = 0;
+
+  const [open, setOpen] = useState(false);
+  const [info, setInfo] = useState(null);
 
   const clickHandle = (event, gridIndex, line, column) => {
     // Verifies if the element (cell) already has been clicked
@@ -55,6 +55,36 @@ const GamePanel = ({
 
     // After every click check if someone wins
     checkWin();
+
+    // Verify if all the grids are disabled
+    if (checkGameEnded()) {
+      // Check who has more points
+      if (player1Points > player2Points) {
+        setInfo(
+          <div className="info">
+            Player '{player1Name}' wins with {player2Points} points
+          </div>
+        );
+        console.log(
+          `Player '${player1Name}' wins with ${player1Points} points!`
+        );
+      } else if (player2Points > player1Points) {
+        setInfo(
+          <div className="info">
+            Player '{player2Name}' wins with {player2Points} points
+          </div>
+        );
+        console.log(
+          `Player '${player2Name}' wins with ${player2Points} points!`
+        );
+      } else {
+        setInfo(`There was a draw!`);
+        console.log(`There was a draw!`);
+      }
+
+      // Open Modal Window
+      setOpen(true);
+    }
   };
 
   const buildGrids = () => {
@@ -104,8 +134,8 @@ const GamePanel = ({
           for (let child of children) child.classList.add("disabled");
 
           // Update Player 2 points
-          setPlayer1Points(player1Points + 1);
-
+          player1Points++;
+          setPlayer1PointsState(player1Points);
           return;
         }
 
@@ -125,7 +155,8 @@ const GamePanel = ({
           for (let child of children) child.classList.add("disabled");
 
           // Update Player 2 points
-          setPlayer2Points(player2Points + 1);
+          player2Points++;
+          setPlayer2PointsState(player2Points);
           return;
         }
       }
@@ -214,6 +245,14 @@ const GamePanel = ({
     else return false;
   };
 
+  const checkGameEnded = () => {
+    //if (!grid.classList.contains("disabled")) return false;
+    for (let grid of grids.current.children)
+      if (grid.classList.contains("winO") || grid.classList.contains("winX"))
+        return true;
+    return false;
+  };
+
   const gameGrid = (i) => {
     // This function receives the grid index
     // Each cell has a click event, where the cell index is sent
@@ -262,26 +301,34 @@ const GamePanel = ({
     return element;
   };
 
-  useEffect(() => {
-    if (playerTurn == null) setPlayerTurn(firstPlay);
-  });
+  const reset = () => {
+    console.log("Reseting game...");
+  };
 
   const buildPlayersInfo = () => {
     return (
       <div className="playersInfo">
         <p>Points</p>
         <p>
-          [Player 1] {player1Name}: {player1Points}
+          [Player 1] {player1Name}: {player1PointsState}
         </p>
-        {gameMode == "pvc" && <p>Computer: {player2Points}</p>}
+        {gameMode == "pvc" && <p>Computer: {player2PointsState}</p>}
         {gameMode == "pvp" && (
           <p>
-            [Player 2] {player1Name}: {player2Points}
+            [Player 2] {player1Name}: {player2PointsState}
           </p>
         )}
       </div>
     );
   };
+
+  const handleClose = () => setOpen(false);
+
+  // After every render of the component useEffect updates who makes the first play
+  // The firstPlay parameter comes from App.js
+  useEffect(() => {
+    if (playerTurn == null) setPlayerTurn(firstPlay);
+  });
 
   return (
     <>
@@ -292,6 +339,12 @@ const GamePanel = ({
             {buildGrids()}
           </div>
           {buildPlayersInfo()}
+          <Modal
+            open={open}
+            title={"Game Ended"}
+            info={info}
+            onHide={handleClose}
+          />
         </main>
       )}
     </>
