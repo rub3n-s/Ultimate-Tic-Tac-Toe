@@ -94,6 +94,14 @@ main {
     grid-template-rows: repeat(3, [row] 35px);
     transition: 1s;
   }
+
+  .playX {
+    background-size: 1.65em;
+  }
+
+  .playO {
+    background-size: 3em;
+  }
 }
 
 @media (max-width: 680px) {
@@ -119,5 +127,13 @@ main {
 
   .playersInfo p:first-child {
     font-size: 1.1em;
+  }
+
+  .playX {
+    background-size: 1.4em;
+  }
+
+  .playO {
+    background-size: 2.6em;
   }
 }
