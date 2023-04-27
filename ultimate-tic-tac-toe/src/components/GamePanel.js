@@ -328,12 +328,9 @@ const GamePanel = ({
         <p>
           [Player 1] {player1Name}: {player1PointsState}
         </p>
-        {gameMode == "pvc" && <p>Computer: {player2PointsState}</p>}
-        {gameMode == "pvp" && (
-          <p>
-            [Player 2] {player1Name}: {player2PointsState}
-          </p>
-        )}
+        <p>
+          [Player 2] {player2Name}: {player2PointsState}
+        </p>
       </div>
     );
   };
