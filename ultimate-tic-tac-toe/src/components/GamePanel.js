@@ -2,21 +2,48 @@ import { useState, useRef, useEffect } from "react";
 import "./GamePanel.css";
 import Modal from "./Modal.js";
 
-const GamePanel = ({
-  showGrid,
-  gameMode,
-  firstPlay,
-  player1Name,
-  player2Name,
-}) => {
-  let player1Points = 0;
-  let player2Points = 0;
-  const [playerTurn, setPlayerTurn] = useState(null);
+const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
+  const player1 = player1Name;
+  const player2 = player2Name;
   const grids = useRef(null);
-  const [player1PointsState, setPlayer1PointsState] = useState(0);
-  const [player2PointsState, setPlayer2PointsState] = useState(0);
+
+  const [playerTurnState, setPlayerTurnState] = useState(null);
+  const [player1Info, setPlayer1Info] = useState(null);
+  const [player2Info, setPlayer2Info] = useState(null);
+  const [turnInfo, setTurnInfo] = useState(null);
   const [open, setOpen] = useState(false);
   const [info, setInfo] = useState(null);
+
+  const handleQuitRequest = () => {
+    setPlayerTurnState(null);
+    setPlayer1Info(null);
+    setPlayer2Info(null);
+    setTurnInfo(null);
+    setOpen(false);
+    setInfo(null);
+    handleCloseGrid();
+  }
+
+  const setPlayerTurn = () => {
+    switch (playerTurnState.name) {
+      case player1:
+        setTurnInfo(
+          <>
+            <p>Player: {player2Info.name}</p>
+            <p>Symbol: {player2Info.symbol}</p>
+          </>
+        );
+        return player2Info;
+      case player2:
+        setTurnInfo(
+          <>
+            <p>Player: {player1Info.name}</p>
+            <p>Symbol: {player1Info.symbol}</p>
+          </>
+        );
+        return player1Info;
+    }
+  };
 
   const clickHandle = (event, gridIndex, line, column) => {
     // Verifies if the element (cell) already has been clicked
@@ -25,31 +52,16 @@ const GamePanel = ({
       return;
     }
 
-    switch (playerTurn) {
-      case player1Name:
-        console.log(
-          `Player 1 clicked [grid:${gridIndex}, cell(${line},${column})]`
-        );
-        event.target.className = "cell playX";
-        setPlayerTurn(player2Name);
-        break;
-      case player2Name:
-        console.log(
-          `Player 2 clicked [grid:${gridIndex}, cell(${line},${column})]`
-        );
-        event.target.className = "cell playO";
-        setPlayerTurn(player1Name);
-        break;
-      case "computer":
-        console.log(
-          `Computer played [grid:${gridIndex}, cell(${line},${column})]`
-        );
-        event.target.className = "cell playO";
-        setPlayerTurn(player1Name);
-        break;
-      default:
-        console.log(`Error clickHandle event`);
-    }
+    console.log("[Click Event]", playerTurnState);
+    console.log(
+      `Player '${playerTurnState.name}', Symbol '${playerTurnState.symbol}' clicked Grid:${gridIndex}, Cell(${line},${column})`
+    );
+
+    // Set the css class with the image to the clicked cell
+    event.target.className = `cell ${playerTurnState.symbol}`;
+
+    // Update the next player to play
+    setPlayerTurnState(setPlayerTurn());
 
     // After every click check if someone wins
     checkWin();
@@ -57,40 +69,61 @@ const GamePanel = ({
     // Verify if all the grids are disabled
     if (checkGameEnded()) {
       // Check who has more points
-      if (player1Points > player2Points) {
+      if (player1Info.points > player2Info.points) {
+        // Update Player Rounds Won
+        setPlayer1Info({
+          name: player1Info.name,
+          symbol: player1Info.symbol,
+          points: player1Info.points,
+          roundsWon: ++player1Info.roundsWon,
+        });
+        // Update info to show on modal window
         setInfo(
           <>
             <div className="info">
-              Player '{player1Name}' wins with {player2Points} points
+              Player '{player1Info.name}' wins with {player1Info.points} points
             </div>
             <div className="info-button">
-              <button onClick={reset}>Ok</button>
+              <button onClick={reset}>Play Again</button>
+              <button onClick={handleQuitRequest}>Quit</button>
             </div>
           </>
         );
         console.log(
-          `Player '${player1Name}' wins with ${player1Points} points!`
+          `Player '${player1Info.name}' wins with ${player1Info.points} points!`
         );
-      } else if (player2Points > player1Points) {
+      } else if (player2Info.points > player1Info.points) {
+        // Update Player Rounds Won
+        setPlayer2Info({
+          name: player2Info.name,
+          symbol: player2Info.symbol,
+          points: player2Info.points,
+          roundsWon: ++player2Info.roundsWon,
+        });
+
+        // Update info to show on modal window
         setInfo(
           <>
             <div className="info">
-              Player '{player2Name}' wins with {player2Points} points
+              Player '{player2Info.name}' wins with {player2Info.points} points
             </div>
             <div className="info-button">
-              <button onClick={reset}>Ok</button>
+              <button onClick={reset}>Play Again</button>
+              <button onClick={handleQuitRequest}>Quit</button>
             </div>
           </>
         );
         console.log(
-          `Player '${player2Name}' wins with ${player2Points} points!`
+          `Player '${player2Info.name}' wins with ${player2Info.points} points!`
         );
       } else {
+        // Update info to show on modal window
         setInfo(
           <>
-            <div className="info">`There was a draw!`</div>
+            <div className="info">There was a draw!</div>
             <div className="info-button">
-              <button onClick={reset}>Ok</button>
+              <button onClick={reset}>Play Again</button>
+              <button onClick={handleQuitRequest}>Quit</button>
             </div>
           </>
         );
@@ -111,8 +144,8 @@ const GamePanel = ({
 
   const containsClass = (element) => {
     return (
-      element.classList.contains("playX") ||
-      element.classList.contains("playO") ||
+      element.classList.contains("X") ||
+      element.classList.contains("O") ||
       element.classList.contains("disabled")
     );
   };
@@ -134,13 +167,13 @@ const GamePanel = ({
         // (2,0)=6 (2,1)=7 (2,2)=8
 
         //============================================================
-        //                    Verify 'X' Win  (Player 1)
+        //                    Verify Player 1 Win
         //============================================================
         // Vertically, Horizontally and Diagonal validation
         if (
-          checkColumn(children, "playX") ||
-          checkLine(children, "playX") ||
-          checkDiagonal(children, "playX")
+          checkColumn(children, player1Info.symbol) ||
+          checkLine(children, player1Info.symbol) ||
+          checkDiagonal(children, player1Info.symbol)
         ) {
           // 'X' wins this grid
           grid.classList.add("winX");
@@ -148,20 +181,24 @@ const GamePanel = ({
           // add a class to disable the click event on the cells
           for (let child of children) child.classList.add("disabled");
 
-          // Update Player 2 points
-          player1Points++;
-          setPlayer1PointsState(player1Points);
+          // Update Player 1 points
+          setPlayer1Info({
+            name: player1Info.name,
+            symbol: player1Info.symbol,
+            points: ++player1Info.points,
+            roundsWon: player1Info.roundsWon,
+          });
           return;
         }
 
         //============================================================
-        //                    Verify 'O' Win  (Player2 or Computer)
+        //                  Verify Player 2 Win
         //============================================================
         // Vertically, Horizontally and Diagonal validation
         if (
-          checkColumn(children, "playO") ||
-          checkLine(children, "playO") ||
-          checkDiagonal(children, "playO")
+          checkColumn(children, player2Info.symbol) ||
+          checkLine(children, player2Info.symbol) ||
+          checkDiagonal(children, player2Info.symbol)
         ) {
           // 'X' wins this grid
           grid.classList.add("winO");
@@ -170,8 +207,12 @@ const GamePanel = ({
           for (let child of children) child.classList.add("disabled");
 
           // Update Player 2 points
-          player2Points++;
-          setPlayer2PointsState(player2Points);
+          setPlayer2Info({
+            name: player2Info.name,
+            symbol: player2Info.symbol,
+            points: ++player2Info.points,
+            roundsWon: player2Info.roundsWon,
+          });
           return;
         }
       }
@@ -260,8 +301,9 @@ const GamePanel = ({
     else return false;
   };
 
+  //  TODO
+  //    Verifies if all the grids have a winner
   const checkGameEnded = () => {
-    //if (!grid.classList.contains("disabled")) return false;
     for (let grid of grids.current.children)
       if (grid.classList.contains("winO") || grid.classList.contains("winX"))
         return true;
@@ -319,18 +361,70 @@ const GamePanel = ({
   const reset = () => {
     console.log("Reseting game...");
     setOpen(false);
+
+    // Reset Player's 1 Points and Symbol
+    setPlayer1Info({
+      name: player1Info.name,
+      symbol: player1Info.symbol,
+      points: 0,
+      roundsWon: player1Info.roundsWon,
+    });
+
+    // Reset Player's 2 Points and Symbol
+    setPlayer2Info({
+      name: player2Info.name,
+      symbol: player2Info.symbol,
+      points: 0,
+      roundsWon: player2Info.roundsWon,
+    });
+
+    // Clear grid and cells classes
+    for (let grid of grids.current.children) {
+      grid.classList.remove("winO");
+      grid.classList.remove("winX");
+
+      // remove class to disable the click event on the cells
+      for (let child of grid.children) {
+        child.classList.remove("disabled");
+        child.classList.remove("O");
+        child.classList.remove("X");
+      }
+    }
   };
 
   const buildPlayersInfo = () => {
     return (
       <div className="playersInfo">
-        <p>Points</p>
-        <p>
-          [Player 1] {player1Name}: {player1PointsState}
-        </p>
-        <p>
-          [Player 2] {player2Name}: {player2PointsState}
-        </p>
+        <div className="container">
+          <p className="title">Points</p>
+          {player1Info != null && player2Info != null && (
+            <>
+              <p>
+                [Player 1] {player1}: {player1Info.points}
+              </p>
+              <p>
+                [Player 2] {player2}: {player2Info.points}
+              </p>
+            </>
+          )}
+        </div>
+        <div className="container">
+          <p className="title">Turn</p>
+          {turnInfo != null && turnInfo}
+        </div>
+        <div className="container">
+          <p className="title">Rounds Won</p>
+          {player1Info != null && player2Info != null && (
+            <>
+              <p>
+                [Player 1] {player1}: {player1Info.roundsWon}
+              </p>
+              <p>
+                [Player 2] {player2}: {player2Info.roundsWon}
+              </p>
+            </>
+          )}
+        </div>
       </div>
     );
   };
@@ -338,7 +432,64 @@ const GamePanel = ({
   // After every render of the component useEffect updates who makes the first play
   // The firstPlay parameter comes from App.js
   useEffect(() => {
-    if (playerTurn == null) setPlayerTurn(firstPlay);
+    // Set the first player name and symbol
+    if (showGrid && player1Info == null && player2Info == null) {
+      // Get the random symbol between 'O' and 'X'
+      let symbolTmp, firstPlay, playerTurn;
+      Math.random() < 0.5 ? (symbolTmp = "X") : (symbolTmp = "O");
+      Math.random() < 0.5 ? (firstPlay = player1) : (firstPlay = player2);
+
+      // Build first player structure
+      let player1TmpStruct = {
+        name: player1,
+        symbol: symbolTmp,
+        points: 0,
+        roundsWon: 0,
+      };
+
+      // Compare symbol of the first player and build second player structure
+      let player2Symbol;
+      switch (symbolTmp) {
+        case "O":
+          player2Symbol = "X";
+          break;
+        case "X":
+          player2Symbol = "O";
+          break;
+      }
+
+      let player2TmpStruct = {
+        name: player2,
+        symbol: player2Symbol,
+        points: 0,
+        roundsWon: 0,
+      };
+
+      // Set the structures in different states
+      setPlayer1Info(player1TmpStruct);
+      setPlayer2Info(player2TmpStruct);
+
+      // Check who plays first and whats symbol is assigned to him
+      // Based on that info, create a structure for each player
+      switch (firstPlay) {
+        case player1:
+          playerTurn = player1TmpStruct;
+          break;
+        case player2:
+          playerTurn = player2TmpStruct;
+          break;
+      }
+
+      console.log("[FIRST PLAY]", playerTurn);
+      setTurnInfo(
+        <>
+          <p>Player: {playerTurn.name}</p>
+          <p>Symbol: {playerTurn.symbol}</p>
+        </>
+      );
+
+      setPlayerTurnState(playerTurn);
+    }
   });
 
   return (
@@ -350,12 +501,7 @@ const GamePanel = ({
             {buildGrids()}
           </div>
           {buildPlayersInfo()}
-          <Modal
-            open={open}
-            title={"Game Ended"}
-            info={info}
-            onHide={reset}
-          />
+          <Modal open={open} title={"Game Ended"} info={info} onHide={reset} />
         </main>
       )}
     </>

@@ -17,7 +17,6 @@ function App() {
   const [gameMode, setGameMode] = useState(null);
   const [player1Name, setPlayer1Name] = useState(null);
   const [player2Name, setPlayer2Name] = useState(null);
-  const [firstPlay, setFirstPlay] = useState(null);
   const [info, setInfo] = useState(null);
 
   // Function that opens a modal based on the game mode selected
@@ -91,49 +90,37 @@ function App() {
       case "pvc":
         if (player1NameTmp == "") {
           // Change input background-color
-        } else {
-          // Randomize who plays first
-          Math.random() < 0.5 ? firstPlayTmp = player1NameTmp : firstPlayTmp = player2NameTmp;
-          console.log(`Player '${firstPlayTmp}' plays first`);
-
-          // Change states to replace the components visibility
-          handleClose();
-          setShowGameMode(false);
-          setShowGrid(true);
-
-          // Set the states
-          setPlayer1Name(player1NameTmp);
-          setPlayer2Name(player2NameTmp);
-          setFirstPlay(firstPlayTmp);
-          setGameMode(gameModeTmp);
+          return;
         }
         break;
       case "pvp":
         if (player1NameTmp == "") {
           // Change input background-color
+          return;
         } else if (player2NameTmp == "") {
           // Change input background-color
-        } else {
-          // Randomize who plays first
-          Math.random() < 0.5 ? firstPlayTmp = player1NameTmp : firstPlayTmp = player2NameTmp;
-          console.log(`Player '${firstPlayTmp}' plays first`);
-
-          // Change states to replace the components visibility
-          handleClose();
-          setShowGameMode(false);
-          setShowGrid(true);
-
-          // Set the states
-          setPlayer1Name(player1NameTmp);
-          setPlayer2Name(player2NameTmp);
-          setFirstPlay(firstPlayTmp);
-          setGameMode(gameModeTmp);
+          return;
         }
         break;
     }
+
+    // Change states to replace the components visibility
+    handleClose();
+    setShowGameMode(false);
+    setShowGrid(true);
+
+    // Set the states
+    setPlayer1Name(player1NameTmp);
+    setPlayer2Name(player2NameTmp);
+    setGameMode(gameModeTmp);
   };
 
   const handleClose = () => setOpen(false);
+
+  const handleCloseGrid = () => {
+    setShowGrid(false);
+    setShowGameMode(true);
+  };
 
   return (
     <>
@@ -145,10 +132,10 @@ function App() {
 
       <GamePanel
         showGrid={showGrid}
+        handleCloseGrid={handleCloseGrid}
         gameMode={gameMode}
         player1Name={player1Name}
         player2Name={player2Name}
-        firstPlay={firstPlay}
       />
 
       <Modal
