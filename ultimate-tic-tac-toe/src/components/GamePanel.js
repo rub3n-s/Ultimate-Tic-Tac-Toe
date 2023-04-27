@@ -335,8 +335,6 @@ const GamePanel = ({
     );
   };
 
-  const handleClose = () => setOpen(false);
-
   // After every render of the component useEffect updates who makes the first play
   // The firstPlay parameter comes from App.js
   useEffect(() => {
@@ -356,7 +354,7 @@ const GamePanel = ({
             open={open}
             title={"Game Ended"}
             info={info}
-            onHide={handleClose}
+            onHide={reset}
           />
         </main>
       )}
