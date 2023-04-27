@@ -416,7 +416,7 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
     return (
       <div className="playersInfo">
         <div className="container">
-          <p className="title">Points</p>
+          <p className="title">Tables Completed</p>
           {player1Info != null && player2Info != null && (
             <>
               <p>
