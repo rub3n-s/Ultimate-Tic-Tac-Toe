@@ -9,14 +9,12 @@ const GamePanel = ({
   player1Name,
   player2Name,
 }) => {
+  let player1Points = 0;
+  let player2Points = 0;
   const [playerTurn, setPlayerTurn] = useState(null);
   const grids = useRef(null);
   const [player1PointsState, setPlayer1PointsState] = useState(0);
   const [player2PointsState, setPlayer2PointsState] = useState(0);
-
-  let player1Points = 0;
-  let player2Points = 0;
-
   const [open, setOpen] = useState(false);
   const [info, setInfo] = useState(null);
 
@@ -61,24 +59,41 @@ const GamePanel = ({
       // Check who has more points
       if (player1Points > player2Points) {
         setInfo(
-          <div className="info">
-            Player '{player1Name}' wins with {player2Points} points
-          </div>
+          <>
+            <div className="info">
+              Player '{player1Name}' wins with {player2Points} points
+            </div>
+            <div className="info-button">
+              <button onClick={reset}>Ok</button>
+            </div>
+          </>
         );
         console.log(
           `Player '${player1Name}' wins with ${player1Points} points!`
         );
       } else if (player2Points > player1Points) {
         setInfo(
-          <div className="info">
-            Player '{player2Name}' wins with {player2Points} points
-          </div>
+          <>
+            <div className="info">
+              Player '{player2Name}' wins with {player2Points} points
+            </div>
+            <div className="info-button">
+              <button onClick={reset}>Ok</button>
+            </div>
+          </>
         );
         console.log(
           `Player '${player2Name}' wins with ${player2Points} points!`
         );
       } else {
-        setInfo(`There was a draw!`);
+        setInfo(
+          <>
+            <div className="info">`There was a draw!`</div>
+            <div className="info-button">
+              <button onClick={reset}>Ok</button>
+            </div>
+          </>
+        );
         console.log(`There was a draw!`);
       }
 
@@ -303,6 +318,7 @@ const GamePanel = ({
 
   const reset = () => {
     console.log("Reseting game...");
+    setOpen(false);
   };
 
   const buildPlayersInfo = () => {
