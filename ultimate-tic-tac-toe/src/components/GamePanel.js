@@ -22,7 +22,7 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
     setOpen(false);
     setInfo(null);
     handleCloseGrid();
-  }
+  };
 
   const setPlayerTurn = () => {
     switch (playerTurnState.name) {
@@ -30,15 +30,28 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
         setTurnInfo(
           <>
             <p>Player: {player2Info.name}</p>
-            <p>Symbol: {player2Info.symbol}</p>
+            <div className="div-symbol ">
+              <p>Symbol: </p>
+              <img
+                src={player2Info.symbolPath}
+                className={player2Info.symbol + "-mini"}
+              ></img>
+            </div>
           </>
         );
         return player2Info;
       case player2:
+        // Get the path for the image of player's 1 symbol
         setTurnInfo(
           <>
             <p>Player: {player1Info.name}</p>
-            <p>Symbol: {player1Info.symbol}</p>
+            <div className="div-symbol ">
+              <p>Symbol: </p>
+              <img
+                src={player1Info.symbolPath}
+                className={player1Info.symbol + "-mini"}
+              ></img>
+            </div>
           </>
         );
         return player1Info;
@@ -74,6 +87,7 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
         setPlayer1Info({
           name: player1Info.name,
           symbol: player1Info.symbol,
+          symbolPath: player1Info.symbolPath,
           points: player1Info.points,
           roundsWon: ++player1Info.roundsWon,
         });
@@ -97,6 +111,7 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
         setPlayer2Info({
           name: player2Info.name,
           symbol: player2Info.symbol,
+          symbolPath: player2Info.symbolPath,
           points: player2Info.points,
           roundsWon: ++player2Info.roundsWon,
         });
@@ -175,16 +190,17 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
           checkLine(children, player1Info.symbol) ||
           checkDiagonal(children, player1Info.symbol)
         ) {
-          // 'X' wins this grid
-          grid.classList.add("winX");
+          // Player 1 wins this grid
+          grid.classList.add(`win${player1Info.symbol}`);
 
-          // add a class to disable the click event on the cells
+          // Add a class to disable the click event on the cells
           for (let child of children) child.classList.add("disabled");
 
           // Update Player 1 points
           setPlayer1Info({
             name: player1Info.name,
             symbol: player1Info.symbol,
+            symbolPath: player1Info.symbolPath,
             points: ++player1Info.points,
             roundsWon: player1Info.roundsWon,
           });
@@ -200,8 +216,9 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
           checkLine(children, player2Info.symbol) ||
           checkDiagonal(children, player2Info.symbol)
         ) {
-          // 'X' wins this grid
-          grid.classList.add("winO");
+
+          // Player 1 wins this grid
+          grid.classList.add(`win${player2Info.symbol}`);
 
           // add a class to disable the click event on the cells
           for (let child of children) child.classList.add("disabled");
@@ -210,6 +227,7 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
           setPlayer2Info({
             name: player2Info.name,
             symbol: player2Info.symbol,
+            symbolPath: player2Info.symbolPath,
             points: ++player2Info.points,
             roundsWon: player2Info.roundsWon,
           });
@@ -366,6 +384,7 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
     setPlayer1Info({
       name: player1Info.name,
       symbol: player1Info.symbol,
+      symbolPath: player1Info.symbolPath,
       points: 0,
       roundsWon: player1Info.roundsWon,
     });
@@ -374,6 +393,7 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
     setPlayer2Info({
       name: player2Info.name,
       symbol: player2Info.symbol,
+      symbolPath: player2Info.symbolPath,
       points: 0,
       roundsWon: player2Info.roundsWon,
     });
@@ -439,31 +459,52 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
       Math.random() < 0.5 ? (symbolTmp = "X") : (symbolTmp = "O");
       Math.random() < 0.5 ? (firstPlay = player1) : (firstPlay = player2);
 
-      // Build first player structure
-      let player1TmpStruct = {
-        name: player1,
-        symbol: symbolTmp,
-        points: 0,
-        roundsWon: 0,
-      };
-
       // Compare symbol of the first player and build second player structure
-      let player2Symbol;
+      let player1TmpStruct, player2TmpStruct;
+
       switch (symbolTmp) {
         case "O":
-          player2Symbol = "X";
+          // Build first player structure
+          player1TmpStruct = {
+            name: player1,
+            symbol: "O",
+            symbolPath: "o.png",
+            points: 0,
+            roundsWon: 0,
+          };
+
+          // Build second player structure
+          player2TmpStruct = {
+            name: player2,
+            symbol: "X",
+            symbolPath: "x.png",
+            points: 0,
+            roundsWon: 0,
+          };
+
+          // player2Symbol = "X";
+          // symbolPath = "public/x.png";
           break;
         case "X":
-          player2Symbol = "O";
+          // Build first player structure
+          player1TmpStruct = {
+            name: player1,
+            symbol: "X",
+            symbolPath: "x.png",
+            points: 0,
+            roundsWon: 0,
+          };
+
+          // Build second player structure
+          player2TmpStruct = {
+            name: player2,
+            symbol: "O",
+            symbolPath: "o.png",
+            points: 0,
+            roundsWon: 0,
+          };
           break;
       }
-
-      let player2TmpStruct = {
-        name: player2,
-        symbol: player2Symbol,
-        points: 0,
-        roundsWon: 0,
-      };
 
       // Set the structures in different states
       setPlayer1Info(player1TmpStruct);
@@ -484,7 +525,13 @@ const GamePanel = ({ showGrid, handleCloseGrid, player1Name, player2Name }) => {
       setTurnInfo(
         <>
           <p>Player: {playerTurn.name}</p>
-          <p>Symbol: {playerTurn.symbol}</p>
+          <div className="div-symbol ">
+            <p>Symbol: </p>
+            <img
+              src={playerTurn.symbolPath}
+              className={playerTurn.symbol + "-mini"}
+            ></img>
+          </div>
         </>
       );
 
