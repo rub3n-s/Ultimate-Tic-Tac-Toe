@@ -5,6 +5,13 @@ import GamePanel from "./components/GamePanel";
 import Modal from "./components/Modal";
 import Footer from "./components/Footer";
 import { useState } from "react";
+// import {
+//   Navbar,
+//   GameMode,
+//   GamePanel,
+//   Modal,
+//   Footer
+// } from "./components";
 
 function App() {
   let player1NameTmp;
@@ -140,6 +147,7 @@ function App() {
 
       <Modal
         open={open}
+        gameMode={gameMode}
         onHide={handleClose}
         title={"What's your name"}
         info={info}

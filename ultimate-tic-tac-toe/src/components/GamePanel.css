@@ -63,7 +63,11 @@
   background-color: rgba(69, 95, 223, 0.72);
 }
 
-.disabled {
+.disabled-grid {
+  background-color: rgba(103, 103, 103, 0.72);
+}
+
+.disabled-cell {
   background-color: #0000006f;
 }
 
