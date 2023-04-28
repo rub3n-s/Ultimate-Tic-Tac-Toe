@@ -176,7 +176,6 @@ const GamePanel = ({
             </div>
           </>
         );
-        console.log(`[Player Turn] It's player '${player2Info.name}' turn`);
         return player2Info;
       case player2:
         // Get the path for the image of player's 1 symbol
@@ -193,7 +192,6 @@ const GamePanel = ({
             </div>
           </>
         );
-        console.log(`[Player Turn] It's player '${player1Info.name}' turn`);
         return player1Info;
     }
   };
@@ -582,24 +580,6 @@ const GamePanel = ({
   };
 
   const disableTables = (cellIndex) => {
-    // If the computer sets a play to a won grid
-    let nextGrid = grids.current.children[cellIndex];
-    if (
-      nextGrid.classList.contains("winX") ||
-      nextGrid.classList.contains("winO")
-    ) {
-      while (true) {
-        nextGrid = grids.current.children[Math.floor(Math.random() * 9)];
-        if (
-          !nextGrid.classList.contains("winX") &&
-          !nextGrid.classList.contains("winO")
-        ) {
-          cellIndex = Array.from(grids.current.children).indexOf(nextGrid);
-          break;
-        }
-      }
-    }
-
     // Get last play cell and grid indexs
     for (let grid of grids.current.children) {
       // Get this grid index
@@ -630,46 +610,75 @@ const GamePanel = ({
     let grid = grids.current.children[cell];
 
     // Table is playable?
-    // Check if the table has been won already
-    const winX = grid.classList.contains("winX");
-    const winO = grid.classList.contains("winO");
-    if (winX || winO) {
+    // Check if the next grid is available
+    if (!isGridAvailable(Array.from(grids.current.children).indexOf(grid))) {
       console.log(
-        `Table ${cell} is won already, computer is picking other table`
+        `[Invalid Table] Table '${cell}' is won already, computer is picking other table`
       );
 
       while (true) {
-        let randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
-
-        const winX = randomGrid.classList.contains("winX");
-        const winO = randomGrid.classList.contains("winO");
-
-        if (!winX && !winO) {
+        // Get a random grid
+        const randomGrid =
+          grids.current.children[Math.floor(Math.random() * 9)];
+        const randomGridIndex = Array.from(grids.current.children).indexOf(
+          randomGrid
+        );
+        if (isGridAvailable(randomGridIndex)) {
           grid = randomGrid;
-          // Clear disabled grids/cells and update them according to the new grid
+
+          // Clear previous and disable tables again
           clearDisabled();
-          disableTables(Array.from(grids.current.children).indexOf(grid));
-          console.log("Computer picked up a new table ", grid);
+          disableTables(randomGridIndex);
+          console.log(`[Table Change] Next table ${randomGridIndex}`, grid);
           break;
         }
       }
     }
 
+    // const winX = grid.classList.contains("winX");
+    // const winO = grid.classList.contains("winO");
+    // if (winX || winO) {
+    //   console.log(
+    //     `[Invalid Table] Table '${cell}' is won already, computer is picking other table`
+    //   );
+
+    //   while (true) {
+    //     let randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
+
+    //     const winX = randomGrid.classList.contains("winX");
+    //     const winO = randomGrid.classList.contains("winO");
+
+    //     if (!winX && !winO) {
+    //       grid = randomGrid;
+    //       // Clear disabled grids/cells and update them according to the new grid
+    //       clearDisabled();
+    //       disableTables(Array.from(grids.current.children).indexOf(grid));
+    //       console.log(
+    //         `[Table Change] Next table ${Array.from(
+    //           grids.current.children
+    //         ).indexOf(grid)}`,
+    //         grid
+    //       );
+    //       break;
+    //     }
+    //   }
+    // }
+
     // Table has free cells?
     // If the grid includes a cell that hasnt been played
-    const fullCells = Array.from(grid.children).filter(
+    const fullGrid = Array.from(grid.children).filter(
       (x) =>
         x.classList.contains(player1Info.symbol) ||
         x.classList.contains(player2Info.symbol)
     );
 
-    if (fullCells == grid.children.length) {
+    if (fullGrid == grid.children.length) {
       console.log(
         `Table ${cell} is full already, computer is picking other table`
       );
       while (true) {
         // Get another random grid
-        let randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
+        const randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
 
         // If the grid includes a cell that hasnt been played
         const freeGrid = Array.from(grid.children).includes(
@@ -937,7 +946,6 @@ const GamePanel = ({
       const emptyCell = cells.filter(
         (x) => x.oponentSymbol === false && x.computerSymbol === false
       );
-      console.log(emptyCell);
 
       // emptyCell = undefined: means that row cells are all filled
       // this if validation only needs one condition to be true, because its an or
@@ -954,19 +962,64 @@ const GamePanel = ({
       // Update Last Play state
       setLastPlay(currentPlay);
 
+      console.log(`[${log} Row] Computer made a move on cell `, currentPlay);
+
+      // After making the play, check if next grid is available
+      // If the computer completes the table selecting a cell with the same index
+      //  has the table, the next grid has to be changed
+      if (!isGridAvailable(emptyCell[0].index)) {
+        console.log(
+          `[Invalid Table] Table '${emptyCell[0].index}' is won already, computer is picking other table`
+        );
+
+        while (true) {
+          // Get a random grid
+          const randomGrid =
+            grids.current.children[Math.floor(Math.random() * 9)];
+          const randomGridIndex = Array.from(grids.current.children).indexOf(
+            randomGrid
+          );
+          if (isGridAvailable(randomGridIndex)) {
+            // Clear previous and disable tables again
+            clearDisabled();
+            disableTables(randomGridIndex);
+            console.log(`[Table Change] Next table ${randomGridIndex}`, grid);
+            return true;
+          }
+        }
+      }
+
       // Clear previous and disable tables again
       clearDisabled();
       disableTables(emptyCell[0].index);
-
-      console.log(`[${log} Row] Computer made a move on cell `, currentPlay);
       return true;
     }
+
     return false;
   };
 
   const randomPlay = (grid) => {
+    // Check if the grid is available
+    // const gridIndex = Array.from(grids.current.children).indexOf(grid);
+    // if (!isGridAvailable(gridIndex)) {
+    //   while (true) {
+    //     const randomGrid =
+    //       grids.current.children[Math.floor(Math.random() * 9)];
+    //     const randomGridIndex = Array.from(grids.current.children).indexOf(
+    //       randomGrid
+    //     );
+    //     if (isGridAvailable(randomGridIndex)) {
+    //       grid = randomGrid;
+    //       // Clear previous and disable tables again
+    //       clearDisabled();
+    //       disableTables(randomGridIndex);
+    //       break;
+    //     }
+    //   }
+    // }
+
     while (true) {
-      let randomCell = Math.floor(Math.random() * 9);
+      const randomCell = Math.floor(Math.random() * 9);
       if (
         !grid.children[randomCell].classList.contains(player1Info.symbol) &&
         !grid.children[randomCell].classList.contains(player2Info.symbol)
@@ -980,14 +1033,43 @@ const GamePanel = ({
         // Update Last Play state
         setLastPlay(currentPlay);
 
+        console.log("[Random Play] Computer made a move on cell ", currentPlay);
+
+        // Check if the grid is available
+        if (!isGridAvailable(randomCell)) {
+          console.log(
+            `[Invalid Table] Table '${randomCell}' is won already, computer is picking other table`
+          );
+          while (true) {
+            const randomGrid =
+              grids.current.children[Math.floor(Math.random() * 9)];
+            const randomGridIndex = Array.from(grids.current.children).indexOf(
+              randomGrid
+            );
+            if (isGridAvailable(randomGridIndex)) {
+              // Clear previous and disable tables again
+              clearDisabled();
+              disableTables(randomGridIndex);
+              console.log("[Random Play] New table ", randomGridIndex);
+              return;
+            }
+          }
+        }
+
         // Clear previous and disable tables again
         clearDisabled();
         disableTables(randomCell);
-
-        console.log("[Random Play] Computer made a move on cell ", currentPlay);
         return;
       }
     }
+  };
+
+  // Function to evaluate if a grid is disabled
+  const isGridAvailable = (index) => {
+    return (
+      !grids.current.children[index].classList.contains("winX") &&
+      !grids.current.children[index].classList.contains("winO")
+    );
   };
 
   // =======================================================
@@ -1098,17 +1180,14 @@ const GamePanel = ({
 
         // Get what grid will the play be
         let randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
-        console.log(randomGrid);
-
         let randomCell = randomGrid.children[Math.floor(Math.random() * 9)];
-        console.log(randomCell);
 
         // Set the css class with the image to the clicked cell
         randomCell.className = `cell ${player2Info.symbol}`;
 
         const currentPlay = {
-          gridIndex: randomGrid,
-          cellIndex: randomCell,
+          gridIndex: Array.from(grids.current.children).indexOf(randomGrid),
+          cellIndex: Array.from(randomGrid.children).indexOf(randomCell),
         };
         // Update Last Play state
         setLastPlay(currentPlay);
@@ -1150,14 +1229,13 @@ const GamePanel = ({
         setTimeout(function () {
           // Generate computer's next play
           let playedGrid = nextPlay();
+          const gridIndex = Array.from(grids.current.children).indexOf(
+            playedGrid
+          );
 
           // After the computer make his play, check if he has completed a row
           // Check if the computer won the game
           if (checkWin(playedGrid, player2Info)) {
-            const gridIndex = Array.from(grids.current.children).indexOf(
-              playedGrid
-            );
-
             // Update Player 2 points
             setPlayer2Info({
               name: player2Info.name,
@@ -1172,7 +1250,7 @@ const GamePanel = ({
 
           // Update the next player to play
           setPlayerTurnState(setPlayerTurn());
-        }, 1000);
+        }, 1200);
       }
     }
   });
