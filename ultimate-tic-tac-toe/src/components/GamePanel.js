@@ -654,7 +654,7 @@ const GamePanel = ({
 
           // Update the next player to play
           setPlayerTurnState(setPlayerTurn());
-        }, 1500);
+        }, 1000);
       }
     }
   });
@@ -991,7 +991,9 @@ const GamePanel = ({
   const checkCells = (grid, cells) => {
     // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
     const oponentSymbols = cells.filter((x) => x.oponentSymbol === true).length;
-    const computerSymbols = cells.filter((x) => x.computerSymbol === true).length;
+    const computerSymbols = cells.filter(
+      (x) => x.computerSymbol === true
+    ).length;
 
     // Case: Oponent is about to complete a row
     // Check if there are two symbols on the row, and only one free space
@@ -1007,17 +1009,18 @@ const GamePanel = ({
       // Set the computer play in the empty cell
       grid.children[emptyCell[0].index].classList.add(player2Info.symbol);
 
-      // Update Last Play state
-      setLastPlay({
+      const currentPlay = {
         gridIndex: Array.from(grids.current.children).indexOf(grid),
         cellIndex: emptyCell.index,
-      });
+      };
+      // Update Last Play state
+      setLastPlay(currentPlay);
 
       // Clear previous and disable tables again
       clearDisabled();
       disableTables(emptyCell[0].index);
 
-      console.log(`Computer made a move on cell ${emptyCell[0].index}`);
+      console.log("Computer made a move on cell ",currentPlay);
       return true;
     }
     return false;
@@ -1032,17 +1035,18 @@ const GamePanel = ({
       ) {
         grid.children[randomCell].classList.add(player2Info.symbol);
 
-        // Update Last Play state
-        setLastPlay({
+        const currentPlay = {
           gridIndex: Array.from(grids.current.children).indexOf(grid),
           cellIndex: randomCell,
-        });
+        };
+        // Update Last Play state
+        setLastPlay(currentPlay);
 
         // Clear previous and disable tables again
         clearDisabled();
         disableTables(randomCell);
 
-        console.log(`Computer made a move on cell ${randomCell}`);
+        console.log("Computer made a move on cell ",currentPlay);
         return;
       }
     }
