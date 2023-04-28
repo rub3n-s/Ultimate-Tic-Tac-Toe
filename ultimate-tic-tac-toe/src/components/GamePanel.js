@@ -24,7 +24,7 @@ const GamePanel = ({
 
   const clickHandle = (event, gridIndex, line, column, cellIndex) => {
     // Verifies if it's the computer turn to play
-    if (gameMode == "pvc" && playerTurnState.name == "computer") {
+    if (gameMode === "pvc" && playerTurnState.name === "computer") {
       console.log("It's the computer turn to play");
       return;
     }
@@ -36,9 +36,6 @@ const GamePanel = ({
     }
 
     console.log("[Click Event]", playerTurnState);
-    // console.log(
-    //   `Player '${playerTurnState.name}', Symbol '${playerTurnState.symbol}' clicked Grid:${gridIndex}, Cell(${line},${column})`
-    // );
 
     // Set the css class with the image to the clicked cell
     event.target.className = `cell ${playerTurnState.symbol}`;
@@ -159,6 +156,7 @@ const GamePanel = ({
               <img
                 src={player2Info.symbolPath}
                 className={player2Info.symbol + "-mini"}
+                alt={player2Info.symbol}
               ></img>
             </div>
           </>
@@ -174,6 +172,7 @@ const GamePanel = ({
               <img
                 src={player1Info.symbolPath}
                 className={player1Info.symbol + "-mini"}
+                alt={player1Info.symbol}
               ></img>
             </div>
           </>
@@ -432,15 +431,10 @@ const GamePanel = ({
 
     // Clear grid and cells classes
     for (let grid of grids.current.children) {
-      grid.classList.remove("winO");
-      grid.classList.remove("winX");
+      grid.className = "box";
 
       // remove class to disable the click event on the cells
-      for (let child of grid.children) {
-        child.classList.remove("disabled-cell");
-        child.classList.remove("O");
-        child.classList.remove("X");
-      }
+      for (let cell of grid.children) cell.className = "cell";
     }
   };
 
@@ -499,7 +493,7 @@ const GamePanel = ({
   useEffect(() => {
     // Return if the grid is not showing, prevents data loss when the component is loaded
     // Also checks if the game has ended
-    if (!showGrid && !gameEnded) return;
+    if (!showGrid || gameEnded) return;
 
     let symbolTmp, firstPlay, playerTurn, player1TmpStruct, player2TmpStruct;
 
@@ -575,6 +569,7 @@ const GamePanel = ({
             <img
               src={playerTurn.symbolPath}
               className={playerTurn.symbol + "-mini"}
+              alt={playerTurn.symbol}
             ></img>
           </div>
         </>
@@ -585,7 +580,7 @@ const GamePanel = ({
     }
 
     // Every reload of the component, execute the computer play
-    if (gameMode == "pvc" && playerTurnState.name == "computer") {
+    if (gameMode === "pvc" && playerTurnState.name === "computer") {
       console.log("Computer turn");
 
       // 1) Where was the last play of the oponent?
@@ -620,7 +615,7 @@ const GamePanel = ({
           // Get the played cell index
           const cellIndex = Array.from(randomGrid.children).indexOf(randomCell);
 
-          if (gridIndex != cellIndex) {
+          if (gridIndex !== cellIndex) {
             // Disable the grid, add a background
             grid.classList.add("disabled-grid");
 
@@ -651,9 +646,10 @@ const GamePanel = ({
           // After the computer make his play, check if he has completed a row
           // Check if the computer won the game
           if (checkWin_v2(playedGrid, player2Info)) {
-            console.log(
-              `Player ${player2Info.name} won this table ${lastPlay.index}`
+            const gridIndex = Array.from(grids.current.children).indexOf(
+              playedGrid
             );
+            console.log(`Player ${player2Info.name} won table ${gridIndex}`);
           }
 
           // Update the next player to play
@@ -674,14 +670,17 @@ const GamePanel = ({
   };
 
   const disableTables = (cellIndex) => {
-    console.log("Last Cell Played: ", lastPlay.cellIndex);
     // Get last play cell and grid indexs
     for (let grid of grids.current.children) {
       // Get this grid index
       const gridIndex = Array.from(grids.current.children).indexOf(grid);
 
+      // Check if the table has been won already
+      const winX = grid.classList.contains("winX");
+      const winY = grid.classList.contains("winY");
+
       // Disable the other grids
-      if (gridIndex != cellIndex) {
+      if (gridIndex !== cellIndex && !winX && !winY) {
         grid.classList.add("disabled-grid");
 
         // Remove disable from every cell
@@ -696,10 +695,63 @@ const GamePanel = ({
 
     // Get the grid with the same index as the cell
     let grid = grids.current.children[cell];
-    console.log(grid);
 
-    // Check if that grid is playable
-    //      ....
+    // Table is playable?
+    // Check if the table has been won already
+    const winX = grid.classList.contains("winX");
+    const winY = grid.classList.contains("winY");
+    if (winX || winY) {
+      console.log(
+        `Table ${cell} is won already, computer is picking other table`
+      );
+
+      while (true) {
+        let randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
+
+        const winX = randomGrid.classList.contains("winX");
+        const winY = randomGrid.classList.contains("winY");
+
+        if (!winX && !winY) {
+          grid = randomGrid;
+          // Clear disabled grids/cells and update them according to the new grid
+          clearDisabled();
+          disableTables(Array.from(grids.current.children).indexOf(grid));
+          break;
+        }
+      }
+    }
+
+    // Table has free cells?
+    // If the grid includes a cell that hasnt been played
+    const fullCells = Array.from(grid.children).filter(
+      (x) =>
+        x.classList.contains(player1Info.symbol) ||
+        x.classList.contains(player2Info.symbol)
+    );
+
+    if (fullCells == grid.children.length) {
+      console.log(
+        `Table ${cell} is full already, computer is picking other table`
+      );
+      while (true) {
+        // Get another random grid
+        let randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
+
+        // If the grid includes a cell that hasnt been played
+        const freeGrid = Array.from(grid.children).includes(
+          (x) =>
+            !x.classList.contains(player1Info.symbol) &&
+            !x.classList.contains(player2Info.symbol)
+        );
+        if (freeGrid) {
+          grid = randomGrid;
+          // Clear disabled grids/cells and update them according to the new grid
+          clearDisabled();
+          disableTables(Array.from(grids.current.children).indexOf(grid));
+          break;
+        }
+      }
+    }
 
     // On the enabled grid
     // Play randomly or block a player row
@@ -716,7 +768,7 @@ const GamePanel = ({
         cells.push({
           index: cellIndex,
           oponentSymbol: grid.children[cellIndex].classList.contains(
-            player2Info.symbol
+            player1Info.symbol
           ),
           computerSymbol: grid.children[cellIndex].classList.contains(
             player2Info.symbol
@@ -938,53 +990,35 @@ const GamePanel = ({
 
   const checkCells = (grid, cells) => {
     // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
-    let oponentSymbols = cells.filter((x) => x.oponentSymbol == true).length;
-    let computerSymbols = cells.filter((x) => x.computerSymbol == true).length;
+    const oponentSymbols = cells.filter((x) => x.oponentSymbol === true).length;
+    const computerSymbols = cells.filter((x) => x.computerSymbol === true).length;
 
     // Case: Oponent is about to complete a row
     // Check if there are two symbols on the row, and only one free space
-    if (oponentSymbols == 2 && computerSymbols == 0) {
-      for (let cell of cells) {
-        if (!grid.children[cell.index].classList.contains(player1Info.symbol)) {
-          // Set the computer play in the empty cell
-          grid.children[cell.index].classList.add(player2Info.symbol);
+    if (
+      (oponentSymbols === 2 && computerSymbols === 0) ||
+      (computerSymbols === 2 && oponentSymbols === 0)
+    ) {
+      // Get the cell empty cell
+      const emptyCell = cells.filter(
+        (x) => x.oponentSymbol === false && x.computerSymbol === false
+      );
 
-          // Update Last Play state
-          setLastPlay({
-            gridIndex: Array.from(grids.current.children).indexOf(grid),
-            cellIndex: cell.index,
-          });
+      // Set the computer play in the empty cell
+      grid.children[emptyCell[0].index].classList.add(player2Info.symbol);
 
-          // Clear previous and disable tables again
-          clearDisabled();
-          disableTables(cell.index);
+      // Update Last Play state
+      setLastPlay({
+        gridIndex: Array.from(grids.current.children).indexOf(grid),
+        cellIndex: emptyCell.index,
+      });
 
-          console.log(`Computer made a move on the cell ${cell.index}`);
-          return true;
-        }
-      }
-    }
-    // Case: Computer is about to complete a row
-    else if (computerSymbols == 2 && oponentSymbols == 0) {
-      for (let cell of cells) {
-        if (!grid.children[cell.index].classList.contains(player1Info.symbol)) {
-          // Set the computer play in the empty cell
-          grid.children[cell.index].classList.add(player2Info.symbol);
+      // Clear previous and disable tables again
+      clearDisabled();
+      disableTables(emptyCell[0].index);
 
-          // Update Last Play state
-          setLastPlay({
-            gridIndex: Array.from(grids.current.children).indexOf(grid),
-            cellIndex: cell.index,
-          });
-
-          // Clear previous and disable tables again
-          clearDisabled();
-          disableTables(cell.index);
-
-          console.log(`Computer made a move on the cell ${cell.index}`);
-          return true;
-        }
-      }
+      console.log(`Computer made a move on cell ${emptyCell[0].index}`);
+      return true;
     }
     return false;
   };
@@ -1008,7 +1042,7 @@ const GamePanel = ({
         clearDisabled();
         disableTables(randomCell);
 
-        console.log(`Computer made a move on the cell ${randomCell}`);
+        console.log(`Computer made a move on cell ${randomCell}`);
         return;
       }
     }
@@ -1035,10 +1069,11 @@ const GamePanel = ({
       }
 
       // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
-      symbols = cells.filter((x) => x.hasClass == true).length;
-      if (symbols == 3) {
+      symbols = cells.filter((x) => x.hasClass === true).length;
+      if (symbols === 3) {
         // Player wins this grid
         grid.classList.add(`win${player.symbol}`);
+        grid.classList.remove("disabled-grid");
 
         // add a class to disable the click event on the cells
         for (let child of grid.children) child.classList.add("disabled-cell");
@@ -1076,10 +1111,11 @@ const GamePanel = ({
           );
 
           // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
-          symbols = cells.filter((x) => x.hasClass == true).length;
-          if (symbols == 3) {
+          symbols = cells.filter((x) => x.hasClass === true).length;
+          if (symbols === 3) {
             // Player wins this grid
             grid.classList.add(`win${player.symbol}`);
+            grid.classList.remove("disabled-grid");
 
             // add a class to disable the click event on the cells
             for (let child of grid.children)
@@ -1105,10 +1141,11 @@ const GamePanel = ({
           );
 
           // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
-          symbols = cells.filter((x) => x.hasClass == true).length;
-          if (symbols == 3) {
+          symbols = cells.filter((x) => x.hasClass === true).length;
+          if (symbols === 3) {
             // Player wins this grid
             grid.classList.add(`win${player.symbol}`);
+            grid.classList.remove("disabled-grid");
 
             // add a class to disable the click event on the cells
             for (let child of grid.children)
@@ -1134,10 +1171,11 @@ const GamePanel = ({
           );
 
           // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
-          symbols = cells.filter((x) => x.hasClass == true).length;
-          if (symbols == 3) {
+          symbols = cells.filter((x) => x.hasClass === true).length;
+          if (symbols === 3) {
             // Player wins this grid
             grid.classList.add(`win${player.symbol}`);
+            grid.classList.remove("disabled-grid");
 
             // add a class to disable the click event on the cells
             for (let child of grid.children)
@@ -1179,10 +1217,11 @@ const GamePanel = ({
           );
 
           // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
-          symbols = cells.filter((x) => x.hasClass == true).length;
-          if (symbols == 3) {
+          symbols = cells.filter((x) => x.hasClass === true).length;
+          if (symbols === 3) {
             // Player wins this grid
             grid.classList.add(`win${player.symbol}`);
+            grid.classList.remove("disabled-grid");
 
             // add a class to disable the click event on the cells
             for (let child of grid.children)
@@ -1208,15 +1247,15 @@ const GamePanel = ({
           );
 
           // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
-          symbols = cells.filter((x) => x.hasClass == true).length;
-          if (symbols == 3) {
+          symbols = cells.filter((x) => x.hasClass === true).length;
+          if (symbols === 3) {
             // Player wins this grid
             grid.classList.add(`win${player.symbol}`);
+            grid.classList.remove("disabled-grid");
 
             // add a class to disable the click event on the cells
             for (let child of grid.children)
               child.classList.add("disabled-cell");
-
             return true;
           }
           break;

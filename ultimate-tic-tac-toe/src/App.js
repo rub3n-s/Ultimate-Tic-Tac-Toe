@@ -17,7 +17,6 @@ function App() {
   let player1NameTmp;
   let player2NameTmp;
   let gameModeTmp;
-  let firstPlayTmp;
   const [open, setOpen] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
   const [showGameMode, setShowGameMode] = useState(true);
@@ -95,16 +94,16 @@ function App() {
 
     switch (gameModeTmp) {
       case "pvc":
-        if (player1NameTmp == "") {
+        if (player1NameTmp === "") {
           // Change input background-color
           return;
         }
         break;
       case "pvp":
-        if (player1NameTmp == "") {
+        if (player1NameTmp === "") {
           // Change input background-color
           return;
-        } else if (player2NameTmp == "") {
+        } else if (player2NameTmp === "") {
           // Change input background-color
           return;
         }
