@@ -22,7 +22,7 @@ const GamePanel = ({
   const [lastPlay, setLastPlay] = useState(null);
   const [gameEnded, setGameEnded] = useState(false);
 
-  const clickHandle = (event, gridIndex, line, column, cellIndex) => {
+  const clickHandle = (event, gridIndex, cellIndex) => {
     // Verifies if it's the computer turn to play
     if (gameMode === "pvc" && playerTurnState.name === "computer") {
       console.log("It's the computer turn to play");
@@ -35,8 +35,6 @@ const GamePanel = ({
       return;
     }
 
-    console.log("[Click Event]", playerTurnState);
-
     // Set the css class with the image to the clicked cell
     event.target.className = `cell ${playerTurnState.symbol}`;
 
@@ -47,78 +45,78 @@ const GamePanel = ({
     checkWin();
 
     // Verify if all the grids are disabled
-    if (checkGameEnded()) {
-      // Check who has more points
-      if (player1Info.points > player2Info.points) {
-        // Update Player Rounds Won
-        setPlayer1Info({
-          name: player1Info.name,
-          symbol: player1Info.symbol,
-          symbolPath: player1Info.symbolPath,
-          points: player1Info.points,
-          roundsWon: ++player1Info.roundsWon,
-        });
-        // Update info to show on modal window
-        setInfo(
-          <>
-            <div className="info">
-              Player '{player1Info.name}' wins with {player1Info.points} points
-            </div>
-            <div className="info-button">
-              <button onClick={reset}>Play Again</button>
-              <button onClick={handleQuitRequest}>Quit</button>
-            </div>
-          </>
-        );
-        console.log(
-          `Player '${player1Info.name}' wins with ${player1Info.points} points!`
-        );
-      } else if (player2Info.points > player1Info.points) {
-        // Update Player Rounds Won
-        setPlayer2Info({
-          name: player2Info.name,
-          symbol: player2Info.symbol,
-          symbolPath: player2Info.symbolPath,
-          points: player2Info.points,
-          roundsWon: ++player2Info.roundsWon,
-        });
+    // if (checkGameEnded()) {
+    //   // Check who has more points
+    //   if (player1Info.points > player2Info.points) {
+    //     // Update Player Rounds Won
+    //     setPlayer1Info({
+    //       name: player1Info.name,
+    //       symbol: player1Info.symbol,
+    //       symbolPath: player1Info.symbolPath,
+    //       points: player1Info.points,
+    //       roundsWon: ++player1Info.roundsWon,
+    //     });
+    //     // Update info to show on modal window
+    //     setInfo(
+    //       <>
+    //         <div className="info">
+    //           Player '{player1Info.name}' wins with {player1Info.points} points
+    //         </div>
+    //         <div className="info-button">
+    //           <button onClick={reset}>Play Again</button>
+    //           <button onClick={handleQuitRequest}>Quit</button>
+    //         </div>
+    //       </>
+    //     );
+    //     console.log(
+    //       `Player '${player1Info.name}' wins with ${player1Info.points} points!`
+    //     );
+    //   } else if (player2Info.points > player1Info.points) {
+    //     // Update Player Rounds Won
+    //     setPlayer2Info({
+    //       name: player2Info.name,
+    //       symbol: player2Info.symbol,
+    //       symbolPath: player2Info.symbolPath,
+    //       points: player2Info.points,
+    //       roundsWon: ++player2Info.roundsWon,
+    //     });
 
-        // Update info to show on modal window
-        setInfo(
-          <>
-            <div className="info">
-              Player '{player2Info.name}' wins with {player2Info.points} points
-            </div>
-            <div className="info-button">
-              <button onClick={reset}>Play Again</button>
-              <button onClick={handleQuitRequest}>Quit</button>
-            </div>
-          </>
-        );
-        console.log(
-          `Player '${player2Info.name}' wins with ${player2Info.points} points!`
-        );
-      } else {
-        // Update info to show on modal window
-        setInfo(
-          <>
-            <div className="info">There was a draw!</div>
-            <div className="info-button">
-              <button onClick={reset}>Play Again</button>
-              <button onClick={handleQuitRequest}>Quit</button>
-            </div>
-          </>
-        );
-        console.log(`There was a draw!`);
-      }
+    //     // Update info to show on modal window
+    //     setInfo(
+    //       <>
+    //         <div className="info">
+    //           Player '{player2Info.name}' wins with {player2Info.points} points
+    //         </div>
+    //         <div className="info-button">
+    //           <button onClick={reset}>Play Again</button>
+    //           <button onClick={handleQuitRequest}>Quit</button>
+    //         </div>
+    //       </>
+    //     );
+    //     console.log(
+    //       `Player '${player2Info.name}' wins with ${player2Info.points} points!`
+    //     );
+    //   } else {
+    //     // Update info to show on modal window
+    //     setInfo(
+    //       <>
+    //         <div className="info">There was a draw!</div>
+    //         <div className="info-button">
+    //           <button onClick={reset}>Play Again</button>
+    //           <button onClick={handleQuitRequest}>Quit</button>
+    //         </div>
+    //       </>
+    //     );
+    //     console.log(`There was a draw!`);
+    //   }
 
-      // Open Modal Window
-      setOpen(true);
+    //   // Open Modal Window
+    //   setOpen(true);
 
-      // Set the end of the game
-      setGameEnded(true);
-      return;
-    }
+    //   // Set the end of the game
+    //   setGameEnded(true);
+    //   return;
+    // }
 
     // Cells Layout
     // (0,0)=0 (0,1)=1 (0,2)=2
@@ -126,10 +124,12 @@ const GamePanel = ({
     // (2,0)=6 (2,1)=7 (2,2)=8
 
     // Store the last play
-    setLastPlay({
+    const currentPlay = {
       gridIndex: gridIndex,
       cellIndex: cellIndex,
-    });
+    };
+    setLastPlay(currentPlay);
+    console.log("[Click Event]", playerTurnState, currentPlay);
   };
 
   const containsClass = (element) => {
@@ -364,39 +364,39 @@ const GamePanel = ({
       <div key={i} className="box">
         <div
           className="cell"
-          onClick={(event) => clickHandle(event, i, 0, 0, 0)}
+          onClick={(event) => clickHandle(event, i, 0)}
         ></div>
         <div
           className="cell"
-          onClick={(event) => clickHandle(event, i, 0, 1, 1)}
+          onClick={(event) => clickHandle(event, i, 1)}
         ></div>
         <div
           className="cell"
-          onClick={(event) => clickHandle(event, i, 0, 2, 2)}
+          onClick={(event) => clickHandle(event, i, 2)}
         ></div>
         <div
           className="cell"
-          onClick={(event) => clickHandle(event, i, 1, 0, 3)}
+          onClick={(event) => clickHandle(event, i, 3)}
         ></div>
         <div
           className="cell"
-          onClick={(event) => clickHandle(event, i, 1, 1, 4)}
+          onClick={(event) => clickHandle(event, i, 4)}
         ></div>
         <div
           className="cell"
-          onClick={(event) => clickHandle(event, i, 1, 2, 5)}
+          onClick={(event) => clickHandle(event, i, 5)}
         ></div>
         <div
           className="cell"
-          onClick={(event) => clickHandle(event, i, 2, 0, 6)}
+          onClick={(event) => clickHandle(event, i, 6)}
         ></div>
         <div
           className="cell"
-          onClick={(event) => clickHandle(event, i, 2, 1, 7)}
+          onClick={(event) => clickHandle(event, i, 7)}
         ></div>
         <div
           className="cell"
-          onClick={(event) => clickHandle(event, i, 2, 2, 8)}
+          onClick={(event) => clickHandle(event, i, 8)}
         ></div>
       </div>
     );
@@ -601,11 +601,14 @@ const GamePanel = ({
         // Set the css class with the image to the clicked cell
         randomCell.className = `cell ${player2Info.symbol}`;
 
-        // Update last play state
-        setLastPlay({
+        const currentPlay = {
           gridIndex: randomGrid,
           cellIndex: randomCell,
-        });
+        };
+        // Update Last Play state
+        setLastPlay(currentPlay);
+
+        console.log("Computer made a move on cell ", currentPlay);
 
         // Block all the other grid cells
         for (let grid of grids.current.children) {
@@ -649,6 +652,16 @@ const GamePanel = ({
             const gridIndex = Array.from(grids.current.children).indexOf(
               playedGrid
             );
+
+            // Update Player 2 points
+            setPlayer2Info({
+              name: player2Info.name,
+              symbol: player2Info.symbol,
+              symbolPath: player2Info.symbolPath,
+              points: ++player2Info.points,
+              roundsWon: player2Info.roundsWon,
+            });
+
             console.log(`Player ${player2Info.name} won table ${gridIndex}`);
           }
 
@@ -990,17 +1003,14 @@ const GamePanel = ({
 
   const checkCells = (grid, cells) => {
     // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
-    const oponentSymbols = cells.filter((x) => x.oponentSymbol === true).length;
-    const computerSymbols = cells.filter(
-      (x) => x.computerSymbol === true
-    ).length;
+    const oponentSymbols =
+      cells.filter((x) => x.oponentSymbol === true).length === 2;
+    const computerSymbols =
+      cells.filter((x) => x.computerSymbol === true).length === 2;
 
     // Case: Oponent is about to complete a row
     // Check if there are two symbols on the row, and only one free space
-    if (
-      (oponentSymbols === 2 && computerSymbols === 0) ||
-      (computerSymbols === 2 && oponentSymbols === 0)
-    ) {
+    if (oponentSymbols || computerSymbols) {
       // Get the cell empty cell
       const emptyCell = cells.filter(
         (x) => x.oponentSymbol === false && x.computerSymbol === false
@@ -1020,7 +1030,7 @@ const GamePanel = ({
       clearDisabled();
       disableTables(emptyCell[0].index);
 
-      console.log("Computer made a move on cell ",currentPlay);
+      console.log("Computer made a move on cell ", currentPlay);
       return true;
     }
     return false;
@@ -1046,7 +1056,7 @@ const GamePanel = ({
         clearDisabled();
         disableTables(randomCell);
 
-        console.log("Computer made a move on cell ",currentPlay);
+        console.log("Computer made a move on cell ", currentPlay);
         return;
       }
     }
