@@ -615,24 +615,11 @@ const GamePanel = ({
       console.log(
         `[Invalid Table] Table '${cell}' is won already, computer is picking other table`
       );
-
-      while (true) {
-        // Get a random grid
-        const randomGrid =
-          grids.current.children[Math.floor(Math.random() * 9)];
-        const randomGridIndex = Array.from(grids.current.children).indexOf(
-          randomGrid
-        );
-        if (isGridAvailable(randomGridIndex)) {
-          grid = randomGrid;
-
-          // Clear previous and disable tables again
-          clearDisabled();
-          disableTables(randomGridIndex);
-          console.log(`[Table Change] Next table ${randomGridIndex}`, grid);
-          break;
-        }
-      }
+      // Clear previous and disable tables again
+      const randomGridIndex = getRandomGrid("Next Play");
+      grid = grids.current.children[randomGridIndex];
+      clearDisabled();
+      disableTables(randomGridIndex);
     }
 
     // const winX = grid.classList.contains("winX");
@@ -678,7 +665,8 @@ const GamePanel = ({
       );
       while (true) {
         // Get another random grid
-        const randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
+        const randomGrid =
+          grids.current.children[Math.floor(Math.random() * 9)];
 
         // If the grid includes a cell that hasnt been played
         const freeGrid = Array.from(grid.children).includes(
@@ -971,22 +959,10 @@ const GamePanel = ({
         console.log(
           `[Invalid Table] Table '${emptyCell[0].index}' is won already, computer is picking other table`
         );
-
-        while (true) {
-          // Get a random grid
-          const randomGrid =
-            grids.current.children[Math.floor(Math.random() * 9)];
-          const randomGridIndex = Array.from(grids.current.children).indexOf(
-            randomGrid
-          );
-          if (isGridAvailable(randomGridIndex)) {
-            // Clear previous and disable tables again
-            clearDisabled();
-            disableTables(randomGridIndex);
-            console.log(`[Table Change] Next table ${randomGridIndex}`, grid);
-            return true;
-          }
-        }
+        // Clear previous and disable tables again
+        clearDisabled();
+        disableTables(getRandomGrid("Check Cells"));
+        return true;
       }
 
       // Clear previous and disable tables again
@@ -999,25 +975,6 @@ const GamePanel = ({
   };
 
   const randomPlay = (grid) => {
-    // Check if the grid is available
-    // const gridIndex = Array.from(grids.current.children).indexOf(grid);
-    // if (!isGridAvailable(gridIndex)) {
-    //   while (true) {
-    //     const randomGrid =
-    //       grids.current.children[Math.floor(Math.random() * 9)];
-    //     const randomGridIndex = Array.from(grids.current.children).indexOf(
-    //       randomGrid
-    //     );
-    //     if (isGridAvailable(randomGridIndex)) {
-    //       grid = randomGrid;
-    //       // Clear previous and disable tables again
-    //       clearDisabled();
-    //       disableTables(randomGridIndex);
-    //       break;
-    //     }
-    //   }
-    // }
-
     while (true) {
       const randomCell = Math.floor(Math.random() * 9);
       if (
@@ -1040,20 +997,10 @@ const GamePanel = ({
           console.log(
             `[Invalid Table] Table '${randomCell}' is won already, computer is picking other table`
           );
-          while (true) {
-            const randomGrid =
-              grids.current.children[Math.floor(Math.random() * 9)];
-            const randomGridIndex = Array.from(grids.current.children).indexOf(
-              randomGrid
-            );
-            if (isGridAvailable(randomGridIndex)) {
-              // Clear previous and disable tables again
-              clearDisabled();
-              disableTables(randomGridIndex);
-              console.log("[Random Play] New table ", randomGridIndex);
-              return;
-            }
-          }
+          // Clear previous and disable tables again
+          clearDisabled();
+          disableTables(getRandomGrid("Random Play"));
+          return;
         }
 
         // Clear previous and disable tables again
@@ -1072,6 +1019,18 @@ const GamePanel = ({
     );
   };
 
+  const getRandomGrid = (message) => {
+    while (true) {
+      const randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
+      const randomGridIndex = Array.from(grids.current.children).indexOf(
+        randomGrid
+      );
+      if (isGridAvailable(randomGridIndex)) {
+        console.log(`${message}] New table `, randomGridIndex);
+        return randomGridIndex;
+      }
+    }
+  };
   // =======================================================
   //             Function Executed on Reload
   // =======================================================
