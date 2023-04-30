@@ -468,10 +468,12 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Check if all the cells are filled
     for (let grid of grids.current.children) {
-      const gridIsFull = Array.from(grid.children).filter(
-        (x) => x.classList.contains(player1Info.symbol) || x.classList.contains(player2Info.symbol)
-      );
-      if (gridIsFull.length < 9) return false;
+      if (!grid.classList.contains("winX") && !grid.classList.contains("winO")) {
+        const gridIsFull = Array.from(grid.children).filter(
+          (x) => x.classList.contains(player1Info.symbol) || x.classList.contains(player2Info.symbol)
+        );
+        if (gridIsFull.length < 9) return false;
+      }
     }
 
     return true;
