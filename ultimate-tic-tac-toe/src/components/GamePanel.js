@@ -554,6 +554,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     setPlayer2Info(null);
     setTurnInfo(null);
     setOpen(false);
+    setGameEnded(false);
     setModalState(null);
     setNextTable(null);
     handleCloseGrid();
