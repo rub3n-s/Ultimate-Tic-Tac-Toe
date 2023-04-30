@@ -4,7 +4,7 @@ import GameMode from "./components/GameMode";
 import GamePanel from "./components/GamePanel";
 import Modal from "./components/Modal";
 import Footer from "./components/Footer";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 // import {
 //   Navbar,
 //   GameMode,
@@ -14,9 +14,8 @@ import { useState } from "react";
 // } from "./components";
 
 function App() {
-  let player1NameTmp;
-  let player2NameTmp;
-  let gameModeTmp;
+  const inputNick1 = useRef(null);
+  const inputNick2 = useRef(null);
   const [open, setOpen] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
   const [showGameMode, setShowGameMode] = useState(true);
@@ -28,11 +27,75 @@ function App() {
   // Function that opens a modal based on the game mode selected
   // Players have to insert their names
   const handleGameMode = (mode) => {
-    console.log("Selected Game Mode: ", mode);
-    gameModeTmp = mode;
-    switch (mode) {
+    setGameMode(mode);
+  };
+
+  const nickNameValidation = () => {
+    console.log(`Game Mode: ${gameMode}`);
+
+    switch (gameMode) {
       case "pvc":
-        player2NameTmp = "computer";
+        if (inputNick1.current.value == "") {
+          // Change input background-color
+          inputNick1.current.style.backgroundColor = "rgba(219,0,0,0.5)";
+          console.log("Invalid player 1 nickname");
+          return;
+        }
+        // Reset the background property
+        inputNick1.current.style.backgroundColor = "white";
+
+        // Set the name state
+        setPlayer1Name(inputNick1.current.value);
+        setPlayer2Name("computer");
+        break;
+      case "pvp":
+        if (inputNick1.current.value == "") {
+          // Change input background-color
+          inputNick1.current.style.backgroundColor = "rgba(219,0,0,0.5)";
+          console.log("Invalid player 1 nickname");
+          return;
+        } else if (inputNick1.current.value == "") {
+          // Change input background-color
+          inputNick2.current.style.backgroundColor = "rgba(219,0,0,0.5)";
+          console.log("Invalid player 2 nickname");
+          return;
+        }
+
+        // Reset the background property
+        inputNick1.current.style.backgroundColor = "white";
+        inputNick2.current.style.backgroundColor = "white";
+
+        // Set the names states
+        setPlayer1Name(inputNick1.current.value);
+        setPlayer2Name(inputNick2.current.value);
+        break;
+    }
+
+    // Change states to replace the components visibility
+    handleClose();
+    setShowGameMode(false);
+    setShowGrid(true);
+  };
+
+  const handleClose = () => setOpen(false);
+
+  const handleCloseGrid = () => {
+    setOpen(false);
+    setShowGrid(false);
+    setShowGameMode(true);
+    setGameMode(null);
+    setPlayer1Name(null);
+    setPlayer2Name(null);
+    setInfo(null);
+  };
+
+  // Create an action on the update of gameMode
+  useEffect(() => {
+    if (gameMode == null || showGrid) return;
+
+    console.log("Selected Game Mode: ", gameMode);
+    switch (gameMode) {
+      case "pvc":
         setInfo(
           <>
             <div className="info">
@@ -43,7 +106,8 @@ function App() {
                 size="16"
                 width="100"
                 placeholder="Insert Player's 1 NickName"
-                onChange={(e) => (player1NameTmp = e.target.value)}
+                // onChange={(e) => (player1NameTmp = e.target.value)}
+                ref={inputNick1}
               />
             </div>
             <div className="info-button">
@@ -64,7 +128,7 @@ function App() {
                 size="16"
                 width="100"
                 placeholder="Insert Player's 1 NickName"
-                onChange={(e) => (player1NameTmp = e.target.value)}
+                ref={inputNick1}
               />
             </div>
             <div className="info">
@@ -74,7 +138,7 @@ function App() {
                 id="inputNick2"
                 size="16"
                 placeholder="Insert Player's 2 NickName"
-                onChange={(e) => (player2NameTmp = e.target.value)}
+                ref={inputNick2}
               />
             </div>
             <div className="info-button">
@@ -87,46 +151,12 @@ function App() {
       default:
         console.log("Error receiving game mode...");
     }
-  };
 
-  const nickNameValidation = () => {
-    console.log(`Player 1: ${player1NameTmp} vs Player 2: ${player2NameTmp}`);
-
-    switch (gameModeTmp) {
-      case "pvc":
-        if (player1NameTmp === "") {
-          // Change input background-color
-          return;
-        }
-        break;
-      case "pvp":
-        if (player1NameTmp === "") {
-          // Change input background-color
-          return;
-        } else if (player2NameTmp === "") {
-          // Change input background-color
-          return;
-        }
-        break;
+    if (player1Name != null && player2Name != null) {
+      // Display player 1 and player 2 nick names
+      console.log(`Player 1: ${player1Name} vs Player 2: ${player2Name}`);
     }
-
-    // Change states to replace the components visibility
-    handleClose();
-    setShowGameMode(false);
-    setShowGrid(true);
-
-    // Set the states
-    setPlayer1Name(player1NameTmp);
-    setPlayer2Name(player2NameTmp);
-    setGameMode(gameModeTmp);
-  };
-
-  const handleClose = () => setOpen(false);
-
-  const handleCloseGrid = () => {
-    setShowGrid(false);
-    setShowGameMode(true);
-  };
+  }, [gameMode,player1Name,player2Name]);
 
   return (
     <>
