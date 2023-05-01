@@ -159,11 +159,9 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   */
   // Get the current played cell, if AVAILABLE, returns the grid with that index
   const setNextPlay = (cellIndex, event) => {
-    console.log(`[setNextPlay > ${event}] Received cell index`, cellIndex);
-
     // Check if the next grid is available
     if (!isGridAvailable(grids.current.children[cellIndex])) {
-      console.log(`[Invalid Table] Table '${cellIndex}' is won already, computer is picking other table`);
+      console.log(`[Invalid Table] Table ${cellIndex} is won already, computer is picking other table\n`,grids.current.children[cellIndex]);
       // Clear disabled grids/cells and update them according to the last play
       cellIndex = getRandomGrid(event);
     }
@@ -195,7 +193,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   const getRandomGrid = (message) => {
     // Get an array of available grids
     const availableGrids = Array.from(grids.current.children).filter((x) => isGridAvailable(x));
-    console.log("Available Grids", availableGrids);
+    console.log("Available Grids\n", availableGrids);
 
     // Get a random element from the array
     if (availableGrids.length > 0) {
