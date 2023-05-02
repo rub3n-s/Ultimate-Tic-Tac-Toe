@@ -115,6 +115,11 @@ main {
   transition: 0.3s;
 }
 
+.arrow-selected {
+  background-color:rgba(137, 255, 172, .85);
+  transition: 0.3s;
+}
+
 /*=================== 
     Media Queries 
 ===================*/

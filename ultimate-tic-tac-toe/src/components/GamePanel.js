@@ -95,6 +95,83 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     setPlayerTurnState(setPlayerTurn());
   };
 
+  const keyboardHandle = (cell, gridIndex, cellIndex) => {
+    // Verifies if it's the computer turn to play
+    if (gameMode === "pvc" && playerTurnState.name === "computer") {
+      console.log("It's the computer turn to play");
+      return;
+    }
+
+    // Verifies if the element (cell) already has been clicked
+    if (containsClass(cell)) {
+      console.log("Click event disabled on this cell");
+      return;
+    }
+
+    // Store the current play
+    const currentPlay = {
+      gridIndex: gridIndex,
+      cellIndex: cellIndex,
+    };
+
+    console.log(
+      "[Keyboard Handle]",
+      "\n",
+      playerTurnState,
+      "\n",
+      currentPlay,
+      "\n",
+      grids.current.children[gridIndex].children[cellIndex]
+    );
+
+    // Set the css class with the image to the clicked cell
+    cell.className = `cell ${playerTurnState.symbol}`;
+
+    // After every click check if someone wins
+    if (checkWin(grids.current.children[gridIndex], playerTurnState)) {
+      // Check player 1 and player 2 because of PvP mode
+      switch (playerTurnState) {
+        case player1Info:
+          // Update Player 1 points
+          setPlayer1Info({
+            name: playerTurnState.name,
+            symbol: playerTurnState.symbol,
+            symbolPath: playerTurnState.symbolPath,
+            points: ++playerTurnState.points,
+            roundsWon: playerTurnState.roundsWon,
+          });
+          break;
+        case player2Info:
+          // Update Player 2 points
+          setPlayer2Info({
+            name: playerTurnState.name,
+            symbol: playerTurnState.symbol,
+            symbolPath: playerTurnState.symbolPath,
+            points: ++playerTurnState.points,
+            roundsWon: playerTurnState.roundsWon,
+          });
+          break;
+        default:
+          console.log("Error getting player turn state");
+      }
+
+      console.log(`Player '${playerTurnState.name}' won table ${gridIndex}`, grids.current.children[gridIndex]);
+    }
+
+    // Verify if all the grids are disabled
+    if (checkGameEnded()) {
+      console.log("[Game Ended] Displaying modal window");
+      setTimerRunning(false);
+      return;
+    }
+
+    // Set the next table to be played
+    setNextPlay(cellIndex, "Click Event");
+
+    // Update the next player to play
+    setPlayerTurnState(setPlayerTurn());
+  };
+
   const containsClass = (element) => {
     return (
       element.classList.contains("X") || element.classList.contains("O") || element.classList.contains("disabled-cell")
@@ -174,6 +251,9 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       // Clear disabled grids/cells and update them according to the last play
       cellIndex = getRandomGrid(event);
     }
+
+    // Set the table map for arrow keys navigation
+    tableMap(grids.current.children[cellIndex]);
 
     // Clear disabled grids/cells and update them according to the last play
     clearDisabled();
@@ -917,7 +997,6 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   // =======================================================
   //             Functions Executed on Reload
   // =======================================================
-  // Create an action on the update of timer state (if the timer reaches zero in updateGameTime())
   useEffect(() => {
     if (showGrid) {
       console.log("Displaying grid");
@@ -1102,6 +1181,186 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timerRunning]);
 
+  // =======================================================
+  //                Arrow Keys Cells Navigation
+  // =======================================================
+  // let currentTableMap = [];
+  const [currentTableMap, setCurrentTableMap] = useState(null);
+  const [position, setPosition] = useState(null);
+  // let position = { x: 0, y: 0 };
+  document.onkeydown = checkKey;
+
+  // Receives the div with className 'box'
+  // 'box' is the div that contains the rows and cells
+  const tableMap = (table) => {
+    console.log("Mapping table", table);
+
+    let currentTableMapTmp = [];
+    let cellCounter = 0;
+    for (let row = 0; row < 3; row++) {
+      currentTableMapTmp.push([]);
+      for (let cell = 0; cell < 3; cell++) {
+        currentTableMapTmp[currentTableMapTmp.length - 1].push(table.children[cellCounter]);
+        cellCounter++;
+      }
+    }
+
+    setCurrentTableMap(currentTableMapTmp);
+    console.log("Current Table Map", currentTableMapTmp);
+  };
+
+  function checkKey(e) {
+    e = e || window.event;
+
+    switch (e.keyCode) {
+      case 37:
+        // left
+        moveLeft();
+        break;
+      case 38:
+        // up
+        moveUp();
+        break;
+      case 39:
+        // right
+        moveRight();
+        break;
+      case 40:
+        // down
+        moveDown();
+        break;
+      case 27:
+      case 13:
+        // escape
+        selectCell();
+        break;
+      default:
+    }
+    // if (e.keyCode === 37)
+    //   // left
+    //   moveLeft();
+    // else if (e.keyCode === 38)
+    //   // up
+    //   moveUp();
+    // else if (e.keyCode === 39)
+    //   // right
+    //   moveRight();
+    // else if (e.keyCode === 40)
+    //   // down
+    //   moveDown();
+    // else if (e.keyCode === 27)
+    //   // escape
+    //   selectCell();
+  }
+
+  const moveLeft = () => {
+    if (position == null) {
+      setPosition({ x: 0, y: 0 });
+      return;
+    }
+
+    let tmp = position.x;
+    if (tmp > 0) tmp--;
+    else tmp = 0;
+
+    setPosition({
+      x: tmp,
+      y: position.y,
+    });
+
+    console.log("[MOVE LEFT]");
+  };
+
+  const moveUp = () => {
+    if (position == null) {
+      setPosition({ x: 0, y: 0 });
+      return;
+    }
+
+    let tmp = position.y;
+    if (tmp > 0) tmp--;
+    else tmp = 0;
+
+    setPosition({
+      x: position.x,
+      y: tmp,
+    });
+
+    console.log("[MOVE UP]");
+  };
+
+  const moveRight = () => {
+    if (position == null) {
+      setPosition({ x: 0, y: 0 });
+      return;
+    }
+
+    let tmp = position.x;
+    if (tmp < currentTableMap[0].length - 1) tmp++;
+    else tmp = currentTableMap[0].length - 1;
+
+    setPosition({
+      x: tmp,
+      y: position.y,
+    });
+
+    console.log("[MOVE RIGHT]");
+  };
+
+  const moveDown = () => {
+    if (position == null) {
+      setPosition({ x: 0, y: 0 });
+      return;
+    }
+
+    let tmp = position.y;
+    if (tmp < currentTableMap.length - 1) tmp++;
+    else tmp = currentTableMap.length - 1;
+
+    setPosition({
+      x: position.x,
+      y: tmp,
+    });
+
+    console.log("[MOVE DOWN]");
+  };
+
+  // Get the last position of the arrows event and select the cell
+  const selectCell = () => {
+    console.log("[ENTER]");
+
+    // Get the selected cell from the map
+    const cell = currentTableMap[position.y][position.x];
+
+    // Get the cell's parent (div)
+    const table = cell.parentElement;
+
+    // Get table's and cell's index
+    const tableIndex = Array.from(grids.current.children).indexOf(table);
+    const cellIndex = Array.from(table.children).indexOf(cell);
+
+    console.log("Selected cell", cell);
+    console.log("Parent", table);
+
+    // Get the the grid index and cell index
+    keyboardHandle(cell, tableIndex, cellIndex);
+
+    for (let table of grids.current.children) for (let cell of table.children) cell.classList.remove("arrow-selected");
+  };
+
+  // Create an action each time position gets changed
+  useEffect(() => {
+    if (currentTableMap == null) return;
+
+    // New coords
+    console.log(position);
+
+    for (let table of grids.current.children) for (let cell of table.children) cell.classList.remove("arrow-selected");
+    currentTableMap[position.y][position.x].classList.add("arrow-selected");
+
+    // eslint-disable-next-line
+  }, [position]);
+
   return (
     <>
       {showGrid && (
@@ -1111,7 +1370,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
             {buildGrids()}
           </div>
           {buildPlayersInfo()}
-          <Modal open={open} title={"Game Ended"} info={modalInfo} onHide={reset} />
+          <Modal open={open} title={"Game Ended"} info={modalInfo} onHide={handleQuitRequest} />
         </main>
       )}
     </>
