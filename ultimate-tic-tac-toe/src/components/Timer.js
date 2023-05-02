@@ -5,7 +5,7 @@ const Timer = ({ levelTimeOut }) => {
   const [timeLeft, setTimeLeft] = useState(0);
   useEffect(() => {
     const intervalId = setInterval(() => {
-      if (levelTimeOut == 0) {
+      if (levelTimeOut === 0) {
         setGameEnded(true);
       } else {
         setTimeLeft(--levelTimeOut + "s");

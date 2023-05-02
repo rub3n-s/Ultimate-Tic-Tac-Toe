@@ -80,6 +80,7 @@
 }
 
 .playersInfo .title {
+  line-height: 1em;
   font-weight: 900;
   font-size: larger;
 }
@@ -230,5 +231,20 @@ main {
   .playersInfo {
     width: 100%;
     margin: auto;
+  }
+}
+
+@media (max-width:400px) {
+  .box {
+    grid-template-columns: repeat(3, [col] 34px);
+    grid-template-rows: repeat(3, [row] 34px);
+  }
+
+  .playersInfo p {
+    font-size: 0.8em;
+  }
+
+  .playersInfo .title {
+    font-size: .9em;
   }
 }

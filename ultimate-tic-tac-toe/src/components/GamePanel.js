@@ -74,6 +74,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
             roundsWon: playerTurnState.roundsWon,
           });
           break;
+        default:
+          console.log("Error getting player turn state");
       }
 
       console.log(`Player '${playerTurnState.name}' won table ${gridIndex}`, grids.current.children[gridIndex]);
@@ -188,7 +190,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       (x) => x.classList.contains(player1Info.symbol) || x.classList.contains(player2Info.symbol)
     );
     let gridIsFull = false;
-    if (cellsFilled.length == 9) gridIsFull = true;
+    if (cellsFilled.length === 9) gridIsFull = true;
 
     // Check if the grid is won already
     const gridIsWon = grid.classList.contains("winX") || grid.classList.contains("winO");
@@ -244,6 +246,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
           </>
         );
         return player1Info;
+      default:
+        console.log("Error setting player turn info");
     }
   };
 
@@ -383,6 +387,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
             return true;
           }
           break;
+        default:
+          console.log("Error getting column index");
       }
     }
 
@@ -456,6 +462,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
             return true;
           }
           break;
+        default:
+          console.log("Error getting diagonal index");
       }
     }
 
@@ -469,7 +477,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       (x) => x.classList.contains("winX") || x.classList.contains("winO")
     );
     // All tables have a winner
-    if (allTablesWon.length == 9) return true;
+    if (allTablesWon.length === 9) return true;
 
     // Check if all the cells are filled
     for (let grid of grids.current.children) {
@@ -525,7 +533,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Reset the timer
     setTimer();
-    
+
     // Reset Player's 1 Points and Symbol
     setPlayer1Info({
       name: player1Info.name,
@@ -761,6 +769,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
           playedCell = checkCells(grid, cells);
           if (playedCell != null) return [grid, playedCell];
           break;
+        default:
+          console.log("Error getting column index");
       }
     }
 
@@ -822,6 +832,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
           playedCell = checkCells(grid, cells);
           if (playedCell != null) return [grid, playedCell];
           break;
+        default:
+          console.log("Error getting diagonal index");
       }
     }
 
@@ -844,7 +856,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       // emptyCell = undefined: means that row cells are all filled
       // this if validation only needs one condition to be true, because its an or
       // (oponent symbol = 2 or computer symbol = 2)
-      if (emptyCell.length == 0) return null;
+      if (emptyCell.length === 0) return null;
 
       // Set the computer play in the empty cell
       grid.children[emptyCell[0].index].classList.add(player2Info.symbol);
@@ -889,7 +901,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   /* Decrement the timer */
   const updateGameTime = () => {
     setTimeLeft(--timer + "s");
-    if (timer == 0 || gameEnded) setTimerRunning(false);
+    if (timer === 0 || gameEnded) setTimerRunning(false);
   };
 
   const setTimer = () => {
@@ -899,6 +911,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     [timer, timerId] = [levelTimeOut, setInterval(updateGameTime, 1000)];
     setTimeLeft(timer + "s");
     setTimerId(timerId);
+    setTimerRunning(true);
   };
 
   // =======================================================
@@ -956,6 +969,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
             roundsWon: 0,
           };
           break;
+        default:
+          console.log("Error getting player symbol");
       }
 
       // Set the structures in different states
@@ -971,6 +986,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
         case player2Name:
           playerTurn = player2TmpStruct;
           break;
+        default:
+          console.log("Error setting first player");
       }
 
       console.log("[FIRST PLAY]", playerTurn);
@@ -995,8 +1012,13 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     return () => {
       // cleaning up the listeners here
     };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showGrid]);
 
+  // =======================================================
+  //           Computer Play useEffect Hook
+  // =======================================================
   useEffect(() => {
     // Every reload of the component, execute the computer play
     if (gameMode === "pvc" && playerTurnState.name === "computer") {
@@ -1064,14 +1086,20 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     return () => {
       // cleaning up the listeners here
     };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerTurnState]);
 
+  // =======================================================
+  //                Timer useEffect Hook
+  // =======================================================
   // Create an action on the update of timer state (if the timer reaches zero in updateGameTime())
   useEffect(() => {
     if (!timerRunning) {
       clearInterval(timerId);
       updateInfo();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timerRunning]);
 
   return (
