@@ -7,6 +7,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   const [playerTurnState, setPlayerTurnState] = useState(null);
   const [player1Info, setPlayer1Info] = useState(null);
   const [player2Info, setPlayer2Info] = useState(null);
+  const [fullGridNavigation, setFullGridNavigation] = useState(true);
   const [turnInfo, setTurnInfo] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
   const [open, setOpen] = useState(false);
@@ -31,70 +32,17 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       return;
     }
 
-    // Store the current play
-    const currentPlay = {
-      gridIndex: gridIndex,
-      cellIndex: cellIndex,
-    };
-
-    console.log(
-      "[Click Event]",
-      "\n",
-      playerTurnState,
-      "\n",
-      currentPlay,
-      "\n",
-      grids.current.children[gridIndex].children[cellIndex]
-    );
-
     // Set the css class with the image to the clicked cell
     event.target.className = `cell ${playerTurnState.symbol}`;
 
-    // After every click check if someone wins
-    if (checkWin(grids.current.children[gridIndex], playerTurnState)) {
-      // Check player 1 and player 2 because of PvP mode
-      switch (playerTurnState) {
-        case player1Info:
-          // Update Player 1 points
-          setPlayer1Info({
-            name: playerTurnState.name,
-            symbol: playerTurnState.symbol,
-            symbolPath: playerTurnState.symbolPath,
-            points: ++playerTurnState.points,
-            roundsWon: playerTurnState.roundsWon,
-          });
-          break;
-        case player2Info:
-          // Update Player 2 points
-          setPlayer2Info({
-            name: playerTurnState.name,
-            symbol: playerTurnState.symbol,
-            symbolPath: playerTurnState.symbolPath,
-            points: ++playerTurnState.points,
-            roundsWon: playerTurnState.roundsWon,
-          });
-          break;
-        default:
-          console.log("Error getting player turn state");
-      }
+    // Evaluate the play
+    evaluatePlay("[Click Handle]", gridIndex, cellIndex);
 
-      console.log(`Player '${playerTurnState.name}' won table ${gridIndex}`, grids.current.children[gridIndex]);
-    }
-
-    // Verify if all the grids are disabled
-    if (checkGameEnded()) {
-      console.log("[Game Ended] Displaying modal window");
-      setTimerRunning(false);
-      // updateInfo();
-    } else {
-      // Set the next table to be played
-      setNextPlay(cellIndex, "Click Event");
-    }
-
-    // Update the next player to play
-    setPlayerTurnState(setPlayerTurn());
+    // Disable full grid navigation after the first play
+    if (fullGridNavigation) setFullGridNavigation(false);
   };
 
+  // This function receives the html element normally
   const keyboardHandle = (cell, gridIndex, cellIndex) => {
     // Verifies if it's the computer turn to play
     if (gameMode === "pvc" && playerTurnState.name === "computer") {
@@ -104,10 +52,27 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Verifies if the element (cell) already has been clicked
     if (containsClass(cell)) {
-      console.log("Click event disabled on this cell");
+      console.log("Keyboard event disabled on this cell");
       return;
     }
 
+    // Set the css class with the image to the clicked cell
+    cell.className = `cell ${playerTurnState.symbol}`;
+
+    // Evaluate the play
+    evaluatePlay("[Keyboard Handle]", gridIndex, cellIndex);
+
+    // Disable full grid navigation after the first play
+    if (fullGridNavigation) setFullGridNavigation(false);
+  };
+
+  const containsClass = (element) => {
+    return (
+      element.classList.contains("X") || element.classList.contains("O") || element.classList.contains("disabled-cell")
+    );
+  };
+
+  const evaluatePlay = (handle, gridIndex, cellIndex) => {
     // Store the current play
     const currentPlay = {
       gridIndex: gridIndex,
@@ -115,7 +80,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     };
 
     console.log(
-      "[Keyboard Handle]",
+      handle,
       "\n",
       playerTurnState,
       "\n",
@@ -123,9 +88,6 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       "\n",
       grids.current.children[gridIndex].children[cellIndex]
     );
-
-    // Set the css class with the image to the clicked cell
-    cell.className = `cell ${playerTurnState.symbol}`;
 
     // After every click check if someone wins
     if (checkWin(grids.current.children[gridIndex], playerTurnState)) {
@@ -170,12 +132,6 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Update the next player to play
     setPlayerTurnState(setPlayerTurn());
-  };
-
-  const containsClass = (element) => {
-    return (
-      element.classList.contains("X") || element.classList.contains("O") || element.classList.contains("disabled-cell")
-    );
   };
 
   // Updates the Info Panel and Modal content
@@ -1061,9 +1017,15 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       switch (firstPlay) {
         case player1Name:
           playerTurn = player1TmpStruct;
+
+          // When it's the player 1 starting, navigate throught all the cells in the screen
+          tableMap(null);
           break;
         case player2Name:
           playerTurn = player2TmpStruct;
+
+          // Disable full grid navigation when computer plays first
+          if (playerTurn.name === "computer") setFullGridNavigation(false);
           break;
         default:
           console.log("Error setting first player");
@@ -1184,15 +1146,18 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   // =======================================================
   //                Arrow Keys Cells Navigation
   // =======================================================
-  // let currentTableMap = [];
   const [currentTableMap, setCurrentTableMap] = useState(null);
   const [position, setPosition] = useState(null);
-  // let position = { x: 0, y: 0 };
+
   document.onkeydown = checkKey;
 
   // Receives the div with className 'box'
   // 'box' is the div that contains the rows and cells
   const tableMap = (table) => {
+    // When table comes null it means its the first play for a normal player
+    // So its needed to map only the first table
+    if (table == null) table = grids.current.children[0];
+
     console.log("Mapping table", table);
 
     let currentTableMapTmp = [];
@@ -1236,93 +1201,164 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
         break;
       default:
     }
-    // if (e.keyCode === 37)
-    //   // left
-    //   moveLeft();
-    // else if (e.keyCode === 38)
-    //   // up
-    //   moveUp();
-    // else if (e.keyCode === 39)
-    //   // right
-    //   moveRight();
-    // else if (e.keyCode === 40)
-    //   // down
-    //   moveDown();
-    // else if (e.keyCode === 27)
-    //   // escape
-    //   selectCell();
   }
 
   const moveLeft = () => {
+    console.log("[MOVE LEFT]");
+
     if (position == null) {
-      setPosition({ x: 0, y: 0 });
+      setPosition({ tableIndex: 0, x: 0, y: 0 });
       return;
     }
 
     let tmp = position.x;
-    if (tmp > 0) tmp--;
-    else tmp = 0;
+    if (tmp > 0) {
+      tmp--;
 
-    setPosition({
-      x: tmp,
-      y: position.y,
-    });
+      setPosition({
+        tableIndex: position.tableIndex,
+        x: tmp,
+        y: position.y,
+      });
+    } else if (fullGridNavigation) {
+      console.log("Remapping to the left table");
 
-    console.log("[MOVE LEFT]");
+      // Map the table to the right
+      let tableIndexTmp = position.tableIndex;
+      if (tableIndexTmp > 0) tableIndexTmp--;
+      else tableIndexTmp = 8;
+
+      setPosition({
+        tableIndex: tableIndexTmp,
+        x: 0,
+        y: 0,
+      });
+
+      // Remap the table
+      tableMap(grids.current.children[tableIndexTmp]);
+    }
   };
 
   const moveUp = () => {
+    console.log("[MOVE UP]");
+
     if (position == null) {
-      setPosition({ x: 0, y: 0 });
+      setPosition({ tableIndex: 0, x: 0, y: 0 });
       return;
     }
 
     let tmp = position.y;
-    if (tmp > 0) tmp--;
-    else tmp = 0;
+    if (tmp > 0) {
+      tmp--;
 
-    setPosition({
-      x: position.x,
-      y: tmp,
-    });
+      setPosition({
+        tableIndex: position.tableIndex,
+        x: position.x,
+        y: tmp,
+      });
+    } else if (fullGridNavigation) {
+      console.log("Remapping to the table above");
 
-    console.log("[MOVE UP]");
+      // Map the table to the right
+      let tableIndexTmp = position.tableIndex;
+      switch (tableIndexTmp) {
+        case 6:
+        case 7:
+        case 8:
+          tableIndexTmp -= 3;
+          break;
+        default:
+          tableIndexTmp += 6;
+      }
+
+      setPosition({
+        tableIndex: tableIndexTmp,
+        x: 0,
+        y: 0,
+      });
+
+      // Remap the table
+      tableMap(grids.current.children[tableIndexTmp]);
+    }
   };
 
   const moveRight = () => {
+    console.log("[MOVE RIGHT]");
+
     if (position == null) {
-      setPosition({ x: 0, y: 0 });
+      setPosition({ tableIndex: 0, x: 0, y: 0 });
       return;
     }
 
     let tmp = position.x;
-    if (tmp < currentTableMap[0].length - 1) tmp++;
-    else tmp = currentTableMap[0].length - 1;
+    if (tmp < currentTableMap[0].length - 1) {
+      tmp++;
 
-    setPosition({
-      x: tmp,
-      y: position.y,
-    });
+      setPosition({
+        tableIndex: position.tableIndex,
+        x: tmp,
+        y: position.y,
+      });
+    } else if (fullGridNavigation) {
+      console.log("Remapping to the right table");
 
-    console.log("[MOVE RIGHT]");
+      // Map the table to the right
+      let tableIndexTmp = position.tableIndex;
+      if (tableIndexTmp < 8) tableIndexTmp++;
+      else tableIndexTmp = 0;
+
+      setPosition({
+        tableIndex: tableIndexTmp,
+        x: 0,
+        y: 0,
+      });
+
+      // Remap the table
+      tableMap(grids.current.children[tableIndexTmp]);
+    }
   };
 
   const moveDown = () => {
+    console.log("[MOVE DOWN]");
+
     if (position == null) {
-      setPosition({ x: 0, y: 0 });
+      setPosition({ tableIndex: 0, x: 0, y: 0 });
       return;
     }
 
     let tmp = position.y;
-    if (tmp < currentTableMap.length - 1) tmp++;
-    else tmp = currentTableMap.length - 1;
+    if (tmp < currentTableMap.length - 1) {
+      tmp++;
 
-    setPosition({
-      x: position.x,
-      y: tmp,
-    });
+      setPosition({
+        tableIndex: position.tableIndex,
+        x: position.x,
+        y: tmp,
+      });
+    } else if (fullGridNavigation) {
+      console.log("Remapping to the table below");
 
-    console.log("[MOVE DOWN]");
+      // Map the table to the right
+      let tableIndexTmp = position.tableIndex;
+      switch (tableIndexTmp) {
+        case 6:
+        case 7:
+        case 8:
+          tableIndexTmp -= 6;
+          break;
+        default:
+          tableIndexTmp += 3;
+      }
+
+      setPosition({
+        tableIndex: tableIndexTmp,
+        x: 0,
+        y: 0,
+      });
+
+      // Remap the table
+      tableMap(grids.current.children[tableIndexTmp]);
+    }
   };
 
   // Get the last position of the arrows event and select the cell
