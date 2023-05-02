@@ -209,7 +209,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     // Set the table map for arrow keys navigation
-    tableMap(grids.current.children[cellIndex]);
+    // If game mode is player vs computer, the mapping only needs to be made when is the player turn
+    if (gameMode === "pvc" && playerTurnState.name !== player1Info.name) tableMap(grids.current.children[cellIndex]);
 
     // Clear disabled grids/cells and update them according to the last play
     clearDisabled();
@@ -598,6 +599,9 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
 
     //  Get random grid to begin the game
     setNextPlay(Math.floor(Math.random() * 9), "Reset");
+
+    // Enable full grid navigation for the first play
+    setFullGridNavigation(true);
   };
 
   const handleQuitRequest = () => {
@@ -1171,11 +1175,19 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     setCurrentTableMap(currentTableMapTmp);
+    setPosition({
+      tableIndex: Array.from(grids.current.children).indexOf(table),
+      x: 0,
+      y: 0,
+    });
     console.log("Current Table Map", currentTableMapTmp);
   };
 
   function checkKey(e) {
     e = e || window.event;
+
+    // If the game grid isn't open yet, return
+    if (!showGrid || gameEnded) return;
 
     switch (e.keyCode) {
       case 37:
@@ -1211,32 +1223,30 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       return;
     }
 
-    let tmp = position.x;
-    if (tmp > 0) {
-      tmp--;
+    let tmpX = position.x;
+    let tmpY = position.y;
+    let tmpTableIndex = position.tableIndex;
 
-      setPosition({
-        tableIndex: position.tableIndex,
-        x: tmp,
-        y: position.y,
-      });
-    } else if (fullGridNavigation) {
+    if (tmpX > 0) tmpX--;
+    else if (fullGridNavigation) {
       console.log("Remapping to the left table");
 
       // Map the table to the right
-      let tableIndexTmp = position.tableIndex;
-      if (tableIndexTmp > 0) tableIndexTmp--;
-      else tableIndexTmp = 8;
+      if (tmpTableIndex > 0) tmpTableIndex--;
+      else tmpTableIndex = 8;
 
-      setPosition({
-        tableIndex: tableIndexTmp,
-        x: 0,
-        y: 0,
-      });
+      tmpX = 0;
+      tmpY = 0;
 
       // Remap the table
-      tableMap(grids.current.children[tableIndexTmp]);
+      tableMap(grids.current.children[tmpTableIndex]);
     }
+
+    setPosition({
+      tableIndex: tmpTableIndex,
+      x: tmpX,
+      y: tmpY,
+    });
   };
 
   const moveUp = () => {
@@ -1247,39 +1257,40 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       return;
     }
 
-    let tmp = position.y;
-    if (tmp > 0) {
-      tmp--;
+    let tmpX = position.x;
+    let tmpY = position.y;
+    let tmpTableIndex = position.tableIndex;
 
-      setPosition({
-        tableIndex: position.tableIndex,
-        x: position.x,
-        y: tmp,
-      });
-    } else if (fullGridNavigation) {
+    if (tmpY > 0) tmpY--;
+    else if (fullGridNavigation) {
       console.log("Remapping to the table above");
 
       // Map the table to the right
-      let tableIndexTmp = position.tableIndex;
-      switch (tableIndexTmp) {
-        case 6:
+      switch (tmpTableIndex) {
+        case 3: // row 1
+        case 4:
+        case 5:
+        case 6: // row 2
         case 7:
         case 8:
-          tableIndexTmp -= 3;
+          tmpTableIndex -= 3;
           break;
         default:
-          tableIndexTmp += 6;
+          tmpTableIndex += 6;
       }
 
-      setPosition({
-        tableIndex: tableIndexTmp,
-        x: 0,
-        y: 0,
-      });
+      tmpX = 0;
+      tmpY = 0;
 
       // Remap the table
-      tableMap(grids.current.children[tableIndexTmp]);
+      tableMap(grids.current.children[tmpTableIndex]);
     }
+
+    setPosition({
+      tableIndex: tmpTableIndex,
+      x: tmpX,
+      y: tmpY,
+    });
   };
 
   const moveRight = () => {
@@ -1290,32 +1301,30 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       return;
     }
 
-    let tmp = position.x;
-    if (tmp < currentTableMap[0].length - 1) {
-      tmp++;
+    let tmpX = position.x;
+    let tmpY = position.y;
+    let tmpTableIndex = position.tableIndex;
 
-      setPosition({
-        tableIndex: position.tableIndex,
-        x: tmp,
-        y: position.y,
-      });
-    } else if (fullGridNavigation) {
+    if (tmpX < currentTableMap[0].length - 1) tmpX++;
+    else if (fullGridNavigation) {
       console.log("Remapping to the right table");
 
       // Map the table to the right
-      let tableIndexTmp = position.tableIndex;
-      if (tableIndexTmp < 8) tableIndexTmp++;
-      else tableIndexTmp = 0;
+      if (tmpTableIndex < 8) tmpTableIndex++;
+      else tmpTableIndex = 0;
 
-      setPosition({
-        tableIndex: tableIndexTmp,
-        x: 0,
-        y: 0,
-      });
+      tmpX = 0;
+      tmpY = 0;
 
       // Remap the table
-      tableMap(grids.current.children[tableIndexTmp]);
+      tableMap(grids.current.children[tmpTableIndex]);
     }
+
+    setPosition({
+      tableIndex: tmpTableIndex,
+      x: tmpX,
+      y: tmpY,
+    });
   };
 
   const moveDown = () => {
@@ -1326,39 +1335,39 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       return;
     }
 
-    let tmp = position.y;
-    if (tmp < currentTableMap.length - 1) {
-      tmp++;
+    let tmpX = position.x;
+    let tmpY = position.y;
+    let tmpTableIndex = position.tableIndex;
 
-      setPosition({
-        tableIndex: position.tableIndex,
-        x: position.x,
-        y: tmp,
-      });
-    } else if (fullGridNavigation) {
+    if (tmpY < currentTableMap.length - 1) tmpY++;
+    else if (fullGridNavigation) {
       console.log("Remapping to the table below");
 
       // Map the table to the right
-      let tableIndexTmp = position.tableIndex;
-      switch (tableIndexTmp) {
+      switch (tmpTableIndex) {
+        // row 2
         case 6:
         case 7:
         case 8:
-          tableIndexTmp -= 6;
+          tmpTableIndex -= 6;
           break;
+        // 0, 1, 2, 3, 4, 5, 6
         default:
-          tableIndexTmp += 3;
+          tmpTableIndex += 3;
       }
 
-      setPosition({
-        tableIndex: tableIndexTmp,
-        x: 0,
-        y: 0,
-      });
+      tmpX = 0;
+      tmpY = 0;
 
       // Remap the table
-      tableMap(grids.current.children[tableIndexTmp]);
+      tableMap(grids.current.children[tmpTableIndex]);
     }
+
+    setPosition({
+      tableIndex: tmpTableIndex,
+      x: tmpX,
+      y: tmpY,
+    });
   };
 
   // Get the last position of the arrows event and select the cell
@@ -1396,6 +1405,15 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
 
     // eslint-disable-next-line
   }, [position]);
+
+  // Create an action each time full grid changed
+  useEffect(() => {
+    if (fullGridNavigation == null || fullGridNavigation == false || !showGrid) return;
+
+    clearDisabled();
+
+    // eslint-disable-next-line
+  }, [fullGridNavigation]);
 
   return (
     <>

@@ -116,8 +116,87 @@ main {
 }
 
 .arrow-selected {
-  background-color:rgba(137, 255, 172, .85);
-  transition: 0.3s;
+  /* background-color: rgba(137, 255, 172, 0.85); */
+  animation: bg .8s ease-in;
+  -webkit-animation: bg .8s ease-in;
+  -moz-animation: bg .8s ease-in;
+  -ms-animation: bg .8s ease-in;
+  -o-animation: bg .8s ease-in;
+}
+
+@keyframes bg {
+  0% {
+    background: rgba(137, 255, 172, 1);
+  }
+  25% {
+    background: rgba(137, 255, 172, 0.8);
+  }
+  75% {
+    background: rgba(137, 255, 172, 0.5);
+  }
+  100% {
+    background: rgba(137, 255, 172, 0);
+  }
+}
+
+@-webkit-keyframes bg {
+  0% {
+    background: rgba(137, 255, 172, 1);
+  }
+  25% {
+    background: rgba(137, 255, 172, 0.8);
+  }
+  75% {
+    background: rgba(137, 255, 172, 0.5);
+  }
+  100% {
+    background: rgba(137, 255, 172, 0);
+  }
+}
+
+@-moz-keyframes bg {
+  0% {
+    background: rgba(137, 255, 172, 1);
+  }
+  25% {
+    background: rgba(137, 255, 172, 0.8);
+  }
+  75% {
+    background: rgba(137, 255, 172, 0.5);
+  }
+  100% {
+    background: rgba(137, 255, 172, 0);
+  }
+}
+
+@-ms-keyframes bg {
+  0% {
+    background: rgba(137, 255, 172, 1);
+  }
+  25% {
+    background: rgba(137, 255, 172, 0.8);
+  }
+  75% {
+    background: rgba(137, 255, 172, 0.5);
+  }
+  100% {
+    background: rgba(137, 255, 172, 0);
+  }
+}
+
+@-o-keyframes bg {
+  0% {
+    background: rgba(137, 255, 172, 1);
+  }
+  25% {
+    background: rgba(137, 255, 172, 0.8);
+  }
+  75% {
+    background: rgba(137, 255, 172, 0.5);
+  }
+  100% {
+    background: rgba(137, 255, 172, 0);
+  }
 }
 
 /*=================== 
@@ -239,7 +318,7 @@ main {
   }
 }
 
-@media (max-width:400px) {
+@media (max-width: 400px) {
   .box {
     grid-template-columns: repeat(3, [col] 34px);
     grid-template-rows: repeat(3, [row] 34px);
@@ -250,6 +329,6 @@ main {
   }
 
   .playersInfo .title {
-    font-size: .9em;
+    font-size: 0.9em;
   }
 }
