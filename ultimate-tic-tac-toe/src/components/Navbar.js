@@ -22,9 +22,9 @@ const Navbar = () => {
               <li>
                 <a href="index.html">Home</a>
               </li>
-              <li>
+              {/* <li>
                 <a href="#">Credits</a>
-              </li>
+              </li> */}
             </ul>
           </nav>
         </div>

@@ -2,18 +2,21 @@ import { useState, useRef, useEffect } from "react";
 import "./GamePanel.css";
 import Modal from "./Modal.js";
 
-const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Name }) => {
-  const player1 = player1Name;
-  const player2 = player2Name;
+const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Name, levelTimeOut }) => {
   const grids = useRef(null);
   const [playerTurnState, setPlayerTurnState] = useState(null);
   const [player1Info, setPlayer1Info] = useState(null);
   const [player2Info, setPlayer2Info] = useState(null);
   const [turnInfo, setTurnInfo] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
   const [open, setOpen] = useState(false);
   const [modalInfo, setModalState] = useState(null);
   const [gameEnded, setGameEnded] = useState(false);
   const [nextTable, setNextTable] = useState(null);
+
+  let timer;
+  let timerId;
+  const [timerRunning, setTimerRunning] = useState(true);
 
   const clickHandle = (event, gridIndex, cellIndex) => {
     // Verifies if it's the computer turn to play
@@ -161,7 +164,10 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   const setNextPlay = (cellIndex, event) => {
     // Check if the next grid is available
     if (!isGridAvailable(grids.current.children[cellIndex])) {
-      console.log(`[Invalid Table] Table ${cellIndex} is won already, computer is picking other table\n`,grids.current.children[cellIndex]);
+      console.log(
+        `[Invalid Table] Table ${cellIndex} is won already, computer is picking other table\n`,
+        grids.current.children[cellIndex]
+      );
       // Clear disabled grids/cells and update them according to the last play
       cellIndex = getRandomGrid(event);
     }
@@ -214,7 +220,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   */
   const setPlayerTurn = () => {
     switch (playerTurnState.name) {
-      case player1:
+      case player1Name:
         setTurnInfo(
           <>
             <p>Player: {player2Info.name}</p>
@@ -225,7 +231,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
           </>
         );
         return player2Info;
-      case player2:
+      case player2Name:
         // Get the path for the image of player's 1 symbol
         setTurnInfo(
           <>
@@ -569,10 +575,10 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
           {player1Info != null && player2Info != null && (
             <>
               <p>
-                [Player 1] {player1}: {player1Info.points}
+                {player1Name}: {player1Info.points}
               </p>
               <p>
-                [Player 2] {player2}: {player2Info.points}
+                {player2Name}: {player2Info.points}
               </p>
             </>
           )}
@@ -586,13 +592,17 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
           {player1Info != null && player2Info != null && (
             <>
               <p>
-                [Player 1] {player1}: {player1Info.roundsWon}
+                {player1Name}: {player1Info.roundsWon}
               </p>
               <p>
-                [Player 2] {player2}: {player2Info.roundsWon}
+                {player2Name}: {player2Info.roundsWon}
               </p>
             </>
           )}
+        </div>
+        <div className="container">
+          <p className="title">Timer</p>
+          <p>{timeLeft}</p>
         </div>
       </div>
     );
@@ -868,29 +878,193 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   // =======================================================
+  //                      Game Timer
+  // =======================================================
+  /* Decrement the timer */
+  const updateGameTime = () => {
+    setTimeLeft(--timer + "s");
+    if (timer == 0) {
+      clearInterval(timerId);
+      setTimerRunning(false);
+    }
+  };
+
+  // =======================================================
   //             Function Executed on Reload
   // =======================================================
   // After every render of the component useEffect updates who makes the first play
   // The firstPlay parameter comes from App.js
+  // useEffect(() => {
+  //   // Return if the grid is not showing, prevents data loss when the component is loaded
+  //   // Also checks if the game has ended
+  //   if (!showGrid || gameEnded) return;
+
+  //   // Set the first player name and symbol
+  //   if (player1Info == null && player2Info == null) {
+  //     let symbolTmp, firstPlay, playerTurn, player1TmpStruct, player2TmpStruct;
+
+  //     // Get the random symbol between 'O' and 'X'
+  //     Math.random() < 0.5 ? (symbolTmp = "X") : (symbolTmp = "O");
+  //     Math.random() < 0.5 ? (firstPlay = player1Name) : (firstPlay = player2Name);
+
+  //     // Compare symbol of the first player and build second player structure
+  //     switch (symbolTmp) {
+  //       case "O":
+  //         // Build first player structure
+  //         player1TmpStruct = {
+  //           name: player1Name,
+  //           symbol: "O",
+  //           symbolPath: "o.png",
+  //           points: 0,
+  //           roundsWon: 0,
+  //         };
+
+  //         // Build second player structure
+  //         player2TmpStruct = {
+  //           name: player2Name,
+  //           symbol: "X",
+  //           symbolPath: "x.png",
+  //           points: 0,
+  //           roundsWon: 0,
+  //         };
+  //         break;
+  //       case "X":
+  //         // Build first player structure
+  //         player1TmpStruct = {
+  //           name: player1Name,
+  //           symbol: "X",
+  //           symbolPath: "x.png",
+  //           points: 0,
+  //           roundsWon: 0,
+  //         };
+
+  //         // Build second player structure
+  //         player2TmpStruct = {
+  //           name: player2Name,
+  //           symbol: "O",
+  //           symbolPath: "o.png",
+  //           points: 0,
+  //           roundsWon: 0,
+  //         };
+  //         break;
+  //     }
+
+  //     // Set the structures in different states
+  //     setPlayer1Info(player1TmpStruct);
+  //     setPlayer2Info(player2TmpStruct);
+
+  //     // Check who plays first and whats symbol is assigned to him
+  //     // Based on that info, create a structure for each player
+  //     switch (firstPlay) {
+  //       case player1Name:
+  //         playerTurn = player1TmpStruct;
+  //         break;
+  //       case player2Name:
+  //         playerTurn = player2TmpStruct;
+  //         break;
+  //     }
+
+  //     console.log("[FIRST PLAY]", playerTurn);
+  //     setTurnInfo(
+  //       <>
+  //         <p>Player: {playerTurn.name}</p>
+  //         <div className="div-symbol ">
+  //           <p>Symbol: </p>
+  //           <img src={playerTurn.symbolPath} className={playerTurn.symbol + "-mini"} alt={playerTurn.symbol}></img>
+  //         </div>
+  //       </>
+  //     );
+
+  //     // Set the player who gets the first turn to play
+  //     setPlayerTurnState(playerTurn);
+
+  //     // Set the initial interval
+  //     // setInterval() - calls udpdateGameTime() every 1000 ms (1 sec)
+  //     [timer, timerId] = [levelTimeOut, setInterval(updateGameTime, 1000)];
+  //     setTimeLeft(timer + "s");
+  //     return;
+  //   }
+
+  //   // Every reload of the component, execute the computer play
+  //   if (gameMode === "pvc" && playerTurnState.name === "computer") {
+  //     // Add a timeout to slow the computer reaction
+
+  //     // Computer is the first to play
+  //     if (nextTable == null) {
+  //       // Get what grid will the play be
+  //       let randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
+  //       let randomCell = randomGrid.children[Math.floor(Math.random() * 9)];
+
+  //       // Set the css class with the image to the clicked cell
+  //       randomCell.className = `cell ${player2Info.symbol}`;
+
+  //       const currentPlay = {
+  //         gridIndex: Array.from(grids.current.children).indexOf(randomGrid),
+  //         cellIndex: Array.from(randomGrid.children).indexOf(randomCell),
+  //       };
+
+  //       console.log("Computer made a move on cell \n", currentPlay, "\n", randomCell);
+
+  //       // Set the next table to be played
+  //       setNextPlay(Array.from(randomGrid.children).indexOf(randomCell), "Computer Play");
+
+  //       // Update player turn
+  //       setPlayerTurnState(setPlayerTurn());
+  //     } else {
+  //       // Add a timeout to slow the computer reaction
+  //       setTimeout(function () {
+  //         // Generate computer's next play
+  //         const [playedGrid, playedCell] = nextPlay();
+
+  //         // After the computer make his play, check if he has completed a row
+  //         // Check if the computer won the game
+  //         if (checkWin(playedGrid, player2Info)) {
+  //           // Update Player 2 points
+  //           setPlayer2Info({
+  //             name: player2Info.name,
+  //             symbol: player2Info.symbol,
+  //             symbolPath: player2Info.symbolPath,
+  //             points: ++player2Info.points,
+  //             roundsWon: player2Info.roundsWon,
+  //           });
+
+  //           console.log(`'${player2Info.name}' won table ${playedCell}\n`, playedGrid);
+  //         }
+
+  //         // Verify if all the grids are disabled
+  //         if (checkGameEnded()) {
+  //           console.log("[Game Ended]");
+  //           updateInfo();
+  //         } else {
+  //           // Set the next table to be played
+  //           setNextPlay(playedCell, "Computer Play");
+  //         }
+
+  //         // Update the next player to play
+  //         setPlayerTurnState(setPlayerTurn());
+  //       }, 1200);
+  //     }
+  //   }
+  // });
+
+  // Create an action on the update of timer state (if the timer reaches zero in updateGameTime())
   useEffect(() => {
-    // Return if the grid is not showing, prevents data loss when the component is loaded
-    // Also checks if the game has ended
-    if (!showGrid || gameEnded) return;
+    if (showGrid) {
+      console.log("Displaying grid");
 
-    let symbolTmp, firstPlay, playerTurn, player1TmpStruct, player2TmpStruct;
+      // Set the first player name and symbol
+      let symbolTmp, firstPlay, playerTurn, player1TmpStruct, player2TmpStruct;
 
-    // Set the first player name and symbol
-    if (player1Info == null && player2Info == null) {
       // Get the random symbol between 'O' and 'X'
       Math.random() < 0.5 ? (symbolTmp = "X") : (symbolTmp = "O");
-      Math.random() < 0.5 ? (firstPlay = player1) : (firstPlay = player2);
+      Math.random() < 0.5 ? (firstPlay = player1Name) : (firstPlay = player2Name);
 
       // Compare symbol of the first player and build second player structure
       switch (symbolTmp) {
         case "O":
           // Build first player structure
           player1TmpStruct = {
-            name: player1,
+            name: player1Name,
             symbol: "O",
             symbolPath: "o.png",
             points: 0,
@@ -899,7 +1073,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
 
           // Build second player structure
           player2TmpStruct = {
-            name: player2,
+            name: player2Name,
             symbol: "X",
             symbolPath: "x.png",
             points: 0,
@@ -909,7 +1083,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
         case "X":
           // Build first player structure
           player1TmpStruct = {
-            name: player1,
+            name: player1Name,
             symbol: "X",
             symbolPath: "x.png",
             points: 0,
@@ -918,7 +1092,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
 
           // Build second player structure
           player2TmpStruct = {
-            name: player2,
+            name: player2Name,
             symbol: "O",
             symbolPath: "o.png",
             points: 0,
@@ -934,10 +1108,10 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       // Check who plays first and whats symbol is assigned to him
       // Based on that info, create a structure for each player
       switch (firstPlay) {
-        case player1:
+        case player1Name:
           playerTurn = player1TmpStruct;
           break;
-        case player2:
+        case player2Name:
           playerTurn = player2TmpStruct;
           break;
       }
@@ -953,39 +1127,50 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
         </>
       );
 
+      // Set the player who gets the first turn to play
       setPlayerTurnState(playerTurn);
+
+      // Set the initial interval
+      // setInterval() - calls udpdateGameTime() every 1000 ms (1 sec)
+      [timer, timerId] = [levelTimeOut, setInterval(updateGameTime, 1000)];
+      setTimeLeft(timer + "s");
       return;
     }
 
+    return () => {
+      // cleaning up the listeners here
+    };
+  }, [showGrid]);
+
+  useEffect(() => {
     // Every reload of the component, execute the computer play
     if (gameMode === "pvc" && playerTurnState.name === "computer") {
-      // 1) Where was the last play of the oponent?
-      // 2) Check if he is close to finish a row/column/diagonal
-      // 3) If the oponent is not close to finish a row/column/diagonal, computer play on his favor
+      // Add a timeout to slow the computer reaction
 
       // Computer is the first to play
       if (nextTable == null) {
-        console.log("[TURN] Computer is playing first");
+        // Add a timeout to slow the computer reaction
+        setTimeout(function () {
+          // Get what grid will the play be
+          let randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
+          let randomCell = randomGrid.children[Math.floor(Math.random() * 9)];
 
-        // Get what grid will the play be
-        let randomGrid = grids.current.children[Math.floor(Math.random() * 9)];
-        let randomCell = randomGrid.children[Math.floor(Math.random() * 9)];
+          // Set the css class with the image to the clicked cell
+          randomCell.className = `cell ${player2Info.symbol}`;
 
-        // Set the css class with the image to the clicked cell
-        randomCell.className = `cell ${player2Info.symbol}`;
+          const currentPlay = {
+            gridIndex: Array.from(grids.current.children).indexOf(randomGrid),
+            cellIndex: Array.from(randomGrid.children).indexOf(randomCell),
+          };
 
-        const currentPlay = {
-          gridIndex: Array.from(grids.current.children).indexOf(randomGrid),
-          cellIndex: Array.from(randomGrid.children).indexOf(randomCell),
-        };
+          console.log("Computer made a move on cell \n", currentPlay, "\n", randomCell);
 
-        console.log("Computer made a move on cell \n", currentPlay, "\n", randomCell);
+          // Set the next table to be played
+          setNextPlay(Array.from(randomGrid.children).indexOf(randomCell), "Computer Play");
 
-        // Set the next table to be played
-        setNextPlay(Array.from(randomGrid.children).indexOf(randomCell), "Computer Play");
-
-        // Update player turn
-        setPlayerTurnState(setPlayerTurn());
+          // Update player turn
+          setPlayerTurnState(setPlayerTurn());
+        }, 1200);
       } else {
         // Add a timeout to slow the computer reaction
         setTimeout(function () {
@@ -1021,7 +1206,16 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
         }, 1200);
       }
     }
-  });
+
+    return () => {
+      // cleaning up the listeners here
+    };
+  }, [playerTurnState]);
+
+  // Create an action on the update of timer state (if the timer reaches zero in updateGameTime())
+  useEffect(() => {
+    if (!timerRunning) updateInfo();
+  }, [timerRunning]);
 
   return (
     <>

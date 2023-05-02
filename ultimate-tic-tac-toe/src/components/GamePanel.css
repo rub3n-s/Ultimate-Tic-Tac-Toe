@@ -30,11 +30,6 @@
   border-radius: 0.5em;
 }
 
-.cell:hover {
-  cursor: pointer;
-  background-color: rgba(126, 126, 126, 0.72);
-}
-
 .clicked {
   background-color: red;
 }
@@ -77,6 +72,7 @@
 
 .playersInfo {
   width: 33%;
+  margin: auto;
 }
 
 .playersInfo p {
@@ -114,13 +110,21 @@ main {
 .O-mini {
   width: 2em;
   height: 2em;
-  margin-top: -.25em;
+  margin-top: -0.25em;
   transition: 0.3s;
 }
 
 /*=================== 
     Media Queries 
 ===================*/
+/* Prevent the hover effect on touch screens */
+@media (hover: hover) {
+  .cell:hover {
+    cursor: pointer;
+    background-color: rgba(126, 126, 126, 0.72);
+  }
+}
+
 @media (max-width: 850px) {
   .box {
     grid-template-columns: repeat(3, [col] 37px);
@@ -150,12 +154,20 @@ main {
     background-size: 3em;
   }
 
-  .playersInfo p {
-    font-size: 0.9em;
+  main {
+    width: 100%;
+  }
+
+  .playersInfo {
+    width: 85%;
   }
 
   .playersInfo .title {
     font-size: 1.1em;
+  }
+
+  .playersInfo p {
+    font-size: 0.9em;
   }
 }
 
@@ -163,20 +175,18 @@ main {
   main {
     flex-direction: column;
     justify-content: center;
-    margin: auto;
-    width: 80%;
+    margin: 1em auto;
   }
 
   .box {
-    grid-template-columns: repeat(3, [col] 35px);
-    grid-template-rows: repeat(3, [row] 35px);
+    grid-template-columns: repeat(3, [col] 40px);
+    grid-template-rows: repeat(3, [row] 40px);
     transition: 1s;
   }
 
   .playersInfo {
     display: flex;
     flex-direction: row;
-    width: auto;
   }
 
   .playersInfo p {
@@ -188,7 +198,7 @@ main {
   }
 
   .container {
-    width: 100%;
+    width: auto;
     height: 100%;
     margin: auto;
     padding: 0 1em;
@@ -200,9 +210,13 @@ main {
 }
 
 @media (max-width: 550px) {
+  main {
+    margin: 1em auto;
+  }
+
   .box {
-    grid-template-columns: repeat(3, [col] 32px);
-    grid-template-rows: repeat(3, [row] 32px);
+    grid-template-columns: repeat(3, [col] 38px);
+    grid-template-rows: repeat(3, [row] 38px);
   }
 
   .playersInfo p {

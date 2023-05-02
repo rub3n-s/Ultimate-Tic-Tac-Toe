@@ -5,6 +5,7 @@
   text-align: center;
   justify-content: center;
   font-size: smaller;
+  margin-top: 1em;
 }
 
 [id^="modal-"] .info div p {
@@ -35,6 +36,7 @@
   box-shadow: 0px 10px 50px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
   max-width: 350px;
+  margin: auto;
 }
 
 [id^="modal-"] input {
