@@ -126,76 +126,76 @@ main {
 
 @keyframes bg {
   0% {
-    background: rgba(137, 255, 172, 1);
+    background-color: rgba(137, 255, 172, 1);
   }
   25% {
-    background: rgba(137, 255, 172, 0.8);
+    background-color: rgba(137, 255, 172, 0.8);
   }
   75% {
-    background: rgba(137, 255, 172, 0.5);
+    background-color: rgba(137, 255, 172, 0.5);
   }
   100% {
-    background: rgba(137, 255, 172, 0);
+    background-color: rgba(137, 255, 172, 0);
   }
 }
 
 @-webkit-keyframes bg {
   0% {
-    background: rgba(137, 255, 172, 1);
+    background-color: rgba(137, 255, 172, 1);
   }
   25% {
-    background: rgba(137, 255, 172, 0.8);
+    background-color: rgba(137, 255, 172, 0.8);
   }
   75% {
-    background: rgba(137, 255, 172, 0.5);
+    background-color: rgba(137, 255, 172, 0.5);
   }
   100% {
-    background: rgba(137, 255, 172, 0);
+    background-color: rgba(137, 255, 172, 0);
   }
 }
 
 @-moz-keyframes bg {
   0% {
-    background: rgba(137, 255, 172, 1);
+    background-color: rgba(137, 255, 172, 1);
   }
   25% {
-    background: rgba(137, 255, 172, 0.8);
+    background-color: rgba(137, 255, 172, 0.8);
   }
   75% {
-    background: rgba(137, 255, 172, 0.5);
+    background-color: rgba(137, 255, 172, 0.5);
   }
   100% {
-    background: rgba(137, 255, 172, 0);
+    background-color: rgba(137, 255, 172, 0);
   }
 }
 
 @-ms-keyframes bg {
   0% {
-    background: rgba(137, 255, 172, 1);
+    background-color: rgba(137, 255, 172, 1);
   }
   25% {
-    background: rgba(137, 255, 172, 0.8);
+    background-color: rgba(137, 255, 172, 0.8);
   }
   75% {
-    background: rgba(137, 255, 172, 0.5);
+    background-color: rgba(137, 255, 172, 0.5);
   }
   100% {
-    background: rgba(137, 255, 172, 0);
+    background-color: rgba(137, 255, 172, 0);
   }
 }
 
 @-o-keyframes bg {
   0% {
-    background: rgba(137, 255, 172, 1);
+    background-color: rgba(137, 255, 172, 1);
   }
   25% {
-    background: rgba(137, 255, 172, 0.8);
+    background-color: rgba(137, 255, 172, 0.8);
   }
   75% {
-    background: rgba(137, 255, 172, 0.5);
+    background-color: rgba(137, 255, 172, 0.5);
   }
   100% {
-    background: rgba(137, 255, 172, 0);
+    background-color: rgba(137, 255, 172, 0);
   }
 }
 

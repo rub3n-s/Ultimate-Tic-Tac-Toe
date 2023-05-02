@@ -210,7 +210,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Set the table map for arrow keys navigation
     // If game mode is player vs computer, the mapping only needs to be made when is the player turn
-    if (gameMode === "pvc" && playerTurnState.name !== player1Info.name) tableMap(grids.current.children[cellIndex]);
+    if (gameMode === "pvp" || (gameMode === "pvc" && playerTurnState.name !== player1Info.name))
+      tableMap(grids.current.children[cellIndex]);
 
     // Clear disabled grids/cells and update them according to the last play
     clearDisabled();
@@ -598,7 +599,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     //  Get random grid to begin the game
-    setNextPlay(Math.floor(Math.random() * 9), "Reset");
+    //  If it's the computer starting the game
+    if (gameMode === "pvp") setNextPlay(Math.floor(Math.random() * 9), "Reset");
 
     // Enable full grid navigation for the first play
     setFullGridNavigation(true);
@@ -1021,9 +1023,6 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       switch (firstPlay) {
         case player1Name:
           playerTurn = player1TmpStruct;
-
-          // When it's the player 1 starting, navigate throught all the cells in the screen
-          tableMap(null);
           break;
         case player2Name:
           playerTurn = player2TmpStruct;
@@ -1034,6 +1033,9 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
         default:
           console.log("Error setting first player");
       }
+
+      // When game mode is PvP, first play enables navigation throught all the cells in the grid
+      if (gameMode === "pvp") tableMap(null);
 
       console.log("[FIRST PLAY]", playerTurn);
       setTurnInfo(
@@ -1408,8 +1410,9 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
 
   // Create an action each time full grid changed
   useEffect(() => {
-    if (fullGridNavigation == null || fullGridNavigation == false || !showGrid) return;
+    if (fullGridNavigation === null || fullGridNavigation === false || !showGrid) return;
 
+    // Clears all the disabled cells
     clearDisabled();
 
     // eslint-disable-next-line
