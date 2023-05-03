@@ -1,0 +1,79 @@
+.playersInfo {
+  width: 33%;
+  margin: auto;
+}
+
+.playersInfo p {
+  transition: 1s;
+}
+
+.playersInfo .title {
+  line-height: 1em;
+  font-weight: 900;
+  font-size: larger;
+}
+
+/*=================== 
+    Media Queries 
+===================*/
+
+@media (max-width: 800px) {
+  .playersInfo {
+    width: 85%;
+  }
+
+  .playersInfo .title {
+    font-size: 1.1em;
+  }
+
+  .playersInfo p {
+    font-size: 0.9em;
+  }
+}
+
+@media (max-width: 730px) {
+  .playersInfo {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .playersInfo p {
+    font-size: 0.9em;
+  }
+
+  .playersInfo .title {
+    font-size: 1em;
+  }
+
+  .container {
+    width: auto;
+    height: 100%;
+    margin: auto;
+    padding: 0 1em;
+  }
+}
+
+@media (max-width: 550px) {
+  .playersInfo p {
+    font-size: 0.9em;
+  }
+
+  .playersInfo .title {
+    font-size: 1em;
+  }
+
+  .playersInfo {
+    width: 100%;
+    margin: auto;
+  }
+}
+
+@media (max-width: 400px) {
+  .playersInfo p {
+    font-size: 0.8em;
+  }
+
+  .playersInfo .title {
+    font-size: 0.9em;
+  }
+}

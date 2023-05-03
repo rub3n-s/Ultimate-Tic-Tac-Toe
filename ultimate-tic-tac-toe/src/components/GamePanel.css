@@ -70,21 +70,6 @@
   width: 33%;
 }
 
-.playersInfo {
-  width: 33%;
-  margin: auto;
-}
-
-.playersInfo p {
-  transition: 1s;
-}
-
-.playersInfo .title {
-  line-height: 1em;
-  font-weight: 900;
-  font-size: larger;
-}
-
 main {
   display: flex;
   flex-direction: row;
@@ -242,18 +227,6 @@ main {
   main {
     width: 100%;
   }
-
-  .playersInfo {
-    width: 85%;
-  }
-
-  .playersInfo .title {
-    font-size: 1.1em;
-  }
-
-  .playersInfo p {
-    font-size: 0.9em;
-  }
 }
 
 @media (max-width: 730px) {
@@ -267,26 +240,6 @@ main {
     grid-template-columns: repeat(3, [col] 40px);
     grid-template-rows: repeat(3, [row] 40px);
     transition: 1s;
-  }
-
-  .playersInfo {
-    display: flex;
-    flex-direction: row;
-  }
-
-  .playersInfo p {
-    font-size: 0.9em;
-  }
-
-  .playersInfo .title {
-    font-size: 1em;
-  }
-
-  .container {
-    width: auto;
-    height: 100%;
-    margin: auto;
-    padding: 0 1em;
   }
 
   .grid-wrapper {
@@ -303,32 +256,11 @@ main {
     grid-template-columns: repeat(3, [col] 38px);
     grid-template-rows: repeat(3, [row] 38px);
   }
-
-  .playersInfo p {
-    font-size: 0.9em;
-  }
-
-  .playersInfo .title {
-    font-size: 1em;
-  }
-
-  .playersInfo {
-    width: 100%;
-    margin: auto;
-  }
 }
 
 @media (max-width: 400px) {
   .box {
     grid-template-columns: repeat(3, [col] 34px);
     grid-template-rows: repeat(3, [row] 34px);
-  }
-
-  .playersInfo p {
-    font-size: 0.8em;
-  }
-
-  .playersInfo .title {
-    font-size: 0.9em;
   }
 }

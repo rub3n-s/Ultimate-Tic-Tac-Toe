@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import "./GamePanel.css";
 import Modal from "./Modal.js";
+import PlayersInfo from "./PlayersInfo";
 
 const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Name, levelTimeOut }) => {
   const grids = useRef(null);
@@ -621,49 +622,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   // =======================================================
-  //               Build Information Panel
+  //                   Clear Tables
   // =======================================================
-  const buildPlayersInfo = () => {
-    return (
-      <div className="playersInfo">
-        <div className="container">
-          <p className="title">Tables Completed</p>
-          {player1Info != null && player2Info != null && (
-            <>
-              <p>
-                {player1Name}: {player1Info.points}
-              </p>
-              <p>
-                {player2Name}: {player2Info.points}
-              </p>
-            </>
-          )}
-        </div>
-        <div className="container">
-          <p className="title">Turn</p>
-          {turnInfo != null && turnInfo}
-        </div>
-        <div className="container">
-          <p className="title">Rounds Won</p>
-          {player1Info != null && player2Info != null && (
-            <>
-              <p>
-                {player1Name}: {player1Info.roundsWon}
-              </p>
-              <p>
-                {player2Name}: {player2Info.roundsWon}
-              </p>
-            </>
-          )}
-        </div>
-        <div className="container">
-          <p className="title">Timer</p>
-          <p>{timeLeft}</p>
-        </div>
-      </div>
-    );
-  };
-
   const clearDisabled = () => {
     // Remove disable from every grid
     for (let grid of grids.current.children) {
@@ -1426,7 +1386,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
           <div className="grid-wrapper" ref={grids}>
             {buildGrids()}
           </div>
-          {buildPlayersInfo()}
+          <PlayersInfo player1Info={player1Info} player2Info={player2Info} turnInfo={turnInfo} timeLeft={timeLeft} />
           <Modal open={open} title={"Game Ended"} info={modalInfo} onHide={handleQuitRequest} />
         </main>
       )}
