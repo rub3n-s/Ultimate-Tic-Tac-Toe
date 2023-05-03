@@ -51,7 +51,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Evaluate the play
     evaluatePlay("[Click Handle]", tableIndex, cellIndex);
 
-    // Disable full grid navigation after the first play
+    // Disable full table navigation after the first play
     if (mainTableNavigation) setMainTableNavigation(false);
   };
 
@@ -75,7 +75,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Evaluate the play
     evaluatePlay("[Keyboard Handle]", tableIndex, cellIndex);
 
-    // Disable full grid navigation after the first play
+    // Disable full table navigation after the first play
     if (mainTableNavigation) setMainTableNavigation(false);
   };
 
@@ -271,7 +271,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       return randomTableIndex;
     }
 
-    console.log("[getRandomTable] Error getting new random grid");
+    console.log("[getRandomTable] Error getting new random table");
     return null;
   };
 
@@ -336,7 +336,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
       symbols = cells.filter((x) => x.hasClass === true).length;
       if (symbols === 3) {
-        // Player wins this grid
+        // Player wins this table
         table.classList.add(`win${player.symbol}`);
         table.classList.remove("disabled-grid");
 
@@ -483,7 +483,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
           symbols = cells.filter((x) => x.hasClass === true).length;
           if (symbols === 3) {
-            // Player wins this grid
+            // Player wins this table
             table.classList.add(`win${player.symbol}`);
             table.classList.remove("disabled-grid");
 
@@ -562,7 +562,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   const createTable = (i) => {
-    // This function receives the grid index
+    // This function receives the table index
     // Each cell has a click event, where the cell index is sent
     // to a separate function to handle click events
     let element = (
@@ -611,19 +611,19 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       roundsWon: player2Info.roundsWon,
     });
 
-    // Clear grid and cells classes
-    for (let grid of mainTable.current.children) {
-      grid.className = "box";
+    // Clear table and cells classes
+    for (let table of mainTable.current.children) {
+      table.className = "box";
 
       // remove class to disable the click event on the cells
-      for (let cell of grid.children) cell.className = "cell";
+      for (let cell of table.children) cell.className = "cell";
     }
 
-    //  Get random grid to begin the game
+    //  Get random table to begin the game
     //  If it's the computer starting the game
     if (gameMode === "pvp") setNextPlay(Math.floor(Math.random() * 9), "Reset");
 
-    // Enable full grid navigation for the first play
+    // Enable main table navigation for the first play
     setMainTableNavigation(true);
   };
 
@@ -645,32 +645,32 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   //                   Clear Tables
   // =======================================================
   const clearDisabled = () => {
-    // Remove disable from every grid
-    for (let grid of mainTable.current.children) {
-      grid.classList.remove("disabled-grid");
+    // Remove disable from every table
+    for (let table of mainTable.current.children) {
+      table.classList.remove("disabled-grid");
 
-      const wonTable = grid.classList.contains("winO") || grid.classList.contains("winX");
+      const wonTable = table.classList.contains("winO") || table.classList.contains("winX");
       // Remove disable from every cell
-      for (let cell of grid.children) if (!wonTable) cell.classList.remove("disabled-cell");
+      for (let cell of table.children) if (!wonTable) cell.classList.remove("disabled-cell");
     }
   };
 
   const disableTables = (cellIndex) => {
-    // Get last play cell and grid indexs
-    for (let grid of mainTable.current.children) {
-      // Get this grid index
-      const tableIndex = Array.from(mainTable.current.children).indexOf(grid);
+    // Get last play cell and table indexs
+    for (let table of mainTable.current.children) {
+      // Get this table index
+      const tableIndex = Array.from(mainTable.current.children).indexOf(table);
 
       // Check if the table has been won already
-      const winX = grid.classList.contains("winX");
-      const winO = grid.classList.contains("winO");
+      const winX = table.classList.contains("winX");
+      const winO = table.classList.contains("winO");
 
       // Disable the other grids
       if (tableIndex !== cellIndex && !winX && !winO) {
-        grid.classList.add("disabled-grid");
+        table.classList.add("disabled-grid");
 
         // Remove disable from every cell
-        for (let cell of grid.children) cell.classList.add("disabled-cell");
+        for (let cell of table.children) cell.classList.add("disabled-cell");
       }
     }
   };
@@ -679,10 +679,10 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   //            [Computer] Decide Next Play
   // =======================================================
   const nextPlay = () => {
-    // Get the grid with the same index as the cell
-    let grid = mainTable.current.children[nextTable];
+    // Get the table with the same index as the cell
+    let table = mainTable.current.children[nextTable];
 
-    // On the enabled grid
+    // On the enabled table
     // Play randomly or block a player row
     let cells = [];
     let cellIndex = 0;
@@ -697,16 +697,16 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       for (let column = 0; column < 3; column++) {
         cells.push({
           index: cellIndex,
-          oponentSymbol: grid.children[cellIndex].classList.contains(player1Info.symbol),
-          computerSymbol: grid.children[cellIndex].classList.contains(player2Info.symbol),
+          oponentSymbol: table.children[cellIndex].classList.contains(player1Info.symbol),
+          computerSymbol: table.children[cellIndex].classList.contains(player2Info.symbol),
         });
         cellIndex++;
       }
 
       // Every line check the cells
-      // If condition is true, return the current played cell and the grid
-      playedCell = checkCells(grid, cells);
-      if (playedCell != null) return [grid, playedCell];
+      // If condition is true, return the current played cell and the table
+      playedCell = checkCells(table, cells);
+      if (playedCell != null) return [table, playedCell];
     }
 
     /* ================================
@@ -723,73 +723,73 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           cells.push(
             {
               index: 0,
-              oponentSymbol: grid.children[0].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[0].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[0].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[0].classList.contains(player2Info.symbol),
             },
             {
               index: 3,
-              oponentSymbol: grid.children[3].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[3].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[3].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[3].classList.contains(player2Info.symbol),
             },
             {
               index: 6,
-              oponentSymbol: grid.children[6].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[6].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[6].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[6].classList.contains(player2Info.symbol),
             }
           );
 
           // Check cells from column 0
-          // If condition is true, return the current played cell and the grid
-          playedCell = checkCells(grid, cells);
-          if (playedCell != null) return [grid, playedCell];
+          // If condition is true, return the current played cell and the table
+          playedCell = checkCells(table, cells);
+          if (playedCell != null) return [table, playedCell];
           break;
         case 1: // Column 1
           cells.push(
             {
               index: 1,
-              oponentSymbol: grid.children[1].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[1].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[1].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[1].classList.contains(player2Info.symbol),
             },
             {
               index: 4,
-              oponentSymbol: grid.children[4].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[4].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[4].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[4].classList.contains(player2Info.symbol),
             },
             {
               index: 7,
-              oponentSymbol: grid.children[7].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[7].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[7].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[7].classList.contains(player2Info.symbol),
             }
           );
 
           // Check cells from column 1
-          // If condition is true, return the current played cell and the grid
-          playedCell = checkCells(grid, cells);
-          if (playedCell != null) return [grid, playedCell];
+          // If condition is true, return the current played cell and the table
+          playedCell = checkCells(table, cells);
+          if (playedCell != null) return [table, playedCell];
           break;
         case 2: // Column 2
           cells.push(
             {
               index: 2,
-              oponentSymbol: grid.children[2].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[2].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[2].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[2].classList.contains(player2Info.symbol),
             },
             {
               index: 5,
-              oponentSymbol: grid.children[5].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[5].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[5].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[5].classList.contains(player2Info.symbol),
             },
             {
               index: 8,
-              oponentSymbol: grid.children[8].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[8].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[8].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[8].classList.contains(player2Info.symbol),
             }
           );
 
           // Check cells from column 2
-          // If condition is true, return the current played cell and the grid
-          playedCell = checkCells(grid, cells);
-          if (playedCell != null) return [grid, playedCell];
+          // If condition is true, return the current played cell and the table
+          playedCell = checkCells(table, cells);
+          if (playedCell != null) return [table, playedCell];
           break;
         default:
           console.log("Error getting column index");
@@ -810,49 +810,49 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           cells.push(
             {
               index: 0,
-              oponentSymbol: grid.children[0].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[0].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[0].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[0].classList.contains(player2Info.symbol),
             },
             {
               index: 4,
-              oponentSymbol: grid.children[4].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[4].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[4].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[4].classList.contains(player2Info.symbol),
             },
             {
               index: 8,
-              oponentSymbol: grid.children[8].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[8].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[8].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[8].classList.contains(player2Info.symbol),
             }
           );
 
           // Check cells from diagonal top-left to bottom-right
-          // If condition is true, return the current played cell and the grid
-          playedCell = checkCells(grid, cells);
-          if (playedCell != null) return [grid, playedCell];
+          // If condition is true, return the current played cell and the table
+          playedCell = checkCells(table, cells);
+          if (playedCell != null) return [table, playedCell];
           break;
         case 1: // Diagonal 1
           cells.push(
             {
               index: 2,
-              oponentSymbol: grid.children[2].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[2].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[2].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[2].classList.contains(player2Info.symbol),
             },
             {
               index: 4,
-              oponentSymbol: grid.children[4].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[4].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[4].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[4].classList.contains(player2Info.symbol),
             },
             {
               index: 6,
-              oponentSymbol: grid.children[6].classList.contains(player1Info.symbol),
-              computerSymbol: grid.children[6].classList.contains(player2Info.symbol),
+              oponentSymbol: table.children[6].classList.contains(player1Info.symbol),
+              computerSymbol: table.children[6].classList.contains(player2Info.symbol),
             }
           );
 
           // Check cells from diagonal top-right to bottom-left
-          // If condition is true, return the current played cell and the grid
-          playedCell = checkCells(grid, cells);
-          if (playedCell != null) return [grid, playedCell];
+          // If condition is true, return the current played cell and the table
+          playedCell = checkCells(table, cells);
+          if (playedCell != null) return [table, playedCell];
           break;
         default:
           console.log("Error getting diagonal index");
@@ -860,10 +860,10 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     // If none of the lines/columns have been played by computer he plays randomly
-    return [grid, randomPlay(grid)];
+    return [table, randomPlay(table)];
   };
 
-  const checkCells = (grid, cells) => {
+  const checkCells = (table, cells) => {
     // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
     const oponentSymbols = cells.filter((x) => x.oponentSymbol === true).length === 2;
     const computerSymbols = cells.filter((x) => x.computerSymbol === true).length === 2;
@@ -881,14 +881,14 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       if (emptyCell.length === 0) return null;
 
       // Set the computer play in the empty cell
-      grid.children[emptyCell[0].index].classList.add(player2Info.symbol);
+      table.children[emptyCell[0].index].classList.add(player2Info.symbol);
 
       const currentPlay = {
-        tableIndex: Array.from(mainTable.current.children).indexOf(grid),
+        tableIndex: Array.from(mainTable.current.children).indexOf(table),
         cellIndex: emptyCell[0].index,
       };
 
-      console.log(`[${log} Row] Computer made a move on cell\n`, currentPlay, "\n", grid.children[emptyCell[0].index]);
+      console.log(`[${log} Row] Computer made a move on cell\n`, currentPlay, "\n", table.children[emptyCell[0].index]);
 
       return emptyCell[0].index;
     }
@@ -945,7 +945,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   useEffect(() => {
     if (!showGame) return;
 
-    console.log("Displaying grid");
+    console.log("Displaying table");
 
     // Set the first player name and symbol
     let symbolTmp, firstPlay, playerTurn, player1TmpStruct, player2TmpStruct;
@@ -1008,13 +1008,13 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       case player1Name:
         playerTurn = player1TmpStruct;
 
-        // When game mode is PvP, first play enables navigation throught all the cells in the grid
+        // When game mode is PvP, first play enables navigation throught all the cells in the table
         tableMap(null);
         break;
       case player2Name:
         playerTurn = player2TmpStruct;
 
-        // Disable full grid navigation when computer plays first
+        // Disable main table navigation when computer plays first
         if (playerTurn.name === "computer") setMainTableNavigation(false);
         break;
       default:
@@ -1022,7 +1022,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
         return;
     }
 
-    // When game mode is PvP, first play enables navigation throught all the cells in the grid
+    // When game mode is PvP, first play enables navigation throught all the cells in the table
     if (gameMode === "pvp" || (gameMode === "pvc" && firstPlay.name === player1Name)) tableMap(null);
 
     console.log("[FIRST PLAY]", playerTurn);
@@ -1063,7 +1063,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     if (nextTable == null) {
       // Add a timeout to slow the computer reaction
       setTimeout(function () {
-        // Get what grid will the play be
+        // Get a random table for the next play
         let randomTable = mainTable.current.children[Math.floor(Math.random() * 9)];
         let randomCell = randomTable.children[Math.floor(Math.random() * 9)];
 
@@ -1107,7 +1107,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
         if (checkGameEnded()) {
           console.log("[Game Ended] Displaying modal window");
           setTimerRunning(false);
-          // updateInfo();
         } else {
           // Set the next table to be played
           setNextPlay(playedCell, "Computer Play");
@@ -1188,7 +1187,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       console.log("It's the computer turn to play");
       return;
     }
-    // If the game grid isn't open yet, return
+    // If the game table isn't open yet, return
     else if (!showGame || gameEnded) return;
 
     switch (e.keyCode) {
@@ -1384,7 +1383,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     const tableIndex = Array.from(mainTable.current.children).indexOf(table);
     const cellIndex = Array.from(table.children).indexOf(cell);
 
-    // Get the the grid index and cell index
+    // Get the the table index and cell index
     keyboardHandle(cell, tableIndex, cellIndex);
   };
 
