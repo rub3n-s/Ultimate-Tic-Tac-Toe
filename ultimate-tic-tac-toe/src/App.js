@@ -4,16 +4,9 @@ import GameMode from "./components/GameMode";
 import GamePanel from "./components/GamePanel";
 import Footer from "./components/Footer";
 import { useState } from "react";
-// import {
-//   Navbar,
-//   GameMode,
-//   GamePanel,
-//   Modal,
-//   Footer
-// } from "./components";
 
 function App() {
-  const [showGrid, setShowGrid] = useState(false);
+  const [showGame, setShowGame] = useState(false);
   const [showGameMode, setShowGameMode] = useState(true);
   const [gameMode, setGameMode] = useState(null);
   const [player1Name, setPlayer1Name] = useState(null);
@@ -21,7 +14,7 @@ function App() {
   const [levelTimeOut, setTimeOut] = useState(null);
 
   const handleCloseGrid = () => {
-    setShowGrid(false);
+    setShowGame(false);
     setShowGameMode(true);
     setGameMode(null);
     setPlayer1Name(null);
@@ -29,8 +22,8 @@ function App() {
     setTimeOut(null);
   };
 
-  const handleGameMode = (showGrid, gameMode, player1Name, player2Name, levelTimeOut) => {
-    setShowGrid(showGrid);
+  const handleGameMode = (showGame, gameMode, player1Name, player2Name, levelTimeOut) => {
+    setShowGame(showGame);
     setGameMode(gameMode);
     setPlayer1Name(player1Name);
     setPlayer2Name(player2Name);
@@ -47,7 +40,7 @@ function App() {
       <GameMode showGameMode={showGameMode} retrieveData={handleGameMode} />
 
       <GamePanel
-        showGrid={showGrid}
+        showGame={showGame}
         handleCloseGrid={handleCloseGrid}
         gameMode={gameMode}
         player1Name={player1Name}
