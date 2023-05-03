@@ -917,107 +917,110 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   // =======================================================
-  //             Functions Executed on Reload
+  //            Show Grid useEffect Hook
   // =======================================================
+  // This hook is used to setup the game when the showGrid variable received
+  //    by parameter comes true
+  // Decides which player goes first and whats his symbol
   useEffect(() => {
-    if (showGrid) {
-      console.log("Displaying grid");
+    if (!showGrid) return;
 
-      // Set the first player name and symbol
-      let symbolTmp, firstPlay, playerTurn, player1TmpStruct, player2TmpStruct;
+    console.log("Displaying grid");
 
-      // Get the random symbol between 'O' and 'X'
-      Math.random() < 0.5 ? (symbolTmp = "X") : (symbolTmp = "O");
-      Math.random() < 0.5 ? (firstPlay = player1Name) : (firstPlay = player2Name);
+    // Set the first player name and symbol
+    let symbolTmp, firstPlay, playerTurn, player1TmpStruct, player2TmpStruct;
 
-      // Compare symbol of the first player and build second player structure
-      switch (symbolTmp) {
-        case "O":
-          // Build first player structure
-          player1TmpStruct = {
-            name: player1Name,
-            symbol: "O",
-            symbolPath: "o.png",
-            points: 0,
-            roundsWon: 0,
-          };
+    // Get the random symbol between 'O' and 'X'
+    Math.random() < 0.5 ? (symbolTmp = "X") : (symbolTmp = "O");
+    Math.random() < 0.5 ? (firstPlay = player1Name) : (firstPlay = player2Name);
 
-          // Build second player structure
-          player2TmpStruct = {
-            name: player2Name,
-            symbol: "X",
-            symbolPath: "x.png",
-            points: 0,
-            roundsWon: 0,
-          };
-          break;
-        case "X":
-          // Build first player structure
-          player1TmpStruct = {
-            name: player1Name,
-            symbol: "X",
-            symbolPath: "x.png",
-            points: 0,
-            roundsWon: 0,
-          };
+    // Compare symbol of the first player and build second player structure
+    switch (symbolTmp) {
+      case "O":
+        // Build first player structure
+        player1TmpStruct = {
+          name: player1Name,
+          symbol: "O",
+          symbolPath: "o.png",
+          points: 0,
+          roundsWon: 0,
+        };
 
-          // Build second player structure
-          player2TmpStruct = {
-            name: player2Name,
-            symbol: "O",
-            symbolPath: "o.png",
-            points: 0,
-            roundsWon: 0,
-          };
-          break;
-        default:
-          console.log("Error getting player symbol");
-      }
+        // Build second player structure
+        player2TmpStruct = {
+          name: player2Name,
+          symbol: "X",
+          symbolPath: "x.png",
+          points: 0,
+          roundsWon: 0,
+        };
+        break;
+      case "X":
+        // Build first player structure
+        player1TmpStruct = {
+          name: player1Name,
+          symbol: "X",
+          symbolPath: "x.png",
+          points: 0,
+          roundsWon: 0,
+        };
 
-      // Set the structures in different states
-      setPlayer1Info(player1TmpStruct);
-      setPlayer2Info(player2TmpStruct);
-
-      // Check who plays first and whats symbol is assigned to him
-      // Based on that info, create a structure for each player
-      switch (firstPlay) {
-        case player1Name:
-          playerTurn = player1TmpStruct;
-
-          // When game mode is PvP, first play enables navigation throught all the cells in the grid
-          tableMap(null);
-          break;
-        case player2Name:
-          playerTurn = player2TmpStruct;
-
-          // Disable full grid navigation when computer plays first
-          if (playerTurn.name === "computer") setFullGridNavigation(false);
-          break;
-        default:
-          console.log("Error setting first player");
-      }
-
-      // When game mode is PvP, first play enables navigation throught all the cells in the grid
-      if (gameMode === "pvp" || (gameMode === "pvc" && firstPlay.name === player1Name)) tableMap(null);
-
-      console.log("[FIRST PLAY]", playerTurn);
-      setTurnInfo(
-        <>
-          <p>Player: {playerTurn.name}</p>
-          <div className="div-symbol ">
-            <p>Symbol: </p>
-            <img src={playerTurn.symbolPath} className={playerTurn.symbol + "-mini"} alt={playerTurn.symbol}></img>
-          </div>
-        </>
-      );
-
-      // Set the player who gets the first turn to play
-      setPlayerTurnState(playerTurn);
-
-      // Set the timer
-      setTimer();
-      return;
+        // Build second player structure
+        player2TmpStruct = {
+          name: player2Name,
+          symbol: "O",
+          symbolPath: "o.png",
+          points: 0,
+          roundsWon: 0,
+        };
+        break;
+      default:
+        console.log("Error getting player symbol");
     }
+
+    // Set the structures in different states
+    setPlayer1Info(player1TmpStruct);
+    setPlayer2Info(player2TmpStruct);
+
+    // Check who plays first and whats symbol is assigned to him
+    // Based on that info, create a structure for each player
+    switch (firstPlay) {
+      case player1Name:
+        playerTurn = player1TmpStruct;
+
+        // When game mode is PvP, first play enables navigation throught all the cells in the grid
+        tableMap(null);
+        break;
+      case player2Name:
+        playerTurn = player2TmpStruct;
+
+        // Disable full grid navigation when computer plays first
+        if (playerTurn.name === "computer") setFullGridNavigation(false);
+        break;
+      default:
+        console.log("Error setting first player");
+        return;
+    }
+
+    // When game mode is PvP, first play enables navigation throught all the cells in the grid
+    if (gameMode === "pvp" || (gameMode === "pvc" && firstPlay.name === player1Name)) tableMap(null);
+
+    console.log("[FIRST PLAY]", playerTurn);
+    setTurnInfo(
+      <>
+        <p>Player: {playerTurn.name}</p>
+        <div className="div-symbol ">
+          <p>Symbol: </p>
+          <img src={playerTurn.symbolPath} className={playerTurn.symbol + "-mini"} alt={playerTurn.symbol}></img>
+        </div>
+      </>
+    );
+
+    // Set the player who gets the first turn to play
+    setPlayerTurnState(playerTurn);
+
+    // Set the timer
+    setTimer();
 
     return () => {
       // cleaning up the listeners here
@@ -1029,6 +1032,9 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   // =======================================================
   //           Computer Play useEffect Hook
   // =======================================================
+  // Effect called when playerTurnState changes
+  // This effect is used to verify if the current turn state is for
+  //    the computer and make his play
   useEffect(() => {
     // Every reload of the component, execute the computer play
     if (gameMode === "pvc" && playerTurnState.name === "computer") {
@@ -1151,8 +1157,13 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
   function checkKey(e) {
     e = e || window.event;
 
+    // Verifies if it's the computer turn to play
+    if (gameMode === "pvc" && playerTurnState.name === "computer") {
+      console.log("It's the computer turn to play");
+      return;
+    }
     // If the game grid isn't open yet, return
-    if (!showGrid || gameEnded) return;
+    else if (!showGrid || gameEnded) return;
 
     switch (e.keyCode) {
       case 37:
@@ -1335,10 +1346,8 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     });
   };
 
-  // Get the last position of the arrows event and select the cell
+  // Get the last position of the arrow keys event and select the cell
   const selectCell = () => {
-    console.log("[ENTER]");
-
     // Get the selected cell from the map
     const cell = currentTableMap[position.y][position.x];
 
@@ -1349,31 +1358,40 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
     const tableIndex = Array.from(grids.current.children).indexOf(table);
     const cellIndex = Array.from(table.children).indexOf(cell);
 
-    console.log("Selected cell", cell);
-    console.log("Parent", table);
-
     // Get the the grid index and cell index
     keyboardHandle(cell, tableIndex, cellIndex);
-
-    for (let table of grids.current.children) for (let cell of table.children) cell.classList.remove("arrow-selected");
   };
 
-  // Create an action each time position gets changed
+  // =======================================================
+  //          Keyboard Cell Position useEffect Hook
+  // =======================================================
+  // Create an action each time position it's changed
+  // This hook gets called every time the user presses the arrow keys
   useEffect(() => {
     if (currentTableMap == null) return;
 
     // New coords
     console.log(position);
 
-    for (let table of grids.current.children) for (let cell of table.children) cell.classList.remove("arrow-selected");
+    // Set the anitamon for the selected cell
     currentTableMap[position.y][position.x].classList.add("arrow-selected");
+
+    // After 0.5 seconds remove the class (0.5 seconds is the time of the animation)
+    setTimeout(() => {
+      currentTableMap[position.y][position.x].classList.remove("arrow-selected");
+    }, 500);
 
     // eslint-disable-next-line
   }, [position]);
 
-  // Create an action each time full grid changed
+  // =======================================================
+  //         Full Grid Navigation useEffect Hook
+  // =======================================================
+  // Create an action each time full grid navigation is changed
+  // Allows players to navigate freely throught all the table
+  //    cells on the first play of the game
   useEffect(() => {
-    if (fullGridNavigation === null || fullGridNavigation === false || !showGrid) return;
+    if (fullGridNavigation === false || !showGrid) return;
 
     // Clears all the disabled cells
     clearDisabled();

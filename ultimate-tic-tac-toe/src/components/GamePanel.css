@@ -102,11 +102,11 @@ main {
 
 .arrow-selected {
   /* background-color: rgba(137, 255, 172, 0.85); */
-  animation: bg .8s ease-in;
-  -webkit-animation: bg .8s ease-in;
-  -moz-animation: bg .8s ease-in;
-  -ms-animation: bg .8s ease-in;
-  -o-animation: bg .8s ease-in;
+  animation: bg .5s ease-in;
+  -webkit-animation: bg .5s ease-in;
+  -moz-animation: bg .5s ease-in;
+  -ms-animation: bg .5s ease-in;
+  -o-animation: bg .5s ease-in;
 }
 
 @keyframes bg {
@@ -116,11 +116,14 @@ main {
   25% {
     background-color: rgba(137, 255, 172, 0.8);
   }
+  50% {
+    background-color: rgba(137, 255, 172, 0.6);
+  }
   75% {
-    background-color: rgba(137, 255, 172, 0.5);
+    background-color: rgba(137, 255, 172, 0.4);
   }
   100% {
-    background-color: rgba(137, 255, 172, 0);
+    background-color: rgba(137, 255, 172, 0.2);
   }
 }
 
@@ -131,11 +134,14 @@ main {
   25% {
     background-color: rgba(137, 255, 172, 0.8);
   }
+  50% {
+    background-color: rgba(137, 255, 172, 0.6);
+  }
   75% {
-    background-color: rgba(137, 255, 172, 0.5);
+    background-color: rgba(137, 255, 172, 0.4);
   }
   100% {
-    background-color: rgba(137, 255, 172, 0);
+    background-color: rgba(137, 255, 172, 0.2);
   }
 }
 
@@ -146,11 +152,14 @@ main {
   25% {
     background-color: rgba(137, 255, 172, 0.8);
   }
+  50% {
+    background-color: rgba(137, 255, 172, 0.6);
+  }
   75% {
-    background-color: rgba(137, 255, 172, 0.5);
+    background-color: rgba(137, 255, 172, 0.4);
   }
   100% {
-    background-color: rgba(137, 255, 172, 0);
+    background-color: rgba(137, 255, 172, 0.2);
   }
 }
 
@@ -161,11 +170,14 @@ main {
   25% {
     background-color: rgba(137, 255, 172, 0.8);
   }
+  50% {
+    background-color: rgba(137, 255, 172, 0.6);
+  }
   75% {
-    background-color: rgba(137, 255, 172, 0.5);
+    background-color: rgba(137, 255, 172, 0.4);
   }
   100% {
-    background-color: rgba(137, 255, 172, 0);
+    background-color: rgba(137, 255, 172, 0.2);
   }
 }
 
@@ -176,11 +188,14 @@ main {
   25% {
     background-color: rgba(137, 255, 172, 0.8);
   }
+  50% {
+    background-color: rgba(137, 255, 172, 0.6);
+  }
   75% {
-    background-color: rgba(137, 255, 172, 0.5);
+    background-color: rgba(137, 255, 172, 0.4);
   }
   100% {
-    background-color: rgba(137, 255, 172, 0);
+    background-color: rgba(137, 255, 172, 0.2);
   }
 }
 
