@@ -983,6 +983,9 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       switch (firstPlay) {
         case player1Name:
           playerTurn = player1TmpStruct;
+
+          // When game mode is PvP, first play enables navigation throught all the cells in the grid
+          tableMap(null);
           break;
         case player2Name:
           playerTurn = player2TmpStruct;
@@ -995,7 +998,7 @@ const GamePanel = ({ showGrid, gameMode, handleCloseGrid, player1Name, player2Na
       }
 
       // When game mode is PvP, first play enables navigation throught all the cells in the grid
-      if (gameMode === "pvp") tableMap(null);
+      if (gameMode === "pvp" || (gameMode === "pvc" && firstPlay.name === player1Name)) tableMap(null);
 
       console.log("[FIRST PLAY]", playerTurn);
       setTurnInfo(

@@ -2,13 +2,12 @@ import "./GameMode.css";
 import { useEffect, useRef, useState } from "react";
 import Modal from "./Modal";
 
-const GameMode = ({ retrieveData }) => {
+const GameMode = ({ showGameMode, retrieveData }) => {
   const inputNick1 = useRef(null);
   const inputNick2 = useRef(null);
   const inputTimer = useRef(null);
   const [open, setOpen] = useState(false);
   const [info, setInfo] = useState(null);
-  const [showGameMode, setShowGameMode] = useState(true);
   const [gameMode, setGameMode] = useState(null);
 
   const insertNickNames = () => {
@@ -169,12 +168,9 @@ const GameMode = ({ retrieveData }) => {
 
     // Change states to replace the components visibility
     handleCloseModal();
-    handleCloseGameMode();
   };
 
   const handleCloseModal = () => setOpen(false);
-
-  const handleCloseGameMode = () => setShowGameMode(false);
 
   // Function that opens a modal based on the game mode selected
   // Players have to insert their names

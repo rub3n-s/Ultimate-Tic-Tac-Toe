@@ -38,11 +38,3 @@ body {
   min-width: 100%;
   min-height: 760px;
 }
-
-.background-red {
-  background-color: rgba(219, 0, 0, 0.58);
-}
-
-.background-white {
-  background-color: white;
-}
