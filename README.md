@@ -2,8 +2,8 @@
 ## Script Languages
 Ultimate Tic-Tac-Toe game developed in React JS.
 
-Create a server:
-  -> Install Node.js
-
-Run node:
-  -> npm start 
+# Server
+## Node.js
+  -> Install Node.js\
+  -> Run Node.js\
+      -> npm start
