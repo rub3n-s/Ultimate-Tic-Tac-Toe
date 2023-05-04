@@ -6,4 +6,4 @@ Ultimate Tic-Tac-Toe game developed in React JS.
 ## Node.js
   -> Install Node.js\
   -> Run Node.js\
-&nbsp;&nbsp;&nbsp;&nbsp;-> npm start
+  > npm start
