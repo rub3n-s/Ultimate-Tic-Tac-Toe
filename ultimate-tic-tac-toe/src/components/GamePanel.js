@@ -31,6 +31,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /* =======================================================
                 Play Handles (Click and Keyboard)
      =======================================================
+     -> Events called on mouse click or keyboard enter
   */
   const clickHandle = (event, tableIndex, cellIndex) => {
     // Verifies if it's the computer turn to play
@@ -82,6 +83,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /* =======================================================
               Play Validations (Click and Keyboard)
      =======================================================
+     -> Check if the cell is available
+     -> Check if is the computer turn to play
+     -> Evaluate the play to check if the player won the table
   */
   const containsClass = (element) => {
     return (
@@ -214,10 +218,10 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   /* =======================================================
-                    Handle Next Play
+                     Handle Next Play
      =======================================================
+     -> Get the current played cell, if AVAILABLE, returns the table with that index
   */
-  // Get the current played cell, if AVAILABLE, returns the table with that index
   const setNextPlay = (cellIndex, event) => {
     // Check if the next table is available
     if (!isTableAvailable(mainTable.current.children[cellIndex])) {
@@ -278,7 +282,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /* =======================================================
                     Set Next Player Turn
      =======================================================
-     After every cell click the next player to play is set
+     -> After every cell click the next player to play is set
   */
   const setPlayerTurn = () => {
     switch (playerTurnState.name) {
@@ -310,9 +314,12 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
   };
 
-  // =======================================================
-  //                Verify Plays / Game End
-  // =======================================================
+  /*  =======================================================
+                  Verify Plays / Game End
+      =======================================================
+      -> After every play check if the current play has completed
+        a row and set the win
+  */
   const checkWin = (table, player) => {
     let cells = [];
     let cellIndex = 0;
@@ -529,12 +536,13 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     return false;
   };
 
-  //    Verifies if all the tables have a winner
+  // Check if all the tables have a winner
   const checkGameEnded = () => {
-    // Check if all the tables have a winner
+    // Get all tables with a winner
     const allTablesWon = Array.from(mainTable.current.children).filter(
       (x) => x.classList.contains("winX") || x.classList.contains("winO")
     );
+
     // All tables have a winner
     if (allTablesWon.length === 9) return true;
 
@@ -551,9 +559,11 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     return true;
   };
 
-  // =======================================================
-  //                    Build Tables
-  // =======================================================
+  /*  =======================================================
+                        Build Tables
+      =======================================================
+      -> Build tables when game starts
+  */
   const buildTables = () => {
     let content = [];
     let outerGrid = 3 * 3; // 3x3 grid
@@ -582,9 +592,12 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     return element;
   };
 
-  // =======================================================
-  //               Reset Component Data
-  // =======================================================
+  /*  =======================================================
+                  Reset Component States
+      =======================================================
+      -> Reset states to restart the game
+      -> Clear disabled cells and tables
+  */
   const reset = () => {
     console.log("Reseting game...");
     setOpenModal(false);
@@ -644,8 +657,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /*  =======================================================
                   Clear/Disable Tables
       =======================================================
-      Removes class from all tables that dont have a win
-      If a table already has a winner, the cells keep disabled
+      - Removes class from all tables that dont have a win
+      - If a table already has a winner, the cells keep disabled
   */
   const clearDisabled = () => {
     // Remove disable from every table
@@ -681,9 +694,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /*  =======================================================
                   [Computer] Decide Next Play
       =======================================================
-      - Decide where is going to be the computers next play
-      - Check the cells to complete a row if he has two symbols
-      - Random play if he doesnt have two symbols in same row
+      -> Decide where is going to be the computers next play
+      -> Check the cells to complete a row if he has two symbols
+      -> Random play if he doesnt have two symbols in same row
   */
   const nextPlay = () => {
     // Get the table with the same index as the cell
@@ -927,8 +940,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /*  =======================================================
                             Game Timer
       =======================================================
-      - Decrement timer 
-      - Set timer and update timerRunning state to true
+      -> Decrement timer 
+      -> Set timer and update timerRunning state to true
   */
   const updateGameTime = () => {
     setTimeLeft(--timer + "s");
@@ -948,8 +961,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /*  =======================================================
                     Computer Play useEffect Hook
       =======================================================
-      Create an action on the update of 'showGame'
-      Used to decide which player goes first and whats his symbol
+      -> Create an action on the update of 'showGame'
+      -> Used to decide which player goes first and whats his symbol
   */
   useEffect(() => {
     if (!showGame) return;
@@ -1061,8 +1074,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /*  =======================================================
                     Computer Play useEffect Hook
       =======================================================
-      Create an action on the update of 'playerTurnState'
-      Used to verify if is the computer turn to play
+      -> Create an action on the update of 'playerTurnState'
+      -> Used to verify if is the computer turn to play
   */
   useEffect(() => {
     // Check if is the computer turn to play
@@ -1136,9 +1149,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /*  =======================================================
                       Timer useEffect Hook
       =======================================================
-      Create an action on the update of 'timerRunning'
-      If the timer reaches zero in updateGameTime() 'timerRunning' 
-      state is updated
+      -> Create an action on the update of 'timerRunning'
+      -> If the timer reaches zero in updateGameTime() 'timerRunning' 
+        state is updated
   */
   useEffect(() => {
     if (!timerRunning) {
@@ -1151,9 +1164,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /*  =======================================================
                   Arrow Keys Cells Navigation
       =======================================================
-      Functions to handle mapping of the available table
-      Handles for keyboard navigation, supports:
-        - arrow up, arrow down, arrow left, arrow right, enter
+      -> Functions to handle mapping of the available table
+      -> Handles for keyboard navigation, supports:
+        -> arrow up, arrow down, arrow left, arrow right, enter
   */
   const [currentTableMap, setCurrentTableMap] = useState(null);
   const [position, setPosition] = useState(null);
@@ -1399,8 +1412,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /*  =======================================================
               Keyboard Navigation useEffect Hook
       =======================================================
-      Create an action each time 'position' is changed
-      This hook gets called every time the user presses the arrow keys
+      -> Create an action each time 'position' is changed
+      -> This hook gets called every time the user presses the arrow keys
   */
   useEffect(() => {
     if (currentTableMap == null) return;
@@ -1422,8 +1435,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /*  =======================================================
               Full Grid Navigation useEffect Hook
       =======================================================
-      Create an action each time 'mainTableNavigation' is changed
-      Allows players to navigate freely throught every cell
+      -> Create an action each time 'mainTableNavigation' is changed
+      -> Allows players to navigate freely throught every cell
   */
   useEffect(() => {
     if (mainTableNavigation === false || !showGame) return;
