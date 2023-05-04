@@ -641,9 +641,12 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     handleCloseGrid();
   };
 
-  // =======================================================
-  //                   Clear Tables
-  // =======================================================
+  /*  =======================================================
+                  Clear/Disable Tables
+      =======================================================
+      Removes class from all tables that dont have a win
+      If a table already has a winner, the cells keep disabled
+  */
   const clearDisabled = () => {
     // Remove disable from every table
     for (let table of mainTable.current.children) {
@@ -675,15 +678,19 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
   };
 
-  // =======================================================
-  //            [Computer] Decide Next Play
-  // =======================================================
+  /*  =======================================================
+                  [Computer] Decide Next Play
+      =======================================================
+      - Decide where is going to be the computers next play
+      - Check the cells to complete a row if he has two symbols
+      - Random play if he doesnt have two symbols in same row
+  */
   const nextPlay = () => {
     // Get the table with the same index as the cell
     let table = mainTable.current.children[nextTable];
 
     // On the enabled table
-    // Play randomly or block a player row
+    // Play randomly or block a player's row
     let cells = [];
     let cellIndex = 0;
     let playedCell = null;
@@ -917,10 +924,12 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
   };
 
-  // =======================================================
-  //                      Game Timer
-  // =======================================================
-  /* Decrement the timer */
+  /*  =======================================================
+                            Game Timer
+      =======================================================
+      - Decrement timer 
+      - Set timer and update timerRunning state to true
+  */
   const updateGameTime = () => {
     setTimeLeft(--timer + "s");
     if (timer === 0 || gameEnded) setTimerRunning(false);
@@ -1388,7 +1397,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   /*  =======================================================
-              Full Grid Navigation useEffect Hook
+              Keyboard Navigation useEffect Hook
       =======================================================
       Create an action each time 'position' is changed
       This hook gets called every time the user presses the arrow keys

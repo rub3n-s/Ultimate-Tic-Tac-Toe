@@ -6,7 +6,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
   const inputNick1 = useRef(null);
   const inputNick2 = useRef(null);
   const inputTimer = useRef(null);
-  const [open, setOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [info, setInfo] = useState(null);
   const [gameMode, setGameMode] = useState(null);
 
@@ -46,7 +46,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
             </div>
           </>
         );
-        setOpen(true);
+        setOpenModal(true);
         break;
       case "pvp":
         setInfo(
@@ -91,7 +91,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
             </div>
           </>
         );
-        setOpen(true);
+        setOpenModal(true);
         break;
       default:
         console.log("Error receiving game mode...");
@@ -170,15 +170,14 @@ const GameMode = ({ showGameMode, retrieveData }) => {
     handleCloseModal();
   };
 
-  const handleCloseModal = () => setOpen(false);
-
-  // Function that opens a modal based on the game mode selected
-  // Players have to insert their names
-  const handleGameMode = (mode) => {
-    setGameMode(mode);
+  // If the modal gets close, reset gameMode and openModal states
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setGameMode(null);
   };
 
-  // Create an action on the update of game mode
+  // Create an action on the update of gameMode
+  // Calls the function to open
   useEffect(() => {
     if (gameMode == null || !showGameMode) return;
 
@@ -193,10 +192,10 @@ const GameMode = ({ showGameMode, retrieveData }) => {
       {showGameMode && (
         <main>
           <div className="gameMode">
-            <button id="pvcButton" onClick={() => handleGameMode("pvc")}>
+            <button id="pvcButton" onClick={() => setGameMode("pvc")}>
               <span>Player vs Computer</span>
             </button>
-            <button id="pvpButton" onClick={() => handleGameMode("pvp")}>
+            <button id="pvpButton" onClick={() => setGameMode("pvp")}>
               <span>Player vs Player</span>
             </button>
           </div>
@@ -204,7 +203,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
       )}
 
       <Modal
-        open={open}
+        openModal={openModal}
         gameMode={gameMode}
         onHide={handleCloseModal}
         title={"What's your name"}
