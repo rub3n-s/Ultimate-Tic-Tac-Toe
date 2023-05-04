@@ -4,7 +4,8 @@ Ultimate Tic-Tac-Toe game developed in React JS.
 
 # Server
 ## Node.js
-  Install Node.js (Mac OS)\
+Install Node.js (Mac OS)\
   > brew install node\
-  Run Node.js\
+  
+Run Node.js\
   > npm start
