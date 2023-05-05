@@ -9,7 +9,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const [player2Info, setPlayer2Info] = useState(null);
   const [playerTurnState, setPlayerTurnState] = useState(null);
   const [turnInfo, setTurnInfo] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(0);
 
   // Tables states
   const mainTable = useRef(null);
@@ -27,6 +26,208 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   let timer;
   const [timerId, setTimerId] = useState(null);
   const [timerRunning, setTimerRunning] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  /*  =======================================================
+                        Build Tables
+      =======================================================
+      -> Build tables when game starts
+  */
+  const buildTables = () => {
+    let content = [];
+    let outerGrid = 3 * 3; // 3x3 grid
+    for (let i = 0; i < outerGrid; i++) content.push(createTable(i));
+    return content;
+  };
+
+  const createTable = (i) => {
+    // This function receives the table index
+    // Each cell has a click event, where the cell index is sent
+    // to a separate function to handle click events
+    let element = (
+      <div key={i} className="box">
+        <div className="cell" onClick={(event) => clickHandle(event, i, 0)}></div>
+        <div className="cell" onClick={(event) => clickHandle(event, i, 1)}></div>
+        <div className="cell" onClick={(event) => clickHandle(event, i, 2)}></div>
+        <div className="cell" onClick={(event) => clickHandle(event, i, 3)}></div>
+        <div className="cell" onClick={(event) => clickHandle(event, i, 4)}></div>
+        <div className="cell" onClick={(event) => clickHandle(event, i, 5)}></div>
+        <div className="cell" onClick={(event) => clickHandle(event, i, 6)}></div>
+        <div className="cell" onClick={(event) => clickHandle(event, i, 7)}></div>
+        <div className="cell" onClick={(event) => clickHandle(event, i, 8)}></div>
+      </div>
+    );
+
+    return element;
+  };
+
+  /*  =======================================================
+                Set Players Info useEffect Hook
+      =======================================================
+      -> Create an action on the update of 'showGame'
+      -> Used to decide which player goes first and whats his symbol
+  */
+  useEffect(() => {
+    if (!showGame) return;
+
+    console.log("Displaying table");
+
+    // Set the first player name and symbol
+    let playerTurn, player1Struct, player2Struct;
+
+    // Build first player structure
+    player1Struct = {
+      name: player1Name,
+      symbol: Math.random() < 0.5 ? "X" : "O", // Get the random symbol ('X' or 'O')
+      symbolPath: null,
+      points: 0,
+      roundsWon: 0,
+    };
+
+    // Build second player structure
+    player2Struct = {
+      name: player2Name,
+      symbol: player1Struct.symbol === "X" ? "O" : "X", // Get the symbol comparing to first player
+      symbolPath: null,
+      points: 0,
+      roundsWon: 0,
+    };
+
+    // Define the symbol paths
+    player1Struct.symbolPath = player1Struct.symbol === "X" ? "x.png" : "o.png";
+    player2Struct.symbolPath = player2Struct.symbol === "X" ? "x.png" : "o.png";
+
+    // Set the structures in different states
+    setPlayer1Info(player1Struct);
+    setPlayer2Info(player2Struct);
+
+    // Get a random player for the first play
+    const firstPlay = Math.random() < 0.5 ? player1Name : player2Name;
+
+    // Check who plays first and whats symbol is assigned to him
+    switch (firstPlay) {
+      case player1Name:
+        playerTurn = player1Struct;
+        break;
+      case player2Name:
+        playerTurn = player2Struct;
+
+        // Disable main table navigation when computer plays first
+        if (gameMode === "pvc") setMainTableNavigation(false);
+        break;
+      default:
+        console.log("Error setting first player");
+        return;
+    }
+
+    // When game mode is PvP, first play enables navigation throught all the cells in the table
+    if (gameMode === "pvp" || (gameMode === "pvc" && firstPlay.name === player1Name)) tableMap(null);
+
+    console.log("[FIRST PLAY]", playerTurn);
+    setTurnInfo(
+      <>
+        <p>Player: {playerTurn.name}</p>
+        <div className="div-symbol ">
+          <p>Symbol: </p>
+          <img src={playerTurn.symbolPath} className={playerTurn.symbol + "-mini"} alt={playerTurn.symbol}></img>
+        </div>
+      </>
+    );
+
+    // Set the player who gets the first turn to play
+    setPlayerTurnState(playerTurn);
+
+    // Set the timer
+    setTimer();
+
+    return () => {
+      // cleaning up the listeners here
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showGame]);
+
+  /*  =======================================================
+                    Computer Play useEffect Hook
+      =======================================================
+      -> Create an action on the update of 'playerTurnState'
+      -> Used to verify if is the computer turn to play
+  */
+  useEffect(() => {
+    // Check if is the computer turn to play
+    if (!isComputerTurn()) return;
+
+    // If the nextTable hasn't been set, computer is the first to play
+    if (nextTable == null) {
+      // Add a timeout to slow the computer reaction
+      setTimeout(function () {
+        // Get a random table for the next play
+        let randomTable = mainTable.current.children[Math.floor(Math.random() * 9)];
+        let randomCell = randomTable.children[Math.floor(Math.random() * 9)];
+
+        // Set the css class with the image to the clicked cell
+        randomCell.className = `cell ${player2Info.symbol}`;
+
+        const currentPlay = {
+          tableIndex: Array.from(mainTable.current.children).indexOf(randomTable),
+          cellIndex: Array.from(randomTable.children).indexOf(randomCell),
+        };
+
+        console.log("Computer made a move on cell \n", currentPlay, "\n", randomCell);
+
+        // Set the next table to be played
+        setNextPlay(Array.from(randomTable.children).indexOf(randomCell), "Computer Play");
+
+        // Update player turn
+        setPlayerTurnState(setPlayerTurn());
+      }, 1200);
+    } else {
+      // Add a timeout to slow the computer reaction
+      setTimeout(function () {
+        // Generate computer's next play
+        const [playedTable, playedCell] = nextPlay();
+
+        // After the computer make his play, check if he won the table he played
+        if (checkWin(playedTable, player2Info)) {
+          // Update Player 2 points
+          setPlayer2Info({
+            name: player2Info.name,
+            symbol: player2Info.symbol,
+            symbolPath: player2Info.symbolPath,
+            points: ++player2Info.points,
+            roundsWon: player2Info.roundsWon,
+          });
+
+          // Computer wins this table
+          playedTable.classList.add(`win${player2Info.symbol}`);
+          playedTable.classList.remove("disabled-grid");
+
+          // add a class to disable the click event on the cells
+          for (let child of playedTable.children) child.classList.add("disabled-cell");
+
+          console.log(`'${player2Info.name}' won table ${playedCell}\n`, playedTable);
+        }
+
+        // Verify if all the grids are disabled
+        if (checkGameEnded()) {
+          console.log("[Game Ended] Displaying modal window");
+          setTimerRunning(false);
+        } else {
+          // Set the next table to be played
+          setNextPlay(playedCell, "Computer Play");
+        }
+
+        // Update the next player to play
+        setPlayerTurnState(setPlayerTurn());
+      }, 1200);
+    }
+
+    return () => {
+      // cleaning up the listeners here
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerTurnState]);
 
   /* =======================================================
                 Play Handles (Click and Keyboard)
@@ -161,7 +362,111 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     setPlayerTurnState(setPlayerTurn());
   };
 
-  // Updates the Info Panel and Modal content
+  /*  =======================================================
+                  Verify Plays / Game End
+      =======================================================
+      -> After every play check if the current play has completed
+        a row and set the win
+      -> Map the current played table
+        -> Get the lines, column and cells from the 3x3 array
+  */
+  const mapTable = (table) => {
+    let mappedTable = [];
+    let cellIndex = 0;
+    for (let line = 0; line < 3; line++) {
+      // Push an empty array for columns in line x
+      mappedTable.push([]);
+      for (let column = 0; column < 3; column++) {
+        mappedTable[line].push(table.children[cellIndex]);
+        cellIndex++;
+      }
+    }
+    return mappedTable;
+  };
+
+  const checkWin = (table, player) => {
+    // Map table for easier data access
+    const mappedTable = mapTable(table);
+    console.log("[Check Win] Mapped Table", mappedTable);
+
+    /* ================================
+                      LINES 
+      ================================
+    */
+    for (let i = 0; i < mappedTable.length; i++) {
+      // Get the an array of cells on line i
+      const line = mappedTable[i];
+
+      // Check if the player won line i
+      const win = line.filter((x) => x.classList.contains(player.symbol)).length === 3;
+      if (win) return true;
+    }
+
+    /* ================================
+                      COLUMNS 
+      ================================
+    */
+    for (let i = 0; i < mappedTable.length; i++) {
+      let column = [];
+      for (let j = 0; j < mappedTable.length; j++)
+        // Get the an array of cells on column i and line j
+        column.push(mappedTable[j][i]);
+
+      // Check if the player won line i
+      const win = column.filter((x) => x.classList.contains(player.symbol)).length === 3;
+      if (win) return true;
+    }
+
+    /* ================================
+                      DIAGONALS 
+      ================================
+    */
+    // Up left to Down right / Up right to Down left
+    const diagonals = [
+      [mappedTable[0][0], mappedTable[1][1], mappedTable[2][2]],
+      [mappedTable[0][2], mappedTable[1][1], mappedTable[2][0]],
+    ];
+
+    for (let i = 0; i < diagonals.length; i++) {
+      const diagonal = diagonals[i];
+
+      const win = diagonal.filter((x) => x.classList.contains(player.symbol)).length === 3;
+      if (win) return true;
+    }
+
+    return false;
+  };
+
+  // Check if all the tables have a winner
+  const checkGameEnded = () => {
+    // Get all tables with a winner
+    const allTablesWon =
+      Array.from(mainTable.current.children).filter((x) => x.classList.contains("winX") || x.classList.contains("winO"))
+        .length === 9;
+
+    // All tables have a winner
+    if (allTablesWon) return true;
+
+    // Check if all the cells are filled
+    for (let table of mainTable.current.children) {
+      if (!table.classList.contains("winX") && !table.classList.contains("winO")) {
+        const tableIsFull =
+          Array.from(table.children).filter(
+            (x) => x.classList.contains(player1Info.symbol) || x.classList.contains(player2Info.symbol)
+          ).length < 9;
+        if (tableIsFull) return false;
+      }
+    }
+
+    return true;
+  };
+
+  /* =======================================================
+                    Update Players Info
+     =======================================================
+     -> Updates the Info Panel and Modal content
+     -> Displayed after the game ends
+  */
   const updateInfo = () => {
     // Check who has more points
     if (player1Info.points > player2Info.points) {
@@ -317,142 +622,11 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   /*  =======================================================
-                  Verify Plays / Game End
-      =======================================================
-      -> After every play check if the current play has completed
-        a row and set the win
-      -> Map the current played table
-        -> Get the lines, column and cells from the 3x3 array
-  */
-  const mapTable = (table) => {
-    let mappedTable = [];
-    let cellIndex = 0;
-    for (let line = 0; line < 3; line++) {
-      // Push an empty array for columns in line x
-      mappedTable.push([]);
-      for (let column = 0; column < 3; column++) {
-        mappedTable[line].push(table.children[cellIndex]);
-        cellIndex++;
-      }
-    }
-    return mappedTable;
-  };
-
-  const checkWin = (table, player) => {
-    // Map table for easier data access
-    const mappedTable = mapTable(table);
-    console.log("[Check Win] Mapped Table", mappedTable);
-
-    /* ================================
-                LINES 
-      ================================
-    */
-    for (let i = 0; i < mappedTable.length; i++) {
-      // Get the an array of cells on line i
-      const line = mappedTable[i];
-
-      // Check if the player won line i
-      const win = line.filter((x) => x.classList.contains(player.symbol)).length === 3;
-      if (win) return true;
-    }
-
-    /* ================================
-                COLUMNS 
-      ================================
-    */
-    for (let i = 0; i < mappedTable.length; i++) {
-      let column = [];
-      for (let j = 0; j < mappedTable.length; j++)
-        // Get the an array of cells on column i and line j
-        column.push(mappedTable[j][i]);
-
-      // Check if the player won line i
-      const win = column.filter((x) => x.classList.contains(player.symbol)).length === 3;
-      if (win) return true;
-    }
-
-    /* ================================
-                DIAGONALS 
-      ================================
-    */
-    // Up left to Down right / Up right to Down left
-    const diagonals = [
-      [mappedTable[0][0], mappedTable[1][1], mappedTable[2][2]],
-      [mappedTable[0][2], mappedTable[1][1], mappedTable[2][0]],
-    ];
-
-    for (let i = 0; i < diagonals.length; i++) {
-      const diagonal = diagonals[i];
-
-      const win = diagonal.filter((x) => x.classList.contains(player.symbol)).length === 3;
-      if (win) return true;
-    }
-
-    return false;
-  };
-
-  // Check if all the tables have a winner
-  const checkGameEnded = () => {
-    // Get all tables with a winner
-    const allTablesWon =
-      Array.from(mainTable.current.children).filter((x) => x.classList.contains("winX") || x.classList.contains("winO"))
-        .length === 9;
-
-    // All tables have a winner
-    if (allTablesWon) return true;
-
-    // Check if all the cells are filled
-    for (let table of mainTable.current.children) {
-      if (!table.classList.contains("winX") && !table.classList.contains("winO")) {
-        const tableIsFull =
-          Array.from(table.children).filter(
-            (x) => x.classList.contains(player1Info.symbol) || x.classList.contains(player2Info.symbol)
-          ).length < 9;
-        if (tableIsFull) return false;
-      }
-    }
-
-    return true;
-  };
-
-  /*  =======================================================
-                        Build Tables
-      =======================================================
-      -> Build tables when game starts
-  */
-  const buildTables = () => {
-    let content = [];
-    let outerGrid = 3 * 3; // 3x3 grid
-    for (let i = 0; i < outerGrid; i++) content.push(createTable(i));
-    return content;
-  };
-
-  const createTable = (i) => {
-    // This function receives the table index
-    // Each cell has a click event, where the cell index is sent
-    // to a separate function to handle click events
-    let element = (
-      <div key={i} className="box">
-        <div className="cell" onClick={(event) => clickHandle(event, i, 0)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 1)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 2)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 3)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 4)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 5)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 6)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 7)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 8)}></div>
-      </div>
-    );
-
-    return element;
-  };
-
-  /*  =======================================================
                   Reset Component States
       =======================================================
       -> Reset states to restart the game
       -> Clear disabled cells and tables
+      -> Quit handle resets all the states
   */
   const reset = () => {
     console.log("Reseting game...");
@@ -497,9 +671,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   const handleQuitRequest = () => {
-    setPlayerTurnState(null);
     setPlayer1Info(null);
     setPlayer2Info(null);
+    setPlayerTurnState(null);
     setTurnInfo(null);
     setOpenModal(false);
     setGameEnded(false);
@@ -557,182 +731,56 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const nextPlay = () => {
     // Get the table with the same index as the cell
     let table = mainTable.current.children[nextTable];
-
-    // On the enabled table
-    // Play randomly or block a player's row
-    let cells = [];
-    let cellIndex = 0;
+    let mappedTable = mapTable(table);
     let playedCell = null;
 
     /* ================================
-                  LINES 
+                      LINES 
        ================================
     */
-    for (let line = 0; line < 3; line++) {
-      cells = [];
-      for (let column = 0; column < 3; column++) {
-        cells.push({
-          index: cellIndex,
-          oponentSymbol: table.children[cellIndex].classList.contains(player1Info.symbol),
-          computerSymbol: table.children[cellIndex].classList.contains(player2Info.symbol),
-        });
-        cellIndex++;
-      }
+    for (let i = 0; i < mappedTable.length; i++) {
+      // Get the an array of cells on line i
+      const line = mappedTable[i];
 
       // Every line check the cells
       // If condition is true, return the current played cell and the table
-      playedCell = checkCells(table, cells);
+      playedCell = checkCells(table, line);
       if (playedCell != null) return [table, playedCell];
     }
 
     /* ================================
-                  COLUMNS 
-       ================================    
-      Cells Layout
-        0  1  2
-        3  4  5
-        6  7  8     */
-    for (let column = 0; column < 3; column++) {
-      cells = [];
-      switch (column) {
-        case 0: // Column 0
-          cells.push(
-            {
-              index: 0,
-              oponentSymbol: table.children[0].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[0].classList.contains(player2Info.symbol),
-            },
-            {
-              index: 3,
-              oponentSymbol: table.children[3].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[3].classList.contains(player2Info.symbol),
-            },
-            {
-              index: 6,
-              oponentSymbol: table.children[6].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[6].classList.contains(player2Info.symbol),
-            }
-          );
+                        COLUMNS 
+       ================================
+    */
+    for (let i = 0; i < mappedTable.length; i++) {
+      let column = [];
+      for (let j = 0; j < mappedTable.length; j++)
+        // Get the an array of cells on column i and line j
+        column.push(mappedTable[j][i]);
 
-          // Check cells from column 0
-          // If condition is true, return the current played cell and the table
-          playedCell = checkCells(table, cells);
-          if (playedCell != null) return [table, playedCell];
-          break;
-        case 1: // Column 1
-          cells.push(
-            {
-              index: 1,
-              oponentSymbol: table.children[1].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[1].classList.contains(player2Info.symbol),
-            },
-            {
-              index: 4,
-              oponentSymbol: table.children[4].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[4].classList.contains(player2Info.symbol),
-            },
-            {
-              index: 7,
-              oponentSymbol: table.children[7].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[7].classList.contains(player2Info.symbol),
-            }
-          );
-
-          // Check cells from column 1
-          // If condition is true, return the current played cell and the table
-          playedCell = checkCells(table, cells);
-          if (playedCell != null) return [table, playedCell];
-          break;
-        case 2: // Column 2
-          cells.push(
-            {
-              index: 2,
-              oponentSymbol: table.children[2].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[2].classList.contains(player2Info.symbol),
-            },
-            {
-              index: 5,
-              oponentSymbol: table.children[5].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[5].classList.contains(player2Info.symbol),
-            },
-            {
-              index: 8,
-              oponentSymbol: table.children[8].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[8].classList.contains(player2Info.symbol),
-            }
-          );
-
-          // Check cells from column 2
-          // If condition is true, return the current played cell and the table
-          playedCell = checkCells(table, cells);
-          if (playedCell != null) return [table, playedCell];
-          break;
-        default:
-          console.log("Error getting column index");
-      }
+      // Every diagonal check the cells
+      // If condition is true, return the current played cell and the table
+      playedCell = checkCells(table, column);
+      if (playedCell != null) return [table, playedCell];
     }
 
     /* ================================
-                  DIAGONALS 
-       ================================    
-      Cells Layout
-        0  1  2
-        3  4  5
-        6  7  8     */
-    for (let diagonal = 0; diagonal < 3; diagonal++) {
-      cells = [];
-      switch (diagonal) {
-        case 0: // Diagonal 0
-          cells.push(
-            {
-              index: 0,
-              oponentSymbol: table.children[0].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[0].classList.contains(player2Info.symbol),
-            },
-            {
-              index: 4,
-              oponentSymbol: table.children[4].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[4].classList.contains(player2Info.symbol),
-            },
-            {
-              index: 8,
-              oponentSymbol: table.children[8].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[8].classList.contains(player2Info.symbol),
-            }
-          );
+                        DIAGONALS 
+       ================================
+    */
+    // Up left to Down right / Up right to Down left
+    const diagonals = [
+      [mappedTable[0][0], mappedTable[1][1], mappedTable[2][2]],
+      [mappedTable[0][2], mappedTable[1][1], mappedTable[2][0]],
+    ];
 
-          // Check cells from diagonal top-left to bottom-right
-          // If condition is true, return the current played cell and the table
-          playedCell = checkCells(table, cells);
-          if (playedCell != null) return [table, playedCell];
-          break;
-        case 1: // Diagonal 1
-          cells.push(
-            {
-              index: 2,
-              oponentSymbol: table.children[2].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[2].classList.contains(player2Info.symbol),
-            },
-            {
-              index: 4,
-              oponentSymbol: table.children[4].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[4].classList.contains(player2Info.symbol),
-            },
-            {
-              index: 6,
-              oponentSymbol: table.children[6].classList.contains(player1Info.symbol),
-              computerSymbol: table.children[6].classList.contains(player2Info.symbol),
-            }
-          );
+    for (let i = 0; i < diagonals.length; i++) {
+      const diagonal = diagonals[i];
 
-          // Check cells from diagonal top-right to bottom-left
-          // If condition is true, return the current played cell and the table
-          playedCell = checkCells(table, cells);
-          if (playedCell != null) return [table, playedCell];
-          break;
-        default:
-          console.log("Error getting diagonal index");
-      }
+      // Every diagonal check the cells
+      // If condition is true, return the current played cell and the table
+      playedCell = checkCells(table, diagonal);
+      if (playedCell != null) return [table, playedCell];
     }
 
     // If none of the lines/columns have been played by computer he plays randomly
@@ -740,16 +788,19 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   const checkCells = (table, cells) => {
-    // If 3 equal symbols (to the players receveide by param) exist in this row, the player wins
-    const oponentSymbols = cells.filter((x) => x.oponentSymbol === true).length === 2;
-    const computerSymbols = cells.filter((x) => x.computerSymbol === true).length === 2;
+    // Check if any of the players have 2 symbols to either block the line or complete the line to win
+    const oponentSymbols = cells.filter((x) => x.classList.contains(player1Info.symbol) === true).length === 2;
+    const computerSymbols = cells.filter((x) => x.classList.contains(player2Info.symbol) === true).length === 2;
     const log = oponentSymbols ? "Blocked" : "Completed";
 
-    // Case: Oponent is about to complete a row
+    // Case: Oponent/Computer is about to complete a row
     // Check if there are two symbols on the row, and only one free space
     if (oponentSymbols || computerSymbols) {
       // Get the cell empty cell
-      const emptyCell = cells.filter((x) => x.oponentSymbol === false && x.computerSymbol === false);
+      const emptyCell = cells.filter(
+        (x) => x.classList.contains(player1Info.symbol) === false && x.classList.contains(player2Info.symbol) === false
+      );
+      const cellIndex = Array.from(table.children).indexOf(emptyCell[0]);
 
       // emptyCell = undefined: means that row cells are all filled
       // this if validation only needs one condition to be true, because its an or
@@ -757,16 +808,16 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       if (emptyCell.length === 0) return null;
 
       // Set the computer play in the empty cell
-      table.children[emptyCell[0].index].classList.add(player2Info.symbol);
+      table.children[cellIndex].classList.add(player2Info.symbol);
 
       const currentPlay = {
         tableIndex: Array.from(mainTable.current.children).indexOf(table),
-        cellIndex: emptyCell[0].index,
+        cellIndex: cellIndex,
       };
 
-      console.log(`[${log} Row] Computer made a move on cell\n`, currentPlay, "\n", table.children[emptyCell[0].index]);
+      console.log(`[${log} Row] Computer made a move on cell\n`, currentPlay, "\n", table.children[cellIndex]);
 
-      return emptyCell[0].index;
+      return cellIndex;
     }
 
     return null;
@@ -775,10 +826,13 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const randomPlay = (table) => {
     while (true) {
       const randomCell = Math.floor(Math.random() * 9);
-      if (
+
+      // Check if the cells doesn't contain any player's symbol
+      const cellIsFree =
         !table.children[randomCell].classList.contains(player1Info.symbol) &&
-        !table.children[randomCell].classList.contains(player2Info.symbol)
-      ) {
+        !table.children[randomCell].classList.contains(player2Info.symbol);
+
+      if (cellIsFree) {
         table.children[randomCell].classList.add(player2Info.symbol);
 
         const currentPlay = {
@@ -815,201 +869,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   /*  =======================================================
-                    Computer Play useEffect Hook
-      =======================================================
-      -> Create an action on the update of 'showGame'
-      -> Used to decide which player goes first and whats his symbol
-  */
-  useEffect(() => {
-    if (!showGame) return;
-
-    console.log("Displaying table");
-
-    // Set the first player name and symbol
-    let symbolTmp, firstPlay, playerTurn, player1TmpStruct, player2TmpStruct;
-
-    // Get the random symbol between 'O' and 'X'
-    Math.random() < 0.5 ? (symbolTmp = "X") : (symbolTmp = "O");
-    Math.random() < 0.5 ? (firstPlay = player1Name) : (firstPlay = player2Name);
-
-    // Compare symbol of the first player and build second player structure
-    switch (symbolTmp) {
-      case "O":
-        // Build first player structure
-        player1TmpStruct = {
-          name: player1Name,
-          symbol: "O",
-          symbolPath: "o.png",
-          points: 0,
-          roundsWon: 0,
-        };
-
-        // Build second player structure
-        player2TmpStruct = {
-          name: player2Name,
-          symbol: "X",
-          symbolPath: "x.png",
-          points: 0,
-          roundsWon: 0,
-        };
-        break;
-      case "X":
-        // Build first player structure
-        player1TmpStruct = {
-          name: player1Name,
-          symbol: "X",
-          symbolPath: "x.png",
-          points: 0,
-          roundsWon: 0,
-        };
-
-        // Build second player structure
-        player2TmpStruct = {
-          name: player2Name,
-          symbol: "O",
-          symbolPath: "o.png",
-          points: 0,
-          roundsWon: 0,
-        };
-        break;
-      default:
-        console.log("Error getting player symbol");
-    }
-
-    // Set the structures in different states
-    setPlayer1Info(player1TmpStruct);
-    setPlayer2Info(player2TmpStruct);
-
-    // Check who plays first and whats symbol is assigned to him
-    // Based on that info, create a structure for each player
-    switch (firstPlay) {
-      case player1Name:
-        playerTurn = player1TmpStruct;
-
-        // When game mode is PvP, first play enables navigation throught all the cells in the table
-        tableMap(null);
-        break;
-      case player2Name:
-        playerTurn = player2TmpStruct;
-
-        // Disable main table navigation when computer plays first
-        if (playerTurn.name === "computer") setMainTableNavigation(false);
-        break;
-      default:
-        console.log("Error setting first player");
-        return;
-    }
-
-    // When game mode is PvP, first play enables navigation throught all the cells in the table
-    if (gameMode === "pvp" || (gameMode === "pvc" && firstPlay.name === player1Name)) tableMap(null);
-
-    console.log("[FIRST PLAY]", playerTurn);
-    setTurnInfo(
-      <>
-        <p>Player: {playerTurn.name}</p>
-        <div className="div-symbol ">
-          <p>Symbol: </p>
-          <img src={playerTurn.symbolPath} className={playerTurn.symbol + "-mini"} alt={playerTurn.symbol}></img>
-        </div>
-      </>
-    );
-
-    // Set the player who gets the first turn to play
-    setPlayerTurnState(playerTurn);
-
-    // Set the timer
-    setTimer();
-
-    return () => {
-      // cleaning up the listeners here
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showGame]);
-
-  /*  =======================================================
-                    Computer Play useEffect Hook
-      =======================================================
-      -> Create an action on the update of 'playerTurnState'
-      -> Used to verify if is the computer turn to play
-  */
-  useEffect(() => {
-    // Check if is the computer turn to play
-    if (!isComputerTurn()) return;
-
-    // If the nextTable hasn't been set, computer is the first to play
-    if (nextTable == null) {
-      // Add a timeout to slow the computer reaction
-      setTimeout(function () {
-        // Get a random table for the next play
-        let randomTable = mainTable.current.children[Math.floor(Math.random() * 9)];
-        let randomCell = randomTable.children[Math.floor(Math.random() * 9)];
-
-        // Set the css class with the image to the clicked cell
-        randomCell.className = `cell ${player2Info.symbol}`;
-
-        const currentPlay = {
-          tableIndex: Array.from(mainTable.current.children).indexOf(randomTable),
-          cellIndex: Array.from(randomTable.children).indexOf(randomCell),
-        };
-
-        console.log("Computer made a move on cell \n", currentPlay, "\n", randomCell);
-
-        // Set the next table to be played
-        setNextPlay(Array.from(randomTable.children).indexOf(randomCell), "Computer Play");
-
-        // Update player turn
-        setPlayerTurnState(setPlayerTurn());
-      }, 1200);
-    } else {
-      // Add a timeout to slow the computer reaction
-      setTimeout(function () {
-        // Generate computer's next play
-        const [playedTable, playedCell] = nextPlay();
-
-        // After the computer make his play, check if he won the table he played
-        if (checkWin(playedTable, player2Info)) {
-          // Update Player 2 points
-          setPlayer2Info({
-            name: player2Info.name,
-            symbol: player2Info.symbol,
-            symbolPath: player2Info.symbolPath,
-            points: ++player2Info.points,
-            roundsWon: player2Info.roundsWon,
-          });
-
-          // Computer wins this table
-          playedTable.classList.add(`win${player2Info.symbol}`);
-          playedTable.classList.remove("disabled-grid");
-
-          // add a class to disable the click event on the cells
-          for (let child of playedTable.children) child.classList.add("disabled-cell");
-
-          console.log(`'${player2Info.name}' won table ${playedCell}\n`, playedTable);
-        }
-
-        // Verify if all the grids are disabled
-        if (checkGameEnded()) {
-          console.log("[Game Ended] Displaying modal window");
-          setTimerRunning(false);
-        } else {
-          // Set the next table to be played
-          setNextPlay(playedCell, "Computer Play");
-        }
-
-        // Update the next player to play
-        setPlayerTurnState(setPlayerTurn());
-      }, 1200);
-    }
-
-    return () => {
-      // cleaning up the listeners here
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playerTurnState]);
-
-  /*  =======================================================
                       Timer useEffect Hook
       =======================================================
       -> Create an action on the update of 'timerRunning'
@@ -1034,6 +893,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const [currentTableMap, setCurrentTableMap] = useState(null);
   const [position, setPosition] = useState(null);
 
+  // Set a key down event and call checkKey()
   document.onkeydown = checkKey;
 
   // Receives the div with className 'box'
