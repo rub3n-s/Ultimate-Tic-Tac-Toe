@@ -7,14 +7,14 @@ const GameMode = ({ showGameMode, retrieveData }) => {
   const inputNick2 = useRef(null);
   const inputTimer = useRef(null);
   const [openModal, setOpenModal] = useState(false);
-  const [info, setInfo] = useState(null);
+  const [modalInfo, setModalInfo] = useState(null);
   const [gameMode, setGameMode] = useState(null);
 
   const insertNickNames = () => {
     console.log("Selected Game Mode: ", gameMode);
     switch (gameMode) {
       case "pvc":
-        setInfo(
+        setModalInfo(
           <>
             <div className="info">
               <div>
@@ -49,7 +49,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
         setOpenModal(true);
         break;
       case "pvp":
-        setInfo(
+        setModalInfo(
           <>
             <div className="info">
               <div>
@@ -207,7 +207,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
         gameMode={gameMode}
         onHide={handleCloseModal}
         title={"What's your name"}
-        info={info}
+        info={modalInfo}
         nickNameValidation={nickNameValidation}
       />
     </>
