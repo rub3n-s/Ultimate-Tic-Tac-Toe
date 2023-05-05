@@ -121,7 +121,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     // When game mode is PvP, first play enables navigation throught all the cells in the table
-    if (gameMode === "pvp" || (gameMode === "pvc" && firstPlay.name === player1Name)) tableMap(null);
+    if (gameMode === "pvp" || (gameMode === "pvc" && firstPlay === player1Name)) tableMap(null);
 
     console.log("[FIRST PLAY]", playerTurn);
     setTurnInfo(
@@ -903,7 +903,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // So its needed to map only the first table
     if (table == null) table = mainTable.current.children[0];
 
-    console.log("Mapping table", table);
+    console.log("[Keyboard] Mapping table", table);
 
     let currentTableMapTmp = [];
     let cellCounter = 0;
@@ -981,8 +981,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       if (tmpTableIndex > 0) tmpTableIndex--;
       else tmpTableIndex = 8;
 
-      tmpX = 0;
-      tmpY = 0;
+      tmpX = 2;
+      tmpY = position.y;
 
       // Remap the table
       tableMap(mainTable.current.children[tmpTableIndex]);
@@ -1025,8 +1025,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           tmpTableIndex += 6;
       }
 
-      tmpX = 0;
-      tmpY = 0;
+      tmpX = position.x;
+      tmpY = 2;
 
       // Remap the table
       tableMap(mainTable.current.children[tmpTableIndex]);
@@ -1060,7 +1060,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       else tmpTableIndex = 0;
 
       tmpX = 0;
-      tmpY = 0;
+      tmpY = position.y;
 
       // Remap the table
       tableMap(mainTable.current.children[tmpTableIndex]);
@@ -1102,7 +1102,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           tmpTableIndex += 3;
       }
 
-      tmpX = 0;
+      tmpX = position.x;
       tmpY = 0;
 
       // Remap the table
