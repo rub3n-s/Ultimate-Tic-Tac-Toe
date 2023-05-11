@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import "./GamePanel.css";
-import Modal from "./Modal.js";
-import PlayersInfo from "./PlayersInfo";
+import "./game-panel.css";
+import Modal from "../modal/modal";
+import PlayersInfo from "../players-info/players-info";
+
+import { X_PATH, O_PATH } from "../../constants/index";
+import { mapTable, checkWin, checkGameEnded } from "../../helpers/";
 
 const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Name, timeOut }) => {
   // Player states
@@ -35,29 +38,21 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const buildTables = () => {
     let content = [];
     let outerGrid = 3 * 3; // 3x3 grid
-    for (let i = 0; i < outerGrid; i++) content.push(createTable(i));
+    for (let i = 0; i < outerGrid; i++)
+      content.push(
+        <div key={i} className="box">
+          <div className="cell" onClick={(event) => clickHandle(event, i, 0)}></div>
+          <div className="cell" onClick={(event) => clickHandle(event, i, 1)}></div>
+          <div className="cell" onClick={(event) => clickHandle(event, i, 2)}></div>
+          <div className="cell" onClick={(event) => clickHandle(event, i, 3)}></div>
+          <div className="cell" onClick={(event) => clickHandle(event, i, 4)}></div>
+          <div className="cell" onClick={(event) => clickHandle(event, i, 5)}></div>
+          <div className="cell" onClick={(event) => clickHandle(event, i, 6)}></div>
+          <div className="cell" onClick={(event) => clickHandle(event, i, 7)}></div>
+          <div className="cell" onClick={(event) => clickHandle(event, i, 8)}></div>
+        </div>
+      );
     return content;
-  };
-
-  const createTable = (i) => {
-    // This function receives the table index
-    // Each cell has a click event, where the cell index is sent
-    // to a separate function to handle click events
-    let element = (
-      <div key={i} className="box">
-        <div className="cell" onClick={(event) => clickHandle(event, i, 0)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 1)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 2)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 3)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 4)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 5)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 6)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 7)}></div>
-        <div className="cell" onClick={(event) => clickHandle(event, i, 8)}></div>
-      </div>
-    );
-
-    return element;
   };
 
   /*  =======================================================
@@ -93,8 +88,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     };
 
     // Define the symbol paths
-    player1Struct.symbolPath = player1Struct.symbol === "X" ? "x.png" : "o.png";
-    player2Struct.symbolPath = player2Struct.symbol === "X" ? "x.png" : "o.png";
+    player1Struct.symbolPath = player1Struct.symbol === "X" ? X_PATH : O_PATH;
+    player2Struct.symbolPath = player2Struct.symbol === "X" ? X_PATH : O_PATH;
 
     // Set the structures in different states
     setPlayer1Info(player1Struct);
@@ -212,7 +207,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
         }
 
         // Verify if all the grids are disabled
-        if (checkGameEnded()) {
+        if (checkGameEnded(mainTable, player1Info, player2Info)) {
           console.log("[Game Ended] Displaying modal window");
           setTimerRunning(false);
           return;
@@ -357,7 +352,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     // Verify if all the tables are disabled
-    if (checkGameEnded()) {
+    if (checkGameEnded(mainTable, player1Info, player2Info)) {
       console.log("[Game Ended] Displaying modal window");
       setTimerRunning(false);
       return;
@@ -372,105 +367,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // After the play reset the timer
     clearInterval(timerId);
     setTimer();
-  };
-
-  /*  =======================================================
-                  Verify Plays / Game End
-      =======================================================
-      -> After every play check if the current play has completed
-        a row and set the win
-      -> Map the current played table
-        -> Get the lines, column and cells from the 3x3 array
-  */
-  const mapTable = (table) => {
-    let mappedTable = [];
-    let cellIndex = 0;
-    for (let line = 0; line < 3; line++) {
-      // Push an empty array for columns in line x
-      mappedTable.push([]);
-      for (let column = 0; column < 3; column++) {
-        mappedTable[line].push(table.children[cellIndex]);
-        cellIndex++;
-      }
-    }
-    return mappedTable;
-  };
-
-  const checkWin = (table, player) => {
-    // Map table for easier data access
-    const mappedTable = mapTable(table);
-    console.log("[Check Win] Mapped Table", mappedTable);
-
-    /* ================================
-                      LINES 
-      ================================
-    */
-    for (let i = 0; i < mappedTable.length; i++) {
-      // Get the an array of cells on line i
-      const line = mappedTable[i];
-
-      // Check if the player won line i
-      const win = line.filter((x) => x.classList.contains(player.symbol)).length === 3;
-      if (win) return true;
-    }
-
-    /* ================================
-                      COLUMNS 
-      ================================
-    */
-    for (let i = 0; i < mappedTable.length; i++) {
-      let column = [];
-      for (let j = 0; j < mappedTable.length; j++)
-        // Get the an array of cells on column i and line j
-        column.push(mappedTable[j][i]);
-
-      // Check if the player won line i
-      const win = column.filter((x) => x.classList.contains(player.symbol)).length === 3;
-      if (win) return true;
-    }
-
-    /* ================================
-                      DIAGONALS 
-      ================================
-    */
-    // Up left to Down right / Up right to Down left
-    const diagonals = [
-      [mappedTable[0][0], mappedTable[1][1], mappedTable[2][2]],
-      [mappedTable[0][2], mappedTable[1][1], mappedTable[2][0]],
-    ];
-
-    for (let i = 0; i < diagonals.length; i++) {
-      const diagonal = diagonals[i];
-
-      const win = diagonal.filter((x) => x.classList.contains(player.symbol)).length === 3;
-      if (win) return true;
-    }
-
-    return false;
-  };
-
-  // Check if all the tables have a winner
-  const checkGameEnded = () => {
-    // Get all tables with a winner
-    const allTablesWon =
-      Array.from(mainTable.current.children).filter((x) => x.classList.contains("winX") || x.classList.contains("winO"))
-        .length === 9;
-
-    // All tables have a winner
-    if (allTablesWon) return true;
-
-    // Check if all the cells are filled
-    for (let table of mainTable.current.children) {
-      if (!table.classList.contains("winX") && !table.classList.contains("winO")) {
-        const tableIsFull =
-          Array.from(table.children).filter(
-            (x) => x.classList.contains(player1Info.symbol) || x.classList.contains(player2Info.symbol)
-          ).length < 9;
-        if (tableIsFull) return false;
-      }
-    }
-
-    return true;
   };
 
   /* =======================================================

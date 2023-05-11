@@ -1,4 +1,4 @@
-import "./Navbar.css";
+import "./navbar.css";
 import { useRef } from "react";
 
 /* Navigation Bar Component */
@@ -10,7 +10,7 @@ const Navbar = () => {
       <div className="wrapper">
         <div className="logo">
           <a href="index.html">
-            <img src="logo.png" alt="Ultimate Tic-Tac-Toe" />
+            <img src="assets/images/logo.png" alt="Ultimate Tic-Tac-Toe" />
           </a>
         </div>
         <div className="navbar" ref={nav}>
@@ -22,9 +22,6 @@ const Navbar = () => {
               <li>
                 <a href="index.html">Home</a>
               </li>
-              {/* <li>
-                <a href="#">Credits</a>
-              </li> */}
             </ul>
           </nav>
         </div>

@@ -1,8 +1,9 @@
-import "./App.css";
-import Navbar from "./components/Navbar";
-import GameMode from "./components/GameMode";
-import GamePanel from "./components/GamePanel";
-import Footer from "./components/Footer";
+import "./assets/styles/App.css";
+import "./assets/styles/w3.css";
+import Navbar from "./components/navbar/navbar";
+import GameMode from "./components/game-mode/game-mode";
+import GamePanel from "./components/game-panel/game-panel";
+import Footer from "./components/footer/footer";
 import { useState } from "react";
 
 function App() {

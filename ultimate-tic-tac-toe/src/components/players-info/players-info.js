@@ -1,4 +1,4 @@
-import './PlayersInfo.css';
+import './players-info.css';
 
 const PlayersInfo = ({ player1Info, player2Info, turnInfo, timeLeft }) => {
   return (

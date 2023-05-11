@@ -35,7 +35,8 @@
 }
 
 .X {
-  background: url("../../public/x.png") no-repeat center;
+  /* background: url("../../public/x.png") no-repeat center; */
+  background: url("../../../public/assets/images/x.png") no-repeat center;
   background-size: 2em;
   background-color: #ccc;
   transition: ease-out 0.3s;
@@ -43,7 +44,7 @@
 }
 
 .O {
-  background: url("../../public/o.png") no-repeat center;
+  background: url("../../../public/assets/images/o.png") no-repeat center;
   background-size: 3.5em;
   background-color: #ccc;
   transition: ease-out 0.3s;

@@ -1,4 +1,4 @@
-import "./Modal.css";
+import "./modal.css";
 
 const Modal = ({ openModal, title, info, onHide }) => {
   return (
