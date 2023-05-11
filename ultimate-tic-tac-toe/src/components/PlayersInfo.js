@@ -34,7 +34,7 @@ const PlayersInfo = ({ player1Info, player2Info, turnInfo, timeLeft }) => {
         )}
       </div>
       <div className="container">
-        <p className="title">Timer</p>
+        <p className="title">Time Left</p>
         <p>{timeLeft}</p>
       </div>
     </div>

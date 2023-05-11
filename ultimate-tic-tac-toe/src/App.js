@@ -11,7 +11,7 @@ function App() {
   const [gameMode, setGameMode] = useState(null);
   const [player1Name, setPlayer1Name] = useState(null);
   const [player2Name, setPlayer2Name] = useState(null);
-  const [levelTimeOut, setTimeOut] = useState(null);
+  const [timeOut, setTimeOut] = useState(null);
 
   const handleCloseGrid = () => {
     setShowGame(false);
@@ -22,12 +22,12 @@ function App() {
     setTimeOut(null);
   };
 
-  const handleGameMode = (showGame, gameMode, player1Name, player2Name, levelTimeOut) => {
+  const handleGameMode = (showGame, gameMode, player1Name, player2Name, timeOut) => {
     setShowGame(showGame);
     setGameMode(gameMode);
     setPlayer1Name(player1Name);
     setPlayer2Name(player2Name);
-    setTimeOut(levelTimeOut);
+    setTimeOut(timeOut);
     setShowGameMode(false);
   };
 
@@ -45,7 +45,7 @@ function App() {
         gameMode={gameMode}
         player1Name={player1Name}
         player2Name={player2Name}
-        levelTimeOut={levelTimeOut}
+        timeOut={timeOut}
       />
 
       <Footer />

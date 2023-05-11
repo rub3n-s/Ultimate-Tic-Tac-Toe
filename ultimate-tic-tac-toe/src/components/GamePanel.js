@@ -3,7 +3,7 @@ import "./GamePanel.css";
 import Modal from "./Modal.js";
 import PlayersInfo from "./PlayersInfo";
 
-const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Name, levelTimeOut }) => {
+const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Name, timeOut }) => {
   // Player states
   const [player1Info, setPlayer1Info] = useState(null);
   const [player2Info, setPlayer2Info] = useState(null);
@@ -180,7 +180,11 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
         // Update player turn
         setPlayerTurnState(setPlayerTurn());
-      }, 1200);
+
+        // After the play reset the timer
+        clearInterval(timerId);
+        setTimer();
+      }, 1000);
     } else {
       // Add a timeout to slow the computer reaction
       setTimeout(function () {
@@ -212,14 +216,19 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
         if (checkGameEnded()) {
           console.log("[Game Ended] Displaying modal window");
           setTimerRunning(false);
-        } else {
-          // Set the next table to be played
-          setNextPlay(playedCell, "Computer Play");
+          return;
         }
+
+        // Set the next table to be played
+        setNextPlay(playedCell, "Computer Play");
 
         // Update the next player to play
         setPlayerTurnState(setPlayerTurn());
-      }, 1200);
+
+        // After the play reset the timer
+        clearInterval(timerId);
+        setTimer();
+      }, 1000);
     }
 
     return () => {
@@ -360,6 +369,10 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Update the next player to play
     setPlayerTurnState(setPlayerTurn());
+
+    // After the play reset the timer
+    clearInterval(timerId);
+    setTimer();
   };
 
   /*  =======================================================
@@ -467,49 +480,62 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
      -> Updates the Info Panel and Modal content
      -> Displayed after the game ends
   */
-  const updateInfo = () => {
-    // Check who has more points
-    if (player1Info.points > player2Info.points) {
-      // Update Player Rounds Won
-      setPlayer1Info({
-        name: player1Info.name,
-        symbol: player1Info.symbol,
-        symbolPath: player1Info.symbolPath,
-        points: player1Info.points,
-        roundsWon: ++player1Info.roundsWon,
-      });
+  const updatePlayersInfo = () => {
+    let roundWinner = null;
 
-      // Update info to show on modal window
-      const message = `Player '${player1Info.name}' wins with ${player1Info.points} completed tables!`;
-      buildModalInfo(message);
-      console.log(message);
-    } else if (player2Info.points > player1Info.points) {
-      // Update Player Rounds Won
-      setPlayer2Info({
-        name: player2Info.name,
-        symbol: player2Info.symbol,
-        symbolPath: player2Info.symbolPath,
-        points: player2Info.points,
-        roundsWon: ++player2Info.roundsWon,
-      });
-
-      // Update info to show on modal window
-      const message = `Player '${player2Info.name}' wins with ${player2Info.points} completed tables!`;
-      buildModalInfo(message);
-      console.log(message);
+    if (timeLeft === "0s") {
+      // Get the current player turn
+      switch (playerTurnState.name) {
+        case player1Info.name:
+          // Build the modal text information
+          buildModalInfo(`${player1Info.name}'s timer reached zero, ${player2Info.name} is the winner!`);
+          roundWinner = player2Info.name;
+          break;
+        case player2Info.name:
+          // Build the modal text information
+          buildModalInfo(`${player2Info.name}'s timer reached zero, '${player1Info.name}' is the winner!`);
+          roundWinner = player1Info.name;
+          break;
+      }
     } else {
+      // Check who has more points
+      if (player1Info.points > player2Info.points) {
+        roundWinner = player1Info.name;
+
+        // Update info to show on modal window
+        buildModalInfo(`Player '${player1Info.name}' wins with ${player1Info.points} completed tables!`);
+      } else if (player2Info.points > player1Info.points) {
+        roundWinner = player2Info.name;
+
+        // Update info to show on modal window
+        buildModalInfo(`Player '${player2Info.name}' wins with ${player2Info.points} completed tables!`);
+      }
       // Update info to show on modal window
-      const message = `There was a tie!`;
-      buildModalInfo(message);
-      console.log(message);
+      else buildModalInfo(`There was a tie!`);
     }
 
-    // Open Modal Window
-    setOpenModal(true);
-
-    // Set the end of the game
-    setGameEnded(true);
-    return;
+    // Increase roundsWon
+    switch (roundWinner) {
+      case player1Info.name:
+        setPlayer1Info({
+          name: player1Info.name,
+          symbol: player1Info.symbol,
+          symbolPath: player1Info.symbolPath,
+          points: player1Info.points,
+          roundsWon: ++player1Info.roundsWon,
+        });
+        break;
+      case player2Info.name:
+        setPlayer2Info({
+          name: player2Info.name,
+          symbol: player2Info.symbol,
+          symbolPath: player2Info.symbolPath,
+          points: player2Info.points,
+          roundsWon: ++player2Info.roundsWon,
+        });
+        break;
+      default:
+    }
   };
 
   const buildModalInfo = (message) => {
@@ -855,14 +881,17 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   */
   const updateGameTime = () => {
     setTimeLeft(--timer + "s");
-    if (timer === 0 || gameEnded) setTimerRunning(false);
+    //if (timer === 0 || gameEnded) setTimerRunning(false);
+
+    // Timer reaches zero
+    if (timer === 0) setTimerRunning(false);
   };
 
   const setTimer = () => {
     // Set the initial interval
     // setInterval() - calls udpdateGameTime() every 1000 ms (1 sec)
     let timerId;
-    [timer, timerId] = [levelTimeOut, setInterval(updateGameTime, 1000)];
+    [timer, timerId] = [timeOut, setInterval(updateGameTime, 1000)];
     setTimeLeft(timer + "s");
     setTimerId(timerId);
     setTimerRunning(true);
@@ -876,10 +905,21 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
         state is updated
   */
   useEffect(() => {
-    if (!timerRunning) {
-      clearInterval(timerId);
-      updateInfo();
-    }
+    // Return if the timer is running
+    if (timerRunning) return;
+
+    // Update playersInfo panel (increase points/tables to the winner)
+    updatePlayersInfo();
+
+    // Stop the timer
+    clearInterval(timerId);
+
+    // Opens the modal window
+    setOpenModal(true);
+
+    // Set the end of the game
+    setGameEnded(true);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timerRunning]);
 
