@@ -19,7 +19,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const [modalInfo, setModalInfo] = useState(null);
 
   // Next play states
-  const [gameEnded, setGameEnded] = useState(false);
   const [nextTable, setNextTable] = useState(null);
 
   // Timer states
@@ -493,7 +492,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           break;
         case player2Info.name:
           // Build the modal text information
-          buildModalInfo(`${player2Info.name}'s timer reached zero, '${player1Info.name}' is the winner!`);
+          buildModalInfo(`${player2Info.name}'s timer reached zero, ${player1Info.name} is the winner!`);
           roundWinner = player1Info.name;
           break;
       }
@@ -657,7 +656,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const reset = () => {
     console.log("Reseting game...");
     setOpenModal(false);
-    setGameEnded(false);
 
     // Reset the timer
     setTimer();
@@ -688,10 +686,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       for (let cell of table.children) cell.className = "cell";
     }
 
-    //  Get random table to begin the game
-    //  If it's the computer starting the game
-    if (gameMode === "pvp") setNextPlay(Math.floor(Math.random() * 9), "Reset");
-
     // Enable main table navigation for the first play
     setMainTableNavigation(true);
   };
@@ -702,7 +696,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     setPlayerTurnState(null);
     setTurnInfo(null);
     setOpenModal(false);
-    setGameEnded(false);
     setModalInfo(null);
     setNextTable(null);
     setTimeLeft(0);
@@ -881,8 +874,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   */
   const updateGameTime = () => {
     setTimeLeft(--timer + "s");
-    //if (timer === 0 || gameEnded) setTimerRunning(false);
-
     // Timer reaches zero
     if (timer === 0) setTimerRunning(false);
   };
@@ -916,9 +907,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Opens the modal window
     setOpenModal(true);
-
-    // Set the end of the game
-    setGameEnded(true);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timerRunning]);
@@ -973,7 +961,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       return;
     }
     // If the game table isn't open yet, return
-    else if (!showGame || gameEnded) return;
+    else if (!showGame || !timerRunning) return;
 
     switch (e.keyCode) {
       case 37:
