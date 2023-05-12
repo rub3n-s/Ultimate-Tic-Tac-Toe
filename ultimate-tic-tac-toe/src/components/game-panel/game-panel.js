@@ -100,7 +100,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Enable main table navigation for the first play (if its not the computer playing first)
     else {
       setMainTableNavigation(true);
-      tableMap(null);
+      keyboardMapTable(null);
     }
 
     console.log("[FIRST PLAY]", firstPlayer);
@@ -422,7 +422,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Set the table map for arrow keys navigation
     // If game mode is player vs computer, the mapping only needs to be made when is the player turn
     if (gameMode === "pvp" || (gameMode === "pvc" && playerTurnState.name !== player1Info.name))
-      tableMap(mainTable.current.children[cellIndex]);
+      keyboardMapTable(mainTable.current.children[cellIndex]);
 
     // Clear disabled tables/cells and update them according to the last play
     clearDisabled();
@@ -803,30 +803,21 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
   // Receives the div with className 'box'
   // 'box' is the div that contains the rows and cells
-  const tableMap = (table) => {
+  const keyboardMapTable = (table) => {
     // When table comes null it means its the first play for a normal player
     // So its needed to map only the first table
     if (table == null) table = mainTable.current.children[0];
 
     console.log("[Keyboard] Mapping table", table);
 
-    let currentTableMapTmp = [];
-    let cellCounter = 0;
-    for (let row = 0; row < 3; row++) {
-      currentTableMapTmp.push([]);
-      for (let cell = 0; cell < 3; cell++) {
-        currentTableMapTmp[currentTableMapTmp.length - 1].push(table.children[cellCounter]);
-        cellCounter++;
-      }
-    }
-
-    setCurrentTableMap(currentTableMapTmp);
+    const mappedTable = mapTable(table);
+    setCurrentTableMap(mappedTable);
     setPosition({
       tableIndex: Array.from(mainTable.current.children).indexOf(table),
       x: 0,
       y: 0,
     });
-    console.log("Current Table Map", currentTableMapTmp);
+    console.log("Current Mapped Table", mappedTable);
   };
 
   function checkKey(e) {
@@ -890,7 +881,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       tmpY = position.y;
 
       // Remap the table
-      tableMap(mainTable.current.children[tmpTableIndex]);
+      keyboardMapTable(mainTable.current.children[tmpTableIndex]);
     }
 
     setPosition({
@@ -934,7 +925,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       tmpY = 2;
 
       // Remap the table
-      tableMap(mainTable.current.children[tmpTableIndex]);
+      keyboardMapTable(mainTable.current.children[tmpTableIndex]);
     }
 
     setPosition({
@@ -968,7 +959,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       tmpY = position.y;
 
       // Remap the table
-      tableMap(mainTable.current.children[tmpTableIndex]);
+      keyboardMapTable(mainTable.current.children[tmpTableIndex]);
     }
 
     setPosition({
@@ -1011,7 +1002,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       tmpY = 0;
 
       // Remap the table
-      tableMap(mainTable.current.children[tmpTableIndex]);
+      keyboardMapTable(mainTable.current.children[tmpTableIndex]);
     }
 
     setPosition({
