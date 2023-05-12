@@ -4,7 +4,7 @@ import Modal from "../modal/modal";
 import PlayersInfo from "../players-info/players-info";
 
 import { X_PATH, O_PATH } from "../../constants/index";
-import { mapTable, checkWin, checkGameEnded } from "../../helpers/";
+import { mapTable, checkWin, checkGameEnded, containsClass, randomFirstPlayer } from "../../helpers/";
 
 const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Name, timeOut }) => {
   // Player states
@@ -41,15 +41,15 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     for (let i = 0; i < outerGrid; i++)
       content.push(
         <div key={i} className="box">
-          <div className="cell" onClick={(event) => clickHandle(event, i, 0)}></div>
-          <div className="cell" onClick={(event) => clickHandle(event, i, 1)}></div>
-          <div className="cell" onClick={(event) => clickHandle(event, i, 2)}></div>
-          <div className="cell" onClick={(event) => clickHandle(event, i, 3)}></div>
-          <div className="cell" onClick={(event) => clickHandle(event, i, 4)}></div>
-          <div className="cell" onClick={(event) => clickHandle(event, i, 5)}></div>
-          <div className="cell" onClick={(event) => clickHandle(event, i, 6)}></div>
-          <div className="cell" onClick={(event) => clickHandle(event, i, 7)}></div>
-          <div className="cell" onClick={(event) => clickHandle(event, i, 8)}></div>
+          <div className="cell" onClick={() => playHandle("Click", i, 0)}></div>
+          <div className="cell" onClick={() => playHandle("Click", i, 1)}></div>
+          <div className="cell" onClick={() => playHandle("Click", i, 2)}></div>
+          <div className="cell" onClick={() => playHandle("Click", i, 3)}></div>
+          <div className="cell" onClick={() => playHandle("Click", i, 4)}></div>
+          <div className="cell" onClick={() => playHandle("Click", i, 5)}></div>
+          <div className="cell" onClick={() => playHandle("Click", i, 6)}></div>
+          <div className="cell" onClick={() => playHandle("Click", i, 7)}></div>
+          <div className="cell" onClick={() => playHandle("Click", i, 8)}></div>
         </div>
       );
     return content;
@@ -66,11 +66,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     console.log("Displaying table");
 
-    // Set the first player name and symbol
-    let playerTurn, player1Struct, player2Struct;
-
     // Build first player structure
-    player1Struct = {
+    let player1Struct = {
       name: player1Name,
       symbol: Math.random() < 0.5 ? "X" : "O", // Get the random symbol ('X' or 'O')
       symbolPath: null,
@@ -79,7 +76,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     };
 
     // Build second player structure
-    player2Struct = {
+    let player2Struct = {
       name: player2Name,
       symbol: player1Struct.symbol === "X" ? "O" : "X", // Get the symbol comparing to first player
       symbolPath: null,
@@ -96,40 +93,29 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     setPlayer2Info(player2Struct);
 
     // Get a random player for the first play
-    const firstPlay = Math.random() < 0.5 ? player1Name : player2Name;
+    const firstPlayer = randomFirstPlayer(player1Struct, player2Struct);
 
-    // Check who plays first and whats symbol is assigned to him
-    switch (firstPlay) {
-      case player1Name:
-        playerTurn = player1Struct;
-        break;
-      case player2Name:
-        playerTurn = player2Struct;
-
-        // Disable main table navigation when computer plays first
-        if (gameMode === "pvc") setMainTableNavigation(false);
-        break;
-      default:
-        console.log("Error setting first player");
-        return;
+    // Disable main table navigation when computer plays first
+    if (firstPlayer === player2Struct && gameMode === "pvc") setMainTableNavigation(false);
+    // Enable main table navigation for the first play (if its not the computer playing first)
+    else {
+      setMainTableNavigation(true);
+      tableMap(null);
     }
 
-    // When game mode is PvP, first play enables navigation throught all the cells in the table
-    if (gameMode === "pvp" || (gameMode === "pvc" && firstPlay === player1Name)) tableMap(null);
-
-    console.log("[FIRST PLAY]", playerTurn);
+    console.log("[FIRST PLAY]", firstPlayer);
     setTurnInfo(
       <>
-        <p>Player: {playerTurn.name}</p>
+        <p>Player: {firstPlayer.name}</p>
         <div className="div-symbol ">
           <p>Symbol: </p>
-          <img src={playerTurn.symbolPath} className={playerTurn.symbol + "-mini"} alt={playerTurn.symbol}></img>
+          <img src={firstPlayer.symbolPath} className={firstPlayer.symbol + "-mini"} alt={firstPlayer.symbol}></img>
         </div>
       </>
     );
 
     // Set the player who gets the first turn to play
-    setPlayerTurnState(playerTurn);
+    setPlayerTurnState(firstPlayer);
 
     // Set the timer
     setTimer();
@@ -233,44 +219,23 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   }, [playerTurnState]);
 
   /* =======================================================
-                Play Handles (Click and Keyboard)
+                Plays Handle (Click and Keyboard)
      =======================================================
      -> Events called on mouse click or keyboard enter
   */
-  const clickHandle = (event, tableIndex, cellIndex) => {
+  const playHandle = (typeHandle, tableIndex, cellIndex) => {
     // Verifies if it's the computer turn to play
     if (isComputerTurn()) {
       console.log("It's the computer turn to play");
       return;
     }
 
-    // Verifies if the element (cell) already has been clicked
-    if (containsClass(event.target)) {
-      console.log("Click event disabled on this cell");
-      return;
-    }
-
-    // Set the css class with the image to the clicked cell
-    event.target.className = `cell ${playerTurnState.symbol}`;
-
-    // Evaluate the play
-    evaluatePlay("[Click Handle]", tableIndex, cellIndex);
-
-    // Disable full table navigation after the first play
-    if (mainTableNavigation) setMainTableNavigation(false);
-  };
-
-  // This function receives the html element normally
-  const keyboardHandle = (cell, tableIndex, cellIndex) => {
-    // Verifies if it's the computer turn to play
-    if (isComputerTurn()) {
-      console.log("It's the computer turn to play");
-      return;
-    }
+    // Get the played cell
+    const cell = mainTable.current.children[tableIndex].children[cellIndex];
 
     // Verifies if the element (cell) already has been clicked
     if (containsClass(cell)) {
-      console.log("Keyboard event disabled on this cell");
+      console.log(`${typeHandle} event disabled on this cell`);
       return;
     }
 
@@ -278,7 +243,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     cell.className = `cell ${playerTurnState.symbol}`;
 
     // Evaluate the play
-    evaluatePlay("[Keyboard Handle]", tableIndex, cellIndex);
+    evaluatePlay(`[${typeHandle} Handle]`, tableIndex, cellIndex);
 
     // Disable full table navigation after the first play
     if (mainTableNavigation) setMainTableNavigation(false);
@@ -287,16 +252,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   /* =======================================================
               Play Validations (Click and Keyboard)
      =======================================================
-     -> Check if the cell is available
      -> Check if is the computer turn to play
      -> Evaluate the play to check if the player won the table
   */
-  const containsClass = (element) => {
-    return (
-      element.classList.contains("X") || element.classList.contains("O") || element.classList.contains("disabled-cell")
-    );
-  };
-
   const isComputerTurn = () => {
     return gameMode === "pvc" && playerTurnState.name === "computer";
   };
@@ -553,28 +511,51 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     console.log("Reseting game...");
     setOpenModal(false);
 
-    // Reset the timer
-    setTimer();
-
-    // Reset Player's 1 Points and Symbol
-    setPlayer1Info({
+    // Players keep the same symbols to prevent confusion
+    // Reset Player's 1 Points
+    let player1Struct = {
       name: player1Info.name,
       symbol: player1Info.symbol,
       symbolPath: player1Info.symbolPath,
       points: 0,
       roundsWon: player1Info.roundsWon,
-    });
+    };
 
-    // Reset Player's 2 Points and Symbol
-    setPlayer2Info({
+    // Reset Player's 2 Points
+    let player2Struct = {
       name: player2Info.name,
       symbol: player2Info.symbol,
       symbolPath: player2Info.symbolPath,
       points: 0,
       roundsWon: player2Info.roundsWon,
-    });
+    };
 
-    // Clear table and cells classes
+    setPlayer1Info(player1Struct);
+    setPlayer2Info(player2Struct);
+
+    // Get a random player for the first play
+    const firstPlayer = randomFirstPlayer(player1Struct, player2Struct);
+
+    // Disable main table navigation when computer plays first
+    if (firstPlayer === player2Struct && gameMode === "pvc") setMainTableNavigation(false);
+    // Enable main table navigation for the first play (if its not the computer playing first)
+    else setMainTableNavigation(true);
+
+    // Set the player turn information (name and symbol)
+    setTurnInfo(
+      <>
+        <p>Player: {firstPlayer.name}</p>
+        <div className="div-symbol ">
+          <p>Symbol: </p>
+          <img src={firstPlayer.symbolPath} className={firstPlayer.symbol + "-mini"} alt={firstPlayer.symbol}></img>
+        </div>
+      </>
+    );
+
+    // Set the player who gets the first turn to play
+    setPlayerTurnState(firstPlayer);
+
+    // Clears all the disabled cells/table
     for (let table of mainTable.current.children) {
       table.className = "box";
 
@@ -582,8 +563,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       for (let cell of table.children) cell.className = "cell";
     }
 
-    // Enable main table navigation for the first play
-    setMainTableNavigation(true);
+    // Reset the timer
+    setTimer();
   };
 
   const handleQuitRequest = () => {
@@ -1053,7 +1034,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     const cellIndex = Array.from(table.children).indexOf(cell);
 
     // Get the the table index and cell index
-    keyboardHandle(cell, tableIndex, cellIndex);
+    playHandle("Keyboard", tableIndex, cellIndex);
   };
 
   /*  =======================================================
@@ -1078,21 +1059,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     // eslint-disable-next-line
   }, [position]);
-
-  /*  =======================================================
-              Full Grid Navigation useEffect Hook
-      =======================================================
-      -> Create an action each time 'mainTableNavigation' is changed
-      -> Allows players to navigate freely throught every cell
-  */
-  useEffect(() => {
-    if (mainTableNavigation === false || !showGame) return;
-
-    // Clears all the disabled cells/tables
-    clearDisabled();
-
-    // eslint-disable-next-line
-  }, [mainTableNavigation]);
 
   return (
     <>
