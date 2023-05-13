@@ -627,13 +627,12 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Get the table with the same index as the cell
     let table = mainTable.current.children[nextTable];
     let mappedTable = mapTable(table);
-
     let availablePlays = [];
 
     /* ================================
-                          LINES 
-           ================================
-        */
+                      LINES 
+        ================================
+    */
     for (let i = 0; i < mappedTable.length; i++) {
       // Get the an array of cells on line i
       const line = mappedTable[i];
@@ -645,9 +644,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     /* ================================
-                            COLUMNS 
-           ================================
-        */
+                    COLUMNS 
+        ================================
+    */
     for (let i = 0; i < mappedTable.length; i++) {
       let column = [];
       for (let j = 0; j < mappedTable.length; j++)
@@ -661,9 +660,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     /* ================================
-                            DIAGONALS 
-           ================================
-        */
+                  DIAGONALS 
+        ================================
+    */
     // Up left to Down right / Up right to Down left
     const diagonals = [
       [mappedTable[0][0], mappedTable[1][1], mappedTable[2][2]],
