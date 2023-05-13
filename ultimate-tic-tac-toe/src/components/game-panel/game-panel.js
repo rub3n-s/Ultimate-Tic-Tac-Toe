@@ -183,7 +183,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
         // Set the computer play in the empty cell
         playedTable.children[playedCell].classList.add(player2Info.symbol);
-        
+
         // After the computer make his play, check if he won the table he played
         if (checkWin(playedTable, player2Info)) {
           // Update Player 2 points
@@ -791,6 +791,18 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Timer reaches zero
     if (timer === 0) setTimerRunning(false);
+    else if (timer <= 10) {
+      // Change text to red in form of a warning
+      switch (playerTurnState.name) {
+        case player1Info.name:
+          document.getElementById("player1-timer").style.color = "red";
+          break;
+        case player2Info.name:
+          document.getElementById("player2-timer").style.color = "red";
+          break;
+        default:
+      }
+    }
   };
 
   const setTimer = (timeLeft) => {
