@@ -1,41 +1,26 @@
-import './players-info.css';
+import "./players-info.css";
 
-const PlayersInfo = ({ player1Info, player2Info, turnInfo, timeLeft }) => {
+const PlayersInfo = ({ player1Info, player2Info, turnInfo }) => {
   return (
     <div className="playersInfo">
       <div className="container">
-        <p className="title">Tables Completed</p>
         {player1Info != null && player2Info != null && (
           <>
-            <p>
-              {player1Info.name}: {player1Info.points}
-            </p>
-            <p>
-              {player2Info.name}: {player2Info.points}
-            </p>
+            <p className="title">{player1Info.name}</p>
+            <p>Tables Completed: {player1Info.points}</p>
+            <p>Rounds Won: {player1Info.roundsWon}</p>
+            <p>Time Left: {player1Info.timeLeft}</p>
+
+            <p className="title">{player2Info.name}</p>
+            <p>Tables Completed: {player2Info.points}</p>
+            <p>Rounds Won: {player2Info.roundsWon}</p>
+            <p>Time Left: {player2Info.timeLeft}</p>
           </>
         )}
       </div>
       <div className="container">
         <p className="title">Turn</p>
         {turnInfo != null && turnInfo}
-      </div>
-      <div className="container">
-        <p className="title">Rounds Won</p>
-        {player1Info != null && player2Info != null && (
-          <>
-            <p>
-              {player1Info.name}: {player1Info.roundsWon}
-            </p>
-            <p>
-              {player2Info.name}: {player2Info.roundsWon}
-            </p>
-          </>
-        )}
-      </div>
-      <div className="container">
-        <p className="title">Time Left</p>
-        <p>{timeLeft}s</p>
       </div>
     </div>
   );

@@ -785,6 +785,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           timeLeft: timer,
         });
         break;
+      default:
     }
 
     // Timer reaches zero
