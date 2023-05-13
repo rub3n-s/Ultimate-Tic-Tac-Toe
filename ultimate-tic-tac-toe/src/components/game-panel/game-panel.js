@@ -73,6 +73,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       symbolPath: null,
       points: 0,
       roundsWon: 0,
+      timeLeft: timeOut,
     };
 
     // Build second player structure
@@ -82,6 +83,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       symbolPath: null,
       points: 0,
       roundsWon: 0,
+      timeLeft: timeOut,
     };
 
     // Define the symbol paths
@@ -117,9 +119,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Set the player who gets the first turn to play
     setPlayerTurnState(firstPlayer);
 
-    // Set the timer
-    setTimer();
-
     return () => {
       // cleaning up the listeners here
     };
@@ -134,13 +133,34 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       -> Used to verify if is the computer turn to play
   */
   useEffect(() => {
-    // Check if is the computer turn to play
-    if (!isComputerTurn()) return;
+    if (playerTurnState === null) return;
 
-    // If the nextTable hasn't been set, computer is the first to play
-    if (nextTable == null) {
-      // Add a timeout to slow the computer reaction
-      setTimeout(function () {
+    // Stop the timer
+    clearInterval(timerId);
+
+    // Each time the player turn state is changed, set the timer with the player's time left
+    setTimer(playerTurnState.timeLeft);
+
+    // Check if is the computer turn to play
+    if (isComputerTurn()) computerPlayHandle();
+
+    return () => {
+      // cleaning up the listeners here
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerTurnState]);
+
+  /* =======================================================
+                Plays Handle (Click and Keyboard)
+     =======================================================
+     -> Events called on mouse click or keyboard enter
+  */
+  const computerPlayHandle = () => {
+    // Add a timeout to slow the computer reaction
+    setTimeout(function () {
+      // If the nextTable hasn't been set, computer is the first to play
+      if (nextTable == null) {
         // Get a random table for the next play
         let randomTable = mainTable.current.children[Math.floor(Math.random() * 9)];
         let randomCell = randomTable.children[Math.floor(Math.random() * 9)];
@@ -157,17 +177,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
         // Set the next table to be played
         setNextPlay(Array.from(randomTable.children).indexOf(randomCell), "Computer Play");
-
-        // Update player turn
-        setPlayerTurnState(setPlayerTurn());
-
-        // After the play reset the timer
-        clearInterval(timerId);
-        setTimer();
-      }, 1000);
-    } else {
-      // Add a timeout to slow the computer reaction
-      setTimeout(function () {
+      } else {
         // Generate computer's next play
         const [playedTable, playedCell] = nextPlay();
 
@@ -180,6 +190,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
             symbolPath: player2Info.symbolPath,
             points: ++player2Info.points,
             roundsWon: player2Info.roundsWon,
+            timeLeft: player2Info.timeLeft,
           });
 
           // Computer wins this table
@@ -201,28 +212,13 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
         // Set the next table to be played
         setNextPlay(playedCell, "Computer Play");
+      }
 
-        // Update the next player to play
-        setPlayerTurnState(setPlayerTurn());
+      // Update player turn
+      setPlayerTurnState(updateTurnInfo());
+    }, 1500);
+  };
 
-        // After the play reset the timer
-        clearInterval(timerId);
-        setTimer();
-      }, 1000);
-    }
-
-    return () => {
-      // cleaning up the listeners here
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playerTurnState]);
-
-  /* =======================================================
-                Plays Handle (Click and Keyboard)
-     =======================================================
-     -> Events called on mouse click or keyboard enter
-  */
   const playHandle = (typeHandle, tableIndex, cellIndex) => {
     // Verifies if it's the computer turn to play
     if (isComputerTurn()) {
@@ -283,6 +279,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
             symbolPath: playerTurnState.symbolPath,
             points: ++playerTurnState.points,
             roundsWon: playerTurnState.roundsWon,
+            timeLeft: playerTurnState.timeLeft,
           });
           break;
         case player2Info:
@@ -293,6 +290,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
             symbolPath: playerTurnState.symbolPath,
             points: ++playerTurnState.points,
             roundsWon: playerTurnState.roundsWon,
+            timeLeft: playerTurnState.timeLeft,
           });
           break;
         default:
@@ -309,22 +307,18 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       console.log(`Player '${playerTurnState.name}' won table ${tableIndex}`, playedTable);
     }
 
+    // Set the next table to be played
+    setNextPlay(cellIndex, "Click Event");
+
+    // Update the next player to play
+    setPlayerTurnState(updateTurnInfo());
+
     // Verify if all the tables are disabled
     if (checkGameEnded(mainTable, player1Info, player2Info)) {
       console.log("[Game Ended] Displaying modal window");
       setTimerRunning(false);
       return;
     }
-
-    // Set the next table to be played
-    setNextPlay(cellIndex, "Click Event");
-
-    // Update the next player to play
-    setPlayerTurnState(setPlayerTurn());
-
-    // After the play reset the timer
-    clearInterval(timerId);
-    setTimer();
   };
 
   /* =======================================================
@@ -336,7 +330,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const updatePlayersInfo = () => {
     let roundWinner = null;
 
-    if (timeLeft === "0s") {
+    if (timeLeft === 0) {
       // Get the current player turn
       switch (playerTurnState.name) {
         case player1Info.name:
@@ -349,6 +343,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           buildModalInfo(`${player2Info.name}'s timer reached zero, ${player1Info.name} is the winner!`);
           roundWinner = player1Info.name;
           break;
+        default:
       }
     } else {
       // Check who has more points
@@ -376,6 +371,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           symbolPath: player1Info.symbolPath,
           points: player1Info.points,
           roundsWon: ++player1Info.roundsWon,
+          timeLeft: timeOut,
         });
         break;
       case player2Info.name:
@@ -385,6 +381,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           symbolPath: player2Info.symbolPath,
           points: player2Info.points,
           roundsWon: ++player2Info.roundsWon,
+          timeLeft: timeOut,
         });
         break;
       default:
@@ -470,9 +467,10 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
      =======================================================
      -> After every cell click the next player to play is set
   */
-  const setPlayerTurn = () => {
+  const updateTurnInfo = () => {
     switch (playerTurnState.name) {
-      case player1Name:
+      case player1Info.name:
+        // Update turn info on players panel
         setTurnInfo(
           <>
             <p>Player: {player2Info.name}</p>
@@ -482,9 +480,10 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
             </div>
           </>
         );
+
         return player2Info;
-      case player2Name:
-        // Get the path for the image of player's 1 symbol
+      case player2Info.name:
+        // Update turn info on players panel
         setTurnInfo(
           <>
             <p>Player: {player1Info.name}</p>
@@ -494,6 +493,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
             </div>
           </>
         );
+
         return player1Info;
       default:
         console.log("Error setting player turn info");
@@ -519,6 +519,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       symbolPath: player1Info.symbolPath,
       points: 0,
       roundsWon: player1Info.roundsWon,
+      timeLeft: timeOut,
     };
 
     // Reset Player's 2 Points
@@ -528,6 +529,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       symbolPath: player2Info.symbolPath,
       points: 0,
       roundsWon: player2Info.roundsWon,
+      timeLeft: timeOut,
     };
 
     setPlayer1Info(player1Struct);
@@ -562,9 +564,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       // remove class to disable the click event on the cells
       for (let cell of table.children) cell.className = "cell";
     }
-
-    // Reset the timer
-    setTimer();
   };
 
   const handleQuitRequest = () => {
@@ -749,18 +748,44 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       -> Decrement timer 
       -> Set timer and update timerRunning state to true
   */
-  const updateGameTime = () => {
-    setTimeLeft(--timer + "s");
+  const updatePlayerTime = () => {
+    // Decrement time left counter
+    setTimeLeft(--timer);
+
+    // Update the player time left in player1Info state
+    switch (playerTurnState.name) {
+      case player1Info.name:
+        setPlayer1Info({
+          name: player1Info.name,
+          symbol: player1Info.symbol,
+          symbolPath: player1Info.symbolPath,
+          points: player1Info.points,
+          roundsWon: player1Info.roundsWon,
+          timeLeft: timer,
+        });
+        break;
+      case player2Info.name:
+        setPlayer2Info({
+          name: player2Info.name,
+          symbol: player2Info.symbol,
+          symbolPath: player2Info.symbolPath,
+          points: player2Info.points,
+          roundsWon: player2Info.roundsWon,
+          timeLeft: timer,
+        });
+        break;
+    }
+
     // Timer reaches zero
     if (timer === 0) setTimerRunning(false);
   };
 
-  const setTimer = () => {
+  const setTimer = (timeLeft) => {
     // Set the initial interval
     // setInterval() - calls udpdateGameTime() every 1000 ms (1 sec)
     let timerId;
-    [timer, timerId] = [timeOut, setInterval(updateGameTime, 1000)];
-    setTimeLeft(timer + "s");
+    [timer, timerId] = [timeLeft, setInterval(updatePlayerTime, 1000)];
+    setTimeLeft(timer);
     setTimerId(timerId);
     setTimerRunning(true);
   };
@@ -769,7 +794,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
                       Timer useEffect Hook
       =======================================================
       -> Create an action on the update of 'timerRunning'
-      -> If the timer reaches zero in updateGameTime() 'timerRunning' 
+      -> If the timer reaches zero in updatePlayerTime() 'timerRunning' 
         state is updated
   */
   useEffect(() => {
@@ -850,7 +875,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
         break;
       case 27:
       case 13:
-        // escape
+        // enter
         selectCell();
         break;
       default:
