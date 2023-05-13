@@ -34,8 +34,8 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   id="inputTimer"
                   size="16"
                   defaultValue={30}
-                  step={1}
-                  min={1}
+                  step={5}
+                  min={5}
                   max={600}
                   ref={inputTimer}
                 />
@@ -79,8 +79,8 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   id="inputTimer"
                   size="16"
                   defaultValue={30}
-                  step={1}
-                  min={1}
+                  step={5}
+                  min={5}
                   max={600}
                   ref={inputTimer}
                 />
@@ -121,7 +121,13 @@ const GameMode = ({ showGameMode, retrieveData }) => {
         inputNick1.current.style.backgroundColor = "white";
 
         // Retrieve players names and timeout data
-        retrieveData(true, gameMode, inputNick1.current.value, "computer", inputTimer.current.value);
+        retrieveData(
+          true,
+          gameMode,
+          inputNick1.current.value,
+          "computer",
+          inputTimer.current.value >= 5 ? inputTimer.current.value : 5
+        );
 
         // Display player 1 and player 2 nick names
         console.log(`Player 1: ${inputNick1.current.value} vs Player 2: computer`);
@@ -161,7 +167,13 @@ const GameMode = ({ showGameMode, retrieveData }) => {
         console.log(`Player 1: ${inputNick1.current.value} vs Player 2: ${inputNick2.current.value}`);
 
         // Retrieve players names and timeout data
-        retrieveData(true, gameMode, inputNick1.current.value, inputNick2.current.value, inputTimer.current.value);
+        retrieveData(
+          true,
+          gameMode,
+          inputNick1.current.value,
+          inputNick2.current.value,
+          inputTimer.current.value >= 5 ? inputTimer.current.value : 5
+        );
         break;
       default:
     }

@@ -110,10 +110,6 @@ main {
   -o-animation: bg .5s ease-in;
 }
 
-.red-text {
-  color: red;
-}
-
 @keyframes bg {
   0% {
     background-color: rgba(137, 255, 172, 1);

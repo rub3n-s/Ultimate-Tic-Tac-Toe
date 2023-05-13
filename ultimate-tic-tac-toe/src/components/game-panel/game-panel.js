@@ -567,6 +567,10 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       // remove class to disable the click event on the cells
       for (let cell of table.children) cell.className = "cell";
     }
+
+    // Clear text timer warnings
+    document.getElementById("player1-timer").style.color = "black";
+    document.getElementById("player2-timer").style.color = "black";
   };
 
   const handleQuitRequest = () => {
@@ -767,6 +771,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Update the player time left in player1Info state
     switch (playerTurnState.name) {
       case player1Info.name:
+        // Change color of text to red if time left <= 10 seconds
+        if (timer <= 10) document.getElementById("player1-timer").style.color = "red";
+
         setPlayer1Info({
           name: player1Info.name,
           symbol: player1Info.symbol,
@@ -777,6 +784,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
         });
         break;
       case player2Info.name:
+        // Change color of text to red if time left <= 10 seconds
+        if (timer <= 10) document.getElementById("player2-timer").style.color = "red";
+
         setPlayer2Info({
           name: player2Info.name,
           symbol: player2Info.symbol,
@@ -791,18 +801,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Timer reaches zero
     if (timer === 0) setTimerRunning(false);
-    else if (timer <= 10) {
-      // Change text to red in form of a warning
-      switch (playerTurnState.name) {
-        case player1Info.name:
-          document.getElementById("player1-timer").style.color = "red";
-          break;
-        case player2Info.name:
-          document.getElementById("player2-timer").style.color = "red";
-          break;
-        default:
-      }
-    }
   };
 
   const setTimer = (timeLeft) => {
