@@ -181,6 +181,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
         // Generate computer's next play
         const [playedTable, playedCell] = nextPlay();
 
+        // Set the computer play in the empty cell
+        playedTable.children[playedCell].classList.add(player2Info.symbol);
+        
         // After the computer make his play, check if he won the table he played
         if (checkWin(playedTable, player2Info)) {
           // Update Player 2 points
@@ -270,8 +273,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // After every click/keyboard event check if someone wins
     if (checkWin(playedTable, playerTurnState)) {
       // Check who's current turn to play was and add points to him
-      switch (playerTurnState) {
-        case player1Info:
+      switch (playerTurnState.name) {
+        case player1Info.name:
           // Update Player 1 points
           setPlayer1Info({
             name: playerTurnState.name,
@@ -282,7 +285,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
             timeLeft: playerTurnState.timeLeft,
           });
           break;
-        case player2Info:
+        case player2Info.name:
           // Update Player 2 points
           setPlayer2Info({
             name: playerTurnState.name,
@@ -371,7 +374,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           symbolPath: player1Info.symbolPath,
           points: player1Info.points,
           roundsWon: ++player1Info.roundsWon,
-          timeLeft: timeOut,
+          timeLeft: player1Info.timeLeft,
         });
         break;
       case player2Info.name:
@@ -381,7 +384,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           symbolPath: player2Info.symbolPath,
           points: player2Info.points,
           roundsWon: ++player2Info.roundsWon,
-          timeLeft: timeOut,
+          timeLeft: player2Info.timeLeft,
         });
         break;
       default:
@@ -739,8 +742,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
         !table.children[randomCell].classList.contains(player2Info.symbol);
 
       if (cellIsFree) {
-        table.children[randomCell].classList.add(player2Info.symbol);
-
         const currentPlay = {
           tableIndex: Array.from(mainTable.current.children).indexOf(table),
           cellIndex: randomCell,
