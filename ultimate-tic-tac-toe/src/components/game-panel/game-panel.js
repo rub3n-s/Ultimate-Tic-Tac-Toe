@@ -627,26 +627,27 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Get the table with the same index as the cell
     let table = mainTable.current.children[nextTable];
     let mappedTable = mapTable(table);
-    let playedCell = null;
+
+    let availablePlays = [];
 
     /* ================================
-                      LINES 
-       ================================
-    */
+                          LINES 
+           ================================
+        */
     for (let i = 0; i < mappedTable.length; i++) {
       // Get the an array of cells on line i
       const line = mappedTable[i];
 
       // Every line check the cells
       // If condition is true, return the current played cell and the table
-      playedCell = checkCells(table, line);
-      if (playedCell != null) return [table, playedCell];
+      const availableCell = checkCells(table, line);
+      if (availableCell != null) availablePlays.push(availableCell);
     }
 
     /* ================================
-                        COLUMNS 
-       ================================
-    */
+                            COLUMNS 
+           ================================
+        */
     for (let i = 0; i < mappedTable.length; i++) {
       let column = [];
       for (let j = 0; j < mappedTable.length; j++)
@@ -655,14 +656,14 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
       // Every diagonal check the cells
       // If condition is true, return the current played cell and the table
-      playedCell = checkCells(table, column);
-      if (playedCell != null) return [table, playedCell];
+      const availableCell = checkCells(table, column);
+      if (availableCell != null) availablePlays.push(availableCell);
     }
 
     /* ================================
-                        DIAGONALS 
-       ================================
-    */
+                            DIAGONALS 
+           ================================
+        */
     // Up left to Down right / Up right to Down left
     const diagonals = [
       [mappedTable[0][0], mappedTable[1][1], mappedTable[2][2]],
@@ -674,8 +675,23 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
       // Every diagonal check the cells
       // If condition is true, return the current played cell and the table
-      playedCell = checkCells(table, diagonal);
-      if (playedCell != null) return [table, playedCell];
+      const availableCell = checkCells(table, diagonal);
+      if (availableCell != null) availablePlays.push(availableCell);
+    }
+
+    if (availablePlays.length > 0) {
+      // Get winning cells
+      const winningCells = availablePlays.filter((x) => x.win === true);
+
+      // Check if a winning cell exists
+      if (winningCells.length > 0) {
+        const randomWinningCell = Math.floor(Math.random() * winningCells.length);
+        return [table, winningCells[randomWinningCell].index];
+      }
+
+      // If a winning cell doesnt exist and availablePlays > 0, get a blocking cell
+      const randomBlockingCell = Math.floor(Math.random() * availablePlays.length);
+      return [table, availablePlays[randomBlockingCell].index];
     }
 
     // If none of the lines/columns have been played by computer he plays randomly
@@ -688,34 +704,30 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     const computerSymbols = cells.filter((x) => x.classList.contains(player2Info.symbol) === true).length === 2;
     const log = oponentSymbols ? "Blocked" : "Completed";
 
+    // If none of the players have at two symbols in this row
+    if (!oponentSymbols && !computerSymbols) return null;
+
     // Case: Oponent/Computer is about to complete a row
     // Check if there are two symbols on the row, and only one free space
-    if (oponentSymbols || computerSymbols) {
-      // Get the cell empty cell
-      const emptyCell = cells.filter(
-        (x) => x.classList.contains(player1Info.symbol) === false && x.classList.contains(player2Info.symbol) === false
-      );
-      const cellIndex = Array.from(table.children).indexOf(emptyCell[0]);
+    // Get the cell empty cell
+    const emptyCell = cells.filter(
+      (x) => x.classList.contains(player1Info.symbol) === false && x.classList.contains(player2Info.symbol) === false
+    );
+    const cellIndex = Array.from(table.children).indexOf(emptyCell[0]);
 
-      // emptyCell = undefined: means that row cells are all filled
-      // this if validation only needs one condition to be true, because its an or
-      // (oponent symbol = 2 or computer symbol = 2)
-      if (emptyCell.length === 0) return null;
+    // emptyCell = undefined: means that row cells are all filled
+    // this if validation only needs one condition to be true, because its an or
+    // (oponent symbol = 2 or computer symbol = 2)
+    if (emptyCell.length === 0) return null;
 
-      // Set the computer play in the empty cell
-      table.children[cellIndex].classList.add(player2Info.symbol);
+    const currentPlay = {
+      tableIndex: Array.from(mainTable.current.children).indexOf(table),
+      cellIndex: cellIndex,
+    };
 
-      const currentPlay = {
-        tableIndex: Array.from(mainTable.current.children).indexOf(table),
-        cellIndex: cellIndex,
-      };
+    console.log(`[${log} Row] Computer made a move on cell\n`, currentPlay, "\n", table.children[cellIndex]);
 
-      console.log(`[${log} Row] Computer made a move on cell\n`, currentPlay, "\n", table.children[cellIndex]);
-
-      return cellIndex;
-    }
-
-    return null;
+    return computerSymbols ? { index: cellIndex, win: true } : { index: cellIndex, win: false };
   };
 
   const randomPlay = (table) => {
