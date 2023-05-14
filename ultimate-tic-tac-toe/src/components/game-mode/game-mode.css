@@ -45,3 +45,8 @@
     opacity: 1;
     right: 0;
 }
+
+.warning {
+    background-color: rgba(219,0,0,0.5) !important;
+    transition: 0.3s;
+}

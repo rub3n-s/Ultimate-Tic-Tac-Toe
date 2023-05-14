@@ -25,6 +25,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   size="16"
                   placeholder="Insert Player's 1 NickName"
                   ref={inputNick1}
+                  onChange={(e) => clearWarning(e.target)}
                 />
               </div>
               <div>
@@ -38,6 +39,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   min={5}
                   max={600}
                   ref={inputTimer}
+                  onChange={(e) => clearWarning(e.target)}
                 />
               </div>
             </div>
@@ -60,6 +62,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   size="16"
                   placeholder="Insert Player's 1 NickName"
                   ref={inputNick1}
+                  onChange={(e) => clearWarning(e.target)}
                 />
               </div>
               <div>
@@ -70,6 +73,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   size="16"
                   placeholder="Insert Player's 2 NickName"
                   ref={inputNick2}
+                  onChange={(e) => clearWarning(e.target)}
                 />
               </div>
               <div>
@@ -83,6 +87,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   min={5}
                   max={600}
                   ref={inputTimer}
+                  onChange={(e) => clearWarning(e.target)}
                 />
               </div>
             </div>
@@ -99,81 +104,31 @@ const GameMode = ({ showGameMode, retrieveData }) => {
   };
 
   const nickNameValidation = () => {
-    console.log(`Game Mode: ${gameMode}`);
-
-    const emptyInputPlayer1 = inputNick1.current.value === "";
-    const emptyInputTimer = inputTimer.current.value === "";
+    const input1 = document.getElementById("inputNick1");
+    const inputTimer = document.getElementById("inputTimer");
 
     switch (gameMode) {
       case "pvc":
-        if (emptyInputPlayer1) {
-          // Change input background-color
-          inputNick1.current.style.backgroundColor = "rgba(219,0,0,0.5)";
-          console.log("Invalid player 1 nickname");
-          return;
-        } else if (emptyInputTimer) {
-          // Change input background-color
-          inputTimer.current.style.backgroundColor = "rgba(219,0,0,0.5)";
-          console.log("Invalid timer value");
-          return;
-        }
-        // Reset the background property
-        inputNick1.current.style.backgroundColor = "white";
+        if (input1.value === "") invalidInput([input1]);
+        if (inputTimer.value < 5 || inputTimer.value === "") invalidInput([inputTimer]);
+
+        if (existInvalidInputs([input1, inputTimer])) return;
 
         // Retrieve players names and timeout data
-        retrieveData(
-          true,
-          gameMode,
-          inputNick1.current.value,
-          "computer",
-          inputTimer.current.value >= 5 ? inputTimer.current.value : 5
-        );
-
-        // Display player 1 and player 2 nick names
-        console.log(`Player 1: ${inputNick1.current.value} vs Player 2: computer`);
+        retrieveData(true, gameMode, input1.value, "computer", inputTimer.value);
         break;
       case "pvp":
-        const emptyInputPlayer2 = inputNick2.current.value === "";
-        const sameName = inputNick1.current.value === inputNick2.current.value;
+        const input2 = document.getElementById("inputNick2");
 
-        if (emptyInputPlayer1) {
-          // Change input background-color
-          inputNick1.current.style.backgroundColor = "rgba(219,0,0,0.5)";
-          console.log("Invalid player 1 nickname");
-          return;
-        } else if (emptyInputPlayer2) {
-          // Change input background-color
-          inputNick2.current.style.backgroundColor = "rgba(219,0,0,0.5)";
-          console.log("Invalid player 2 nickname");
-          return;
-        } else if (sameName) {
-          // Change input background-color
-          inputNick1.current.style.backgroundColor = "rgba(219,0,0,0.5)";
-          inputNick2.current.style.backgroundColor = "rgba(219,0,0,0.5)";
-          console.log("Player 1 and Player 2 can't have the same nickname");
-          return;
-        } else if (emptyInputTimer) {
-          // Change input background-color
-          inputTimer.current.style.backgroundColor = "rgba(219,0,0,0.5)";
-          console.log("Invalid timer value");
-          return;
-        }
+        if (input1.value === "") invalidInput([input1]);
+        if (input2.value === "") invalidInput([input2]);
+        if (input1.value === input2.value) invalidInput([input1, input2]);
+        if (inputTimer.value < 5 || inputTimer.value === "") invalidInput([inputTimer]);
 
-        // Reset the background property
-        inputNick1.current.style.backgroundColor = "white";
-        inputNick2.current.style.backgroundColor = "white";
-
-        // Display player 1 and player 2 nick names
-        console.log(`Player 1: ${inputNick1.current.value} vs Player 2: ${inputNick2.current.value}`);
+        if (existInvalidInputs([input1, input2, inputTimer])) return;
 
         // Retrieve players names and timeout data
-        retrieveData(
-          true,
-          gameMode,
-          inputNick1.current.value,
-          inputNick2.current.value,
-          inputTimer.current.value >= 5 ? inputTimer.current.value : 5
-        );
+        retrieveData(true, gameMode, input1.value, input2.value, inputTimer.value);
         break;
       default:
     }
@@ -186,6 +141,15 @@ const GameMode = ({ showGameMode, retrieveData }) => {
   const handleCloseModal = () => {
     setOpenModal(false);
     setGameMode(null);
+  };
+
+  const invalidInput = (inputs) => inputs.map((x) => x.classList.add("warning"));
+
+  const clearWarning = (input) => input.classList.remove("warning");
+
+  const existInvalidInputs = (inputs) => {
+    for (let x of inputs) if (x.classList.contains("warning")) return true;
+    return false;
   };
 
   // Create an action on the update of gameMode
