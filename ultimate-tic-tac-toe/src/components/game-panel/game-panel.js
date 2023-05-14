@@ -64,31 +64,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   useEffect(() => {
     if (!showGame) return;
 
-    console.log("Displaying table");
-
-    // Build first player structure
-    let player1Struct = {
-      name: player1Name,
-      symbol: Math.random() < 0.5 ? "X" : "O", // Get the random symbol ('X' or 'O')
-      symbolPath: null,
-      points: 0,
-      roundsWon: 0,
-      timeLeft: timeOut,
-    };
-
-    // Build second player structure
-    let player2Struct = {
-      name: player2Name,
-      symbol: player1Struct.symbol === "X" ? "O" : "X", // Get the symbol comparing to first player
-      symbolPath: null,
-      points: 0,
-      roundsWon: 0,
-      timeLeft: timeOut,
-    };
-
-    // Define the symbol paths
-    player1Struct.symbolPath = player1Struct.symbol === "X" ? X_PATH : O_PATH;
-    player2Struct.symbolPath = player2Struct.symbol === "X" ? X_PATH : O_PATH;
+    // Initialize players structures
+    const [player1Struct, player2Struct] = buildPlayersStruct();
 
     // Set the structures in different states
     setPlayer1Info(player1Struct);
@@ -125,6 +102,34 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showGame]);
+
+  const buildPlayersStruct = () => {
+    // Build first player structure
+    let player1Struct = {
+      name: player1Name,
+      symbol: Math.random() < 0.5 ? "X" : "O", // Get the random symbol ('X' or 'O')
+      symbolPath: null,
+      points: 0,
+      roundsWon: 0,
+      timeLeft: timeOut,
+    };
+
+    // Build second player structure
+    let player2Struct = {
+      name: player2Name,
+      symbol: player1Struct.symbol === "X" ? "O" : "X", // Get the symbol comparing to first player
+      symbolPath: null,
+      points: 0,
+      roundsWon: 0,
+      timeLeft: timeOut,
+    };
+
+    // Define the symbol paths
+    player1Struct.symbolPath = player1Struct.symbol === "X" ? X_PATH : O_PATH;
+    player2Struct.symbolPath = player2Struct.symbol === "X" ? X_PATH : O_PATH;
+
+    return [player1Struct, player2Struct];
+  };
 
   /*  =======================================================
                     Computer Play useEffect Hook
@@ -186,14 +191,14 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
         // After the computer make his play, check if he won the table he played
         if (checkWin(playedTable, player2Info)) {
-          // Update Player 2 points
-          setPlayer2Info({
-            name: player2Info.name,
-            symbol: player2Info.symbol,
-            symbolPath: player2Info.symbolPath,
-            points: ++player2Info.points,
-            roundsWon: player2Info.roundsWon,
-            timeLeft: player2Info.timeLeft,
+          // Update computer points
+          updatePlayersInfo({
+            name: playerTurnState.name,
+            symbol: playerTurnState.symbol,
+            symbolPath: playerTurnState.symbolPath,
+            points: ++playerTurnState.points,
+            roundsWon: playerTurnState.roundsWon,
+            timeLeft: playerTurnState.timeLeft,
           });
 
           // Computer wins this table
@@ -219,7 +224,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
       // Update player turn
       setPlayerTurnState(updateTurnInfo());
-    }, 1500);
+    }, 1200);
   };
 
   const playHandle = (typeHandle, tableIndex, cellIndex) => {
@@ -272,33 +277,15 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     // After every click/keyboard event check if someone wins
     if (checkWin(playedTable, playerTurnState)) {
-      // Check who's current turn to play was and add points to him
-      switch (playerTurnState.name) {
-        case player1Info.name:
-          // Update Player 1 points
-          setPlayer1Info({
-            name: playerTurnState.name,
-            symbol: playerTurnState.symbol,
-            symbolPath: playerTurnState.symbolPath,
-            points: ++playerTurnState.points,
-            roundsWon: playerTurnState.roundsWon,
-            timeLeft: playerTurnState.timeLeft,
-          });
-          break;
-        case player2Info.name:
-          // Update Player 2 points
-          setPlayer2Info({
-            name: playerTurnState.name,
-            symbol: playerTurnState.symbol,
-            symbolPath: playerTurnState.symbolPath,
-            points: ++playerTurnState.points,
-            roundsWon: playerTurnState.roundsWon,
-            timeLeft: playerTurnState.timeLeft,
-          });
-          break;
-        default:
-          console.log("Error getting player turn state");
-      }
+      // Increment player's points (completed tables)
+      updatePlayersInfo({
+        name: playerTurnState.name,
+        symbol: playerTurnState.symbol,
+        symbolPath: playerTurnState.symbolPath,
+        points: ++playerTurnState.points,
+        roundsWon: playerTurnState.roundsWon,
+        timeLeft: playerTurnState.timeLeft,
+      });
 
       // Player wins this table
       playedTable.classList.add(`win${playerTurnState.symbol}`);
@@ -310,17 +297,47 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       console.log(`Player '${playerTurnState.name}' won table ${tableIndex}`, playedTable);
     }
 
-    // Set the next table to be played
-    setNextPlay(cellIndex, "Click Event");
-
-    // Update the next player to play
-    setPlayerTurnState(updateTurnInfo());
-
     // Verify if all the tables are disabled
     if (checkGameEnded(mainTable, player1Info, player2Info)) {
       console.log("[Game Ended] Displaying modal window");
       setTimerRunning(false);
       return;
+    }
+
+    // Set the next table to be played
+    setNextPlay(cellIndex, "Click Event");
+
+    // Update the next player to play
+    setPlayerTurnState(updateTurnInfo());
+  };
+
+  const updatePlayersInfo = (player) => {
+    // Check who's current turn to play was and add points to him
+    switch (player.name) {
+      case player1Info.name:
+        // Update Player 1 points
+        setPlayer1Info({
+          name: player.name,
+          symbol: player.symbol,
+          symbolPath: player.symbolPath,
+          points: player.points,
+          roundsWon: player.roundsWon,
+          timeLeft: player.timeLeft,
+        });
+        break;
+      case player2Info.name:
+        // Update Player 2 points
+        setPlayer2Info({
+          name: player.name,
+          symbol: player.symbol,
+          symbolPath: player.symbolPath,
+          points: player.points,
+          roundsWon: player.roundsWon,
+          timeLeft: player.timeLeft,
+        });
+        break;
+      default:
+        console.log("Error getting player turn state");
     }
   };
 
@@ -330,65 +347,40 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
      -> Updates the Info Panel and Modal content
      -> Displayed after the game ends
   */
-  const updatePlayersInfo = () => {
+  const handleGameEnd = () => {
     let roundWinner = null;
 
     if (timeLeft === 0) {
-      // Get the current player turn
-      switch (playerTurnState.name) {
-        case player1Info.name:
-          // Build the modal text information
-          buildModalInfo(`${player1Info.name}'s timer reached zero, ${player2Info.name} is the winner!`);
-          roundWinner = player2Info.name;
-          break;
-        case player2Info.name:
-          // Build the modal text information
-          buildModalInfo(`${player2Info.name}'s timer reached zero, ${player1Info.name} is the winner!`);
-          roundWinner = player1Info.name;
-          break;
-        default:
-      }
+      // Set the round winner
+      roundWinner = playerTurnState.name === player1Info.name ? player2Info : player1Info;
+
+      // Build the modal text information
+      buildModalInfo(`${playerTurnState.name}'s timer reached zero, ${roundWinner.name} is the winner!`);
     } else {
-      // Check who has more points
-      if (player1Info.points > player2Info.points) {
-        roundWinner = player1Info.name;
-
-        // Update info to show on modal window
-        buildModalInfo(`Player '${player1Info.name}' wins with ${player1Info.points} completed tables!`);
-      } else if (player2Info.points > player1Info.points) {
-        roundWinner = player2Info.name;
-
-        // Update info to show on modal window
-        buildModalInfo(`Player '${player2Info.name}' wins with ${player2Info.points} completed tables!`);
+      // Check if there was a tie
+      if (player1Info.points === player2Info.points) {
+        buildModalInfo(`There was a tie!`);
+        return;
       }
+
+      // If there wasn't a tie, get the winner
+      roundWinner = player1Info.points > player2Info.points ? player1Info : player2Info;
+
       // Update info to show on modal window
-      else buildModalInfo(`There was a tie!`);
+      buildModalInfo(`Player '${roundWinner.name}' wins with ${roundWinner.points} completed tables!`);
     }
+
+    console.log("[Round Winner] ", roundWinner);
 
     // Increase roundsWon
-    switch (roundWinner) {
-      case player1Info.name:
-        setPlayer1Info({
-          name: player1Info.name,
-          symbol: player1Info.symbol,
-          symbolPath: player1Info.symbolPath,
-          points: player1Info.points,
-          roundsWon: ++player1Info.roundsWon,
-          timeLeft: player1Info.timeLeft,
-        });
-        break;
-      case player2Info.name:
-        setPlayer2Info({
-          name: player2Info.name,
-          symbol: player2Info.symbol,
-          symbolPath: player2Info.symbolPath,
-          points: player2Info.points,
-          roundsWon: ++player2Info.roundsWon,
-          timeLeft: player2Info.timeLeft,
-        });
-        break;
-      default:
-    }
+    updatePlayersInfo({
+      name: roundWinner.name,
+      symbol: roundWinner.symbol,
+      symbolPath: roundWinner.symbolPath,
+      points: roundWinner.points,
+      roundsWon: ++roundWinner.roundsWon,
+      timeLeft: roundWinner.timeLeft,
+    });
   };
 
   const buildModalInfo = (message) => {
@@ -768,39 +760,25 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Decrement time left counter
     setTimeLeft(--timer);
 
-    // Update the player time left in player1Info state
-    switch (playerTurnState.name) {
-      case player1Info.name:
-        // Change color of text to red if time left <= 10 seconds
-        if (timer <= 10) document.getElementById("player1-timer").style.color = "red";
+    // Add class to player' time left label if <= 10
+    const element =
+      playerTurnState.name === player1Info.name
+        ? document.getElementById("player1-timer")
+        : document.getElementById("player2-timer");
 
-        setPlayer1Info({
-          name: player1Info.name,
-          symbol: player1Info.symbol,
-          symbolPath: player1Info.symbolPath,
-          points: player1Info.points,
-          roundsWon: player1Info.roundsWon,
-          timeLeft: timer,
-        });
-        break;
-      case player2Info.name:
-        // Change color of text to red if time left <= 10 seconds
-        if (timer <= 10) document.getElementById("player2-timer").style.color = "red";
-
-        setPlayer2Info({
-          name: player2Info.name,
-          symbol: player2Info.symbol,
-          symbolPath: player2Info.symbolPath,
-          points: player2Info.points,
-          roundsWon: player2Info.roundsWon,
-          timeLeft: timer,
-        });
-        break;
-      default:
-    }
+    if (timer <= 10) element.style.color = "red";
 
     // Timer reaches zero
     if (timer === 0) setTimerRunning(false);
+
+    updatePlayersInfo({
+      name: playerTurnState.name,
+      symbol: playerTurnState.symbol,
+      symbolPath: playerTurnState.symbolPath,
+      points: playerTurnState.points,
+      roundsWon: playerTurnState.roundsWon,
+      timeLeft: timer,
+    });
   };
 
   const setTimer = (timeLeft) => {
@@ -825,7 +803,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     if (timerRunning) return;
 
     // Update playersInfo panel (increase points/tables to the winner)
-    updatePlayersInfo();
+    handleGameEnd();
 
     // Stop the timer
     clearInterval(timerId);
@@ -1084,9 +1062,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   */
   useEffect(() => {
     if (currentTableMap == null) return;
-
-    // New coords
-    console.log(position);
 
     // Set the anitamon for the selected cell
     currentTableMap[position.y][position.x].classList.add("arrow-selected");

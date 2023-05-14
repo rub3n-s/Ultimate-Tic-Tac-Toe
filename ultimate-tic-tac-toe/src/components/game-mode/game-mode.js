@@ -25,7 +25,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   size="16"
                   placeholder="Insert Player's 1 NickName"
                   ref={inputNick1}
-                  onChange={(e) => clearWarning(e.target)}
+                  onChange={(e) => clearWarning([e.target])}
                 />
               </div>
               <div>
@@ -39,7 +39,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   min={5}
                   max={600}
                   ref={inputTimer}
-                  onChange={(e) => clearWarning(e.target)}
+                  onChange={(e) => clearWarning([e.target])}
                 />
               </div>
             </div>
@@ -62,7 +62,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   size="16"
                   placeholder="Insert Player's 1 NickName"
                   ref={inputNick1}
-                  onChange={(e) => clearWarning(e.target)}
+                  onChange={(e) => clearWarning([e.target])}
                 />
               </div>
               <div>
@@ -73,7 +73,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   size="16"
                   placeholder="Insert Player's 2 NickName"
                   ref={inputNick2}
-                  onChange={(e) => clearWarning(e.target)}
+                  onChange={(e) => clearWarning([e.target])}
                 />
               </div>
               <div>
@@ -87,7 +87,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   min={5}
                   max={600}
                   ref={inputTimer}
-                  onChange={(e) => clearWarning(e.target)}
+                  onChange={(e) => clearWarning([e.target])}
                 />
               </div>
             </div>
@@ -109,8 +109,8 @@ const GameMode = ({ showGameMode, retrieveData }) => {
 
     switch (gameMode) {
       case "pvc":
-        if (input1.value === "") invalidInput([input1]);
-        if (inputTimer.value < 5 || inputTimer.value === "") invalidInput([inputTimer]);
+        input1.value === "" ? invalidInput([input1]) : clearWarning([input1]);
+        inputTimer.value < 5 || inputTimer.value === "" ? invalidInput([inputTimer]) : clearWarning([inputTimer]);
 
         if (existInvalidInputs([input1, inputTimer])) return;
 
@@ -120,8 +120,9 @@ const GameMode = ({ showGameMode, retrieveData }) => {
       case "pvp":
         const input2 = document.getElementById("inputNick2");
 
-        if (input1.value === "") invalidInput([input1]);
-        if (input2.value === "") invalidInput([input2]);
+        input1.value === "" ? invalidInput([input1]) : clearWarning([input1]);
+        input2.value === "" ? invalidInput([input2]) : clearWarning([input2]);
+
         if (input1.value === input2.value) invalidInput([input1, input2]);
         if (inputTimer.value < 5 || inputTimer.value === "") invalidInput([inputTimer]);
 
@@ -143,9 +144,10 @@ const GameMode = ({ showGameMode, retrieveData }) => {
     setGameMode(null);
   };
 
+  // Inputs validation
   const invalidInput = (inputs) => inputs.map((x) => x.classList.add("warning"));
 
-  const clearWarning = (input) => input.classList.remove("warning");
+  const clearWarning = (inputs) => inputs.map((x) => x.classList.remove("warning"));
 
   const existInvalidInputs = (inputs) => {
     for (let x of inputs) if (x.classList.contains("warning")) return true;
