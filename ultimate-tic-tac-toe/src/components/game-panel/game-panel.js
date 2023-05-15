@@ -419,24 +419,25 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
   // Function to evaluate if a table is disabled
   const isTableAvailable = (table) => {
-    // Check if all the cells are filled
+    // Get all the filled cells
     const cellsFilled = Array.from(table.children).filter(
       (x) => x.classList.contains(player1Info.symbol) || x.classList.contains(player2Info.symbol)
     );
-    let tableIsFull = false;
-    if (cellsFilled.length === 9) tableIsFull = true;
+
+    // Check if all the cells are filled
+    const tableIsFull = cellsFilled.length === 9;
 
     // Check if the table is won already
     const tableIsWon = table.classList.contains("winX") || table.classList.contains("winO");
 
-    // For a table to be available, gridIsWon==false && tableIsFull==false
+    // Return table availability (tableWon===false && tableIsFull===false)
     return !tableIsFull && !tableIsWon;
   };
 
   const getRandomTable = (message) => {
     // Get an array of available tables
     const availableTables = Array.from(mainTable.current.children).filter((x) => isTableAvailable(x));
-    console.log("Available Tables\n", availableTables);
+    console.log("[Available Tables]", availableTables);
 
     // Get a random element from the array
     if (availableTables.length > 0) {
@@ -518,8 +519,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     // Clear text timer warnings
-    // document.getElementById("player1-timer").style.color = "black";
-    // document.getElementById("player2-timer").style.color = "black";
     document.getElementById("player-timer").style.color = "black";
   };
 
@@ -717,12 +716,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Decrement time left counter
     setTimeLeft(--timer);
 
-    // Add class to player' time left label if <= 10
-    // const element =
-    //   playerTurnState.name === player1Info.name
-    //     ? document.getElementById("player1-timer")
-    //     : document.getElementById("player2-timer");
-
     // Change color to warn the player
     if (timer <= 10) document.getElementById("player-timer").style.color = "red";
 
@@ -799,10 +792,11 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     e = e || window.event;
 
     // Verifies if it's the computer turn to play
-    if (gameMode === "pvc" && playerTurnState.name === "computer") {
+    if (isComputerTurn()) {
       console.log("It's the computer turn to play");
       return;
     }
+    
     // If the game table isn't open yet, return
     else if (!showGame || !timerRunning) return;
 
