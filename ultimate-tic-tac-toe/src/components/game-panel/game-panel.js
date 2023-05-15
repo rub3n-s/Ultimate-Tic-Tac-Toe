@@ -71,13 +71,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     setPlayer2Info(player2Struct);
 
     // Set who plays first and keyboard navigation
-    setupFirstPlay(player1Struct, player2Struct);
+    setFirstPlay(player1Struct, player2Struct);
 
-    return () => {
-      // cleaning up the listeners here
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [showGame]);
 
   const buildPlayersStruct = () => {
@@ -108,7 +104,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     return [player1Struct, player2Struct];
   };
 
-  const setupFirstPlay = (player1, player2) => {
+  const setFirstPlay = (player1, player2) => {
     // Get a random player for the first play
     const firstPlayer = randomFirstPlayer(player1, player2);
 
@@ -117,9 +113,12 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Enable main table navigation for the first play (if its not the computer playing first)
     else {
       setMainTableNavigation(true);
-      keyboardMapTable(null);
+
+      // For the first play, map the first table in the array
+      keyboardMapTable(mainTable.current.children[0]);
     }
 
+    // Update turn info to be displayed in players info panel
     setTurnInfo(buildTurnInfo(firstPlayer));
 
     // Set the player who gets the first turn to play
@@ -146,10 +145,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Check if is the computer turn to play
     if (isComputerTurn()) computerPlayHandle();
-
-    return () => {
-      // cleaning up the listeners here
-    };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerTurnState]);
@@ -486,7 +481,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     console.log("Reseting game...");
     setOpenModal(false);
 
-    // Players keep the same symbols to prevent confusion
+    // Players keep the same symbols
+    // Reset players points
     const players = [
       {
         name: player1Info.name,
@@ -506,14 +502,12 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       },
     ];
 
-    // Reset Player's 1 Points
+    // Update players info
     updatePlayersInfo(players[0]);
-
-    // Reset Player's 2 Points
     updatePlayersInfo(players[1]);
 
     // Set who plays first and keyboard navigation
-    setupFirstPlay(players[0], players[1]);
+    setFirstPlay(players[0], players[1]);
 
     // Clears all the disabled cells/table
     for (let table of mainTable.current.children) {
@@ -549,34 +543,33 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       - If a table already has a winner, the cells keep disabled
   */
   const clearDisabled = () => {
-    // Remove disable from every table
-    for (let table of mainTable.current.children) {
+    Array.from(mainTable.current.children).forEach((table) => {
+      // Remove disabled from every table
       table.classList.remove("disabled-grid");
 
-      const wonTable = table.classList.contains("winO") || table.classList.contains("winX");
       // Remove disable from every cell
-      for (let cell of table.children) if (!wonTable) cell.classList.remove("disabled-cell");
-    }
+      const wonTable = table.classList.contains("winX") || table.classList.contains("winO");
+      if (!wonTable) Array.from(table.children).map((x) => x.classList.remove("disabled-cell"));
+    });
   };
 
   const disableTables = (cellIndex) => {
     // Get last play cell and table indexs
-    for (let table of mainTable.current.children) {
+    Array.from(mainTable.current.children).forEach((table) => {
       // Get this table index
       const tableIndex = Array.from(mainTable.current.children).indexOf(table);
 
       // Check if the table has been won already
-      const winX = table.classList.contains("winX");
-      const winO = table.classList.contains("winO");
+      const win = table.classList.contains("winX") || table.classList.contains("winO");
 
-      // Disable the other grids
-      if (tableIndex !== cellIndex && !winX && !winO) {
+      // Disable the other grids, except the only one that's available played
+      if (tableIndex !== cellIndex && !win) {
         table.classList.add("disabled-grid");
 
         // Remove disable from every cell
-        for (let cell of table.children) cell.classList.add("disabled-cell");
+        Array.from(table.children).forEach((cell) => cell.classList.add("disabled-cell"));
       }
-    }
+    });
   };
 
   /*  =======================================================
@@ -787,7 +780,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
         -> arrow up, arrow down, arrow left, arrow right, enter
   */
   const [currentTableMap, setCurrentTableMap] = useState(null);
-  const [position, setPosition] = useState(null);
+  const [position, setPosition] = useState({ tableIndex: 0, x: 0, y: 0 });
 
   // Set a key down event and call checkKey()
   document.onkeydown = checkKey;
@@ -795,20 +788,11 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   // Receives the div with className 'box'
   // 'box' is the div that contains the rows and cells
   const keyboardMapTable = (table) => {
-    // When table comes null it means its the first play for a normal player
-    // So its needed to map only the first table
-    if (table == null) table = mainTable.current.children[0];
-
-    console.log("[Keyboard] Mapping table", table);
-
+    // Map table and update the current table map state
     const mappedTable = mapTable(table);
     setCurrentTableMap(mappedTable);
-    setPosition({
-      tableIndex: Array.from(mainTable.current.children).indexOf(table),
-      x: 0,
-      y: 0,
-    });
-    console.log("Current Mapped Table", mappedTable);
+
+    console.log("[Keyboard] Mapping table", table, mappedTable);
   };
 
   function checkKey(e) {
@@ -849,16 +833,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   }
 
   const moveLeft = () => {
-    console.log("[MOVE LEFT]");
-
-    if (position == null) {
-      setPosition({ tableIndex: 0, x: 0, y: 0 });
-      return;
-    }
-
-    let tmpX = position.x;
-    let tmpY = position.y;
-    let tmpTableIndex = position.tableIndex;
+    let [tmpX, tmpY, tmpTableIndex] = [position.x, position.y, position.tableIndex];
 
     if (tmpX > 0) tmpX--;
     else if (mainTableNavigation) {
@@ -868,8 +843,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       if (tmpTableIndex > 0) tmpTableIndex--;
       else tmpTableIndex = 8;
 
-      tmpX = 2;
-      tmpY = position.y;
+      [tmpX, tmpY] = [2, position.y];
 
       // Remap the table
       keyboardMapTable(mainTable.current.children[tmpTableIndex]);
@@ -883,16 +857,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   const moveUp = () => {
-    console.log("[MOVE UP]");
-
-    if (position == null) {
-      setPosition({ tableIndex: 0, x: 0, y: 0 });
-      return;
-    }
-
-    let tmpX = position.x;
-    let tmpY = position.y;
-    let tmpTableIndex = position.tableIndex;
+    let [tmpX, tmpY, tmpTableIndex] = [position.x, position.y, position.tableIndex];
 
     if (tmpY > 0) tmpY--;
     else if (mainTableNavigation) {
@@ -912,8 +877,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           tmpTableIndex += 6;
       }
 
-      tmpX = position.x;
-      tmpY = 2;
+      [tmpX, tmpY] = [position.x, 2];
 
       // Remap the table
       keyboardMapTable(mainTable.current.children[tmpTableIndex]);
@@ -927,16 +891,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   const moveRight = () => {
-    console.log("[MOVE RIGHT]");
-
-    if (position == null) {
-      setPosition({ tableIndex: 0, x: 0, y: 0 });
-      return;
-    }
-
-    let tmpX = position.x;
-    let tmpY = position.y;
-    let tmpTableIndex = position.tableIndex;
+    let [tmpX, tmpY, tmpTableIndex] = [position.x, position.y, position.tableIndex];
 
     if (tmpX < currentTableMap[0].length - 1) tmpX++;
     else if (mainTableNavigation) {
@@ -946,8 +901,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       if (tmpTableIndex < 8) tmpTableIndex++;
       else tmpTableIndex = 0;
 
-      tmpX = 0;
-      tmpY = position.y;
+      [tmpX, tmpY] = [0, position.y];
 
       // Remap the table
       keyboardMapTable(mainTable.current.children[tmpTableIndex]);
@@ -961,16 +915,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   };
 
   const moveDown = () => {
-    console.log("[MOVE DOWN]");
-
-    if (position == null) {
-      setPosition({ tableIndex: 0, x: 0, y: 0 });
-      return;
-    }
-
-    let tmpX = position.x;
-    let tmpY = position.y;
-    let tmpTableIndex = position.tableIndex;
+    let [tmpX, tmpY, tmpTableIndex] = [position.x, position.y, position.tableIndex];
 
     if (tmpY < currentTableMap.length - 1) tmpY++;
     else if (mainTableNavigation) {
@@ -989,8 +934,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           tmpTableIndex += 3;
       }
 
-      tmpX = position.x;
-      tmpY = 0;
+      [tmpX, tmpY] = [position.x, 0];
 
       // Remap the table
       keyboardMapTable(mainTable.current.children[tmpTableIndex]);
