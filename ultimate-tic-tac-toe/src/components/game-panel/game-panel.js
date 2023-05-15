@@ -2,9 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import "./game-panel.css";
 import Modal from "../modal/modal";
 import PlayersInfo from "../players-info/players-info";
-
 import { X_PATH, O_PATH } from "../../constants/index";
-import { mapTable, checkWin, checkGameEnded, containsClass, randomFirstPlayer } from "../../helpers/";
+import { mapTable, checkWin, checkGameEnded, containsClass, randomFirstPlayer, buildTurnInfo } from "../../helpers/";
 
 const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Name, timeOut }) => {
   // Player states
@@ -71,30 +70,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     setPlayer1Info(player1Struct);
     setPlayer2Info(player2Struct);
 
-    // Get a random player for the first play
-    const firstPlayer = randomFirstPlayer(player1Struct, player2Struct);
-
-    // Disable main table navigation when computer plays first
-    if (firstPlayer === player2Struct && gameMode === "pvc") setMainTableNavigation(false);
-    // Enable main table navigation for the first play (if its not the computer playing first)
-    else {
-      setMainTableNavigation(true);
-      keyboardMapTable(null);
-    }
-
-    console.log("[FIRST PLAY]", firstPlayer);
-    setTurnInfo(
-      <>
-        <p>Player: {firstPlayer.name}</p>
-        <div className="div-symbol ">
-          <p>Symbol: </p>
-          <img src={firstPlayer.symbolPath} className={firstPlayer.symbol + "-mini"} alt={firstPlayer.symbol}></img>
-        </div>
-      </>
-    );
-
-    // Set the player who gets the first turn to play
-    setPlayerTurnState(firstPlayer);
+    // Set who plays first and keyboard navigation
+    setupFirstPlay(player1Struct, player2Struct);
 
     return () => {
       // cleaning up the listeners here
@@ -131,6 +108,24 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     return [player1Struct, player2Struct];
   };
 
+  const setupFirstPlay = (player1, player2) => {
+    // Get a random player for the first play
+    const firstPlayer = randomFirstPlayer(player1, player2);
+
+    // Disable main table navigation when computer plays first
+    if (firstPlayer === player2 && gameMode === "pvc") setMainTableNavigation(false);
+    // Enable main table navigation for the first play (if its not the computer playing first)
+    else {
+      setMainTableNavigation(true);
+      keyboardMapTable(null);
+    }
+
+    setTurnInfo(buildTurnInfo(firstPlayer));
+
+    // Set the player who gets the first turn to play
+    setPlayerTurnState(firstPlayer);
+  };
+
   /*  =======================================================
                     Computer Play useEffect Hook
       =======================================================
@@ -145,6 +140,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Each time the player turn state is changed, set the timer with the player's time left
     setTimer(playerTurnState.timeLeft);
+
+    const el = document.getElementById("player-timer");
+    playerTurnState.timeLeft <= 10 ? (el.style.color = "red") : (el.style.color = "black");
 
     // Check if is the computer turn to play
     if (isComputerTurn()) computerPlayHandle();
@@ -466,29 +464,11 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     switch (playerTurnState.name) {
       case player1Info.name:
         // Update turn info on players panel
-        setTurnInfo(
-          <>
-            <p>Player: {player2Info.name}</p>
-            <div className="div-symbol ">
-              <p>Symbol: </p>
-              <img src={player2Info.symbolPath} className={player2Info.symbol + "-mini"} alt={player2Info.symbol}></img>
-            </div>
-          </>
-        );
-
+        setTurnInfo(buildTurnInfo(player2Info));
         return player2Info;
       case player2Info.name:
         // Update turn info on players panel
-        setTurnInfo(
-          <>
-            <p>Player: {player1Info.name}</p>
-            <div className="div-symbol ">
-              <p>Symbol: </p>
-              <img src={player1Info.symbolPath} className={player1Info.symbol + "-mini"} alt={player1Info.symbol}></img>
-            </div>
-          </>
-        );
-
+        setTurnInfo(buildTurnInfo(player1Info));
         return player1Info;
       default:
         console.log("Error setting player turn info");
@@ -507,50 +487,33 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     setOpenModal(false);
 
     // Players keep the same symbols to prevent confusion
+    const players = [
+      {
+        name: player1Info.name,
+        symbol: player1Info.symbol,
+        symbolPath: player1Info.symbolPath,
+        points: 0,
+        roundsWon: player1Info.roundsWon,
+        timeLeft: timeOut,
+      },
+      {
+        name: player2Info.name,
+        symbol: player2Info.symbol,
+        symbolPath: player2Info.symbolPath,
+        points: 0,
+        roundsWon: player2Info.roundsWon,
+        timeLeft: timeOut,
+      },
+    ];
+
     // Reset Player's 1 Points
-    let player1Struct = {
-      name: player1Info.name,
-      symbol: player1Info.symbol,
-      symbolPath: player1Info.symbolPath,
-      points: 0,
-      roundsWon: player1Info.roundsWon,
-      timeLeft: timeOut,
-    };
+    updatePlayersInfo(players[0]);
 
     // Reset Player's 2 Points
-    let player2Struct = {
-      name: player2Info.name,
-      symbol: player2Info.symbol,
-      symbolPath: player2Info.symbolPath,
-      points: 0,
-      roundsWon: player2Info.roundsWon,
-      timeLeft: timeOut,
-    };
+    updatePlayersInfo(players[1]);
 
-    setPlayer1Info(player1Struct);
-    setPlayer2Info(player2Struct);
-
-    // Get a random player for the first play
-    const firstPlayer = randomFirstPlayer(player1Struct, player2Struct);
-
-    // Disable main table navigation when computer plays first
-    if (firstPlayer === player2Struct && gameMode === "pvc") setMainTableNavigation(false);
-    // Enable main table navigation for the first play (if its not the computer playing first)
-    else setMainTableNavigation(true);
-
-    // Set the player turn information (name and symbol)
-    setTurnInfo(
-      <>
-        <p>Player: {firstPlayer.name}</p>
-        <div className="div-symbol ">
-          <p>Symbol: </p>
-          <img src={firstPlayer.symbolPath} className={firstPlayer.symbol + "-mini"} alt={firstPlayer.symbol}></img>
-        </div>
-      </>
-    );
-
-    // Set the player who gets the first turn to play
-    setPlayerTurnState(firstPlayer);
+    // Set who plays first and keyboard navigation
+    setupFirstPlay(players[0], players[1]);
 
     // Clears all the disabled cells/table
     for (let table of mainTable.current.children) {
@@ -561,8 +524,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     // Clear text timer warnings
-    document.getElementById("player1-timer").style.color = "black";
-    document.getElementById("player2-timer").style.color = "black";
+    // document.getElementById("player1-timer").style.color = "black";
+    // document.getElementById("player2-timer").style.color = "black";
+    document.getElementById("player-timer").style.color = "black";
   };
 
   const handleQuitRequest = () => {
@@ -761,12 +725,13 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     setTimeLeft(--timer);
 
     // Add class to player' time left label if <= 10
-    const element =
-      playerTurnState.name === player1Info.name
-        ? document.getElementById("player1-timer")
-        : document.getElementById("player2-timer");
+    // const element =
+    //   playerTurnState.name === player1Info.name
+    //     ? document.getElementById("player1-timer")
+    //     : document.getElementById("player2-timer");
 
-    if (timer <= 10) element.style.color = "red";
+    // Change color to warn the player
+    if (timer <= 10) document.getElementById("player-timer").style.color = "red";
 
     // Timer reaches zero
     if (timer === 0) setTimerRunning(false);

@@ -5,12 +5,20 @@
 
 .playersInfo p {
   transition: 1s;
+  color: rgb(82, 82, 82);
+}
+
+.playersInfo p span{
+  transition: 1s;
+  font-weight: normal;
+  color: rgb(0,0,0);
 }
 
 .playersInfo .title {
   line-height: 1em;
-  font-weight: 900;
+  font-weight: bolder;
   font-size: larger;
+  color: rgb(0,0,0);
 }
 
 /*=================== 
