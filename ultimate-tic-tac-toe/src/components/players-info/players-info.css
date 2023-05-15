@@ -1,6 +1,7 @@
 .playersInfo {
   width: 33%;
   margin: auto;
+  padding: 1.5em 0;
 }
 
 .playersInfo p {
@@ -15,6 +16,7 @@
 }
 
 .playersInfo .title {
+  margin: 0 0 1em 0;
   line-height: 1em;
   font-weight: bolder;
   font-size: larger;

@@ -11,21 +11,35 @@ const PlayersInfo = ({ player1Info, player2Info, turnInfo, timeLeft }) => {
         </p>
       </div>
       <div className="container">
-        {player1Info != null && player2Info != null && (
+        {player1Info != null && (
           <>
-            <p className="title">{player1Info.name}</p>
-            <p>Won Tables: <span>{player1Info.points}</span></p>
-            <p>Won Rounds: <span>{player1Info.roundsWon}</span></p>
-            {/* <p>
-              Time Left: <span id="player1-timer">{player1Info.timeLeft}s</span>
-            </p> */}
+            <div className="div-symbol">
+              <p className="title">{player1Info.name}</p>{" "}
+              <img src={player1Info.symbolPath} className={player1Info.symbol + "-mini"} alt={player1Info.symbol} />
+            </div>
+            <p>
+              Won Tables: <span>{player1Info.points}</span>
+            </p>
+            <p>
+              Won Rounds: <span>{player1Info.roundsWon}</span>
+            </p>
+          </>
+        )}
+      </div>
 
-            <p className="title">{player2Info.name}</p>
-            <p>Won Tables: <span>{player2Info.points}</span></p>
-            <p>Won Rounds: <span> {player2Info.roundsWon}</span></p>
-            {/* <p>
-              Time Left: <span id="player2-timer">{player2Info.timeLeft}s</span>
-            </p> */}
+      <div className="container">
+        {player2Info != null && (
+          <>
+            <div className="div-symbol">
+              <p className="title">{player2Info.name}</p>{" "}
+              <img src={player2Info.symbolPath} className={player2Info.symbol + "-mini"} alt={player2Info.symbol} />
+            </div>
+            <p>
+              Won Tables: <span>{player2Info.points}</span>
+            </p>
+            <p>
+              Won Rounds: <span> {player2Info.roundsWon}</span>
+            </p>
           </>
         )}
       </div>

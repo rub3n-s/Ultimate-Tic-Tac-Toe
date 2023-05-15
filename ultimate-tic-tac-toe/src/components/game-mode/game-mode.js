@@ -34,6 +34,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   type="number"
                   id="inputTimer"
                   size="16"
+                  placeholder="Min: 5s, Max: 600s"
                   defaultValue={30}
                   step={5}
                   min={5}
@@ -81,6 +82,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                 <input
                   type="number"
                   id="inputTimer"
+                  placeholder="Min: 5s, Max: 600s"
                   size="16"
                   defaultValue={30}
                   step={5}
@@ -124,7 +126,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
         input2.value === "" ? invalidInput([input2]) : clearWarning([input2]);
 
         if (input1.value === input2.value) invalidInput([input1, input2]);
-        if (inputTimer.value < 5 || inputTimer.value === "") invalidInput([inputTimer]);
+        if (inputTimer.value < 5 || inputTimer.value > 600 || inputTimer.value === "") invalidInput([inputTimer]);
 
         if (existInvalidInputs([input1, input2, inputTimer])) return;
 
