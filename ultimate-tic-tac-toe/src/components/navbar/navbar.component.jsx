@@ -1,5 +1,6 @@
-import "./navbar.css";
+import React from "react";
 import { useRef } from "react";
+import "./navbar.css";
 
 /* Navigation Bar Component */
 const Navbar = () => {

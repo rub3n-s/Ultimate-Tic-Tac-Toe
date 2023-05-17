@@ -1,3 +1,4 @@
+import React from "react";
 import "./players-info.css";
 
 const PlayersInfo = ({ player1Info, player2Info, turnInfo, timeLeft }) => {

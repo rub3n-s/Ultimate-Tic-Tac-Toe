@@ -1,9 +1,9 @@
+import React from "react";
 import { useState, useRef, useEffect } from "react";
 import "./game-panel.css";
-import Modal from "../modal/modal";
-import PlayersInfo from "../players-info/players-info";
+import { Modal, PlayersInfo } from "../index";
 import { X_PATH, O_PATH } from "../../constants/index";
-import { mapTable, checkWin, checkGameEnded, containsClass, randomFirstPlayer, buildTurnInfo } from "../../helpers/";
+import { mapTable, checkWin, checkGameEnded, containsClass, randomFirstPlayer, buildTurnInfo } from "../../helpers";
 
 const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Name, timeOut }) => {
   // Player states
@@ -796,7 +796,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       console.log("It's the computer turn to play");
       return;
     }
-    
+
     // If the game table isn't open yet, return
     else if (!showGame || !timerRunning) return;
 

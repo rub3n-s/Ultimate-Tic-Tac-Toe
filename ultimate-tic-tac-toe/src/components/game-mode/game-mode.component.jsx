@@ -1,6 +1,8 @@
+import React from "react";
 import "./game-mode.css";
+import "../index";
+import { Modal } from "../index";
 import { useEffect, useRef, useState } from "react";
-import Modal from "../modal/modal";
 
 const GameMode = ({ showGameMode, retrieveData }) => {
   const inputNick1 = useRef(null);
