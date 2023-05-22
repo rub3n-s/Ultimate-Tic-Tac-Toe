@@ -50,3 +50,7 @@
     background-color: rgba(219,0,0,0.5) !important;
     transition: 0.3s;
 }
+
+#message p {
+    margin-bottom: 0;
+}
