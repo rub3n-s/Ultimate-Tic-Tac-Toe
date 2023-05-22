@@ -37,7 +37,6 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   id="inputTimer"
                   size="16"
                   placeholder="Min: 5s, Max: 600s"
-                  defaultValue={30}
                   step={5}
                   min={5}
                   max={600}
@@ -87,7 +86,6 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   id="inputTimer"
                   placeholder="Min: 5s, Max: 600s"
                   size="16"
-                  defaultValue={30}
                   step={5}
                   min={5}
                   max={600}
