@@ -1,6 +1,5 @@
 import React from "react";
 import "./game-mode.css";
-import "../index";
 import { Modal } from "../index";
 import { useEffect, useRef, useState } from "react";
 
@@ -113,8 +112,10 @@ const GameMode = ({ showGameMode, retrieveData }) => {
 
     switch (gameMode) {
       case "pvc":
-        input1.value === "" ? invalidInput([input1]) : clearWarning([input1]);
-        inputTimer.value < 5 || inputTimer.value === "" ? invalidInput([inputTimer]) : clearWarning([inputTimer]);
+        // Verify inputs
+        verifyEmptyInputs([input1, inputTimer]);
+        verifyInputsLength([input1]);
+        verifyTimerInput(inputTimer);
 
         if (existInvalidInputs([input1, inputTimer])) return;
 
@@ -124,11 +125,11 @@ const GameMode = ({ showGameMode, retrieveData }) => {
       case "pvp":
         const input2 = document.getElementById("inputNick2");
 
-        input1.value === "" ? invalidInput([input1]) : clearWarning([input1]);
-        input2.value === "" ? invalidInput([input2]) : clearWarning([input2]);
-
-        if (input1.value === input2.value) invalidInput([input1, input2]);
-        if (inputTimer.value < 5 || inputTimer.value > 600 || inputTimer.value === "") invalidInput([inputTimer]);
+        // Verify inputs
+        verifyEmptyInputs([input1, input2, inputTimer]);
+        verifyInputsLength([input1, input2]);
+        verifyTimerInput(inputTimer);
+        verifyEqualNames(input1, input2);
 
         if (existInvalidInputs([input1, input2, inputTimer])) return;
 
@@ -149,13 +150,27 @@ const GameMode = ({ showGameMode, retrieveData }) => {
   };
 
   // Inputs validation
+  const verifyEmptyInputs = (inputs) => inputs.map((x) => (x.value === "" ? invalidInput([x]) : clearWarning([x])));
+
+  const verifyTimerInput = (input) => {
+    if (input.value < 5 || input.value > 600) invalidInput([input]);
+  };
+
+  const verifyEqualNames = (input1, input2) => {
+    if (input1.value === input2.value) invalidInput([input1, input2]);
+  };
+
+  const verifyInputsLength = (inputs) =>
+    inputs.forEach((input) => {
+      if (input.value.length > 8) invalidInput([input]);
+    });
+
   const invalidInput = (inputs) => inputs.map((x) => x.classList.add("warning"));
 
   const clearWarning = (inputs) => inputs.map((x) => x.classList.remove("warning"));
 
   const existInvalidInputs = (inputs) => {
-    for (let x of inputs) if (x.classList.contains("warning")) return true;
-    return false;
+    return inputs.some((x) => x.classList.contains("warning"));
   };
 
   // Create an action on the update of gameMode

@@ -2,8 +2,8 @@ import React from "react";
 import { useState, useRef, useEffect } from "react";
 import "./game-panel.css";
 import { Modal, PlayersInfo } from "../index";
-import { X_PATH, O_PATH } from "../../constants/index";
 import { mapTable, checkWin, checkGameEnded, containsClass, randomFirstPlayer, buildTurnInfo } from "../../helpers";
+import { X_PATH, O_PATH } from "../../constants/index";
 
 const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Name, timeOut }) => {
   // Player states

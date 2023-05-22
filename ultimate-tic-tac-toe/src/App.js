@@ -31,10 +31,8 @@ function App() {
 
   return (
     <>
-      {/*===== Navigation Bar =====*/}
       <Navbar />
 
-      {/*===== GameMode Buttons =====*/}
       <GameMode showGameMode={showGameMode} retrieveData={handleGameMode} />
 
       <GamePanel

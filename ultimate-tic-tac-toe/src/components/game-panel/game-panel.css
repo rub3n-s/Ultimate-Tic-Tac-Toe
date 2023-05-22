@@ -213,8 +213,8 @@ main {
 
 @media (max-width: 850px) {
   .box {
-    grid-template-columns: repeat(3, [col] 37px);
-    grid-template-rows: repeat(3, [row] 37px);
+    grid-template-columns: repeat(3, [col] 40px);
+    grid-template-rows: repeat(3, [row] 40px);
   }
 
   .X {
@@ -223,25 +223,6 @@ main {
 
   .O {
     background-size: 3.3em;
-  }
-}
-
-@media (max-width: 800px) {
-  .box {
-    grid-template-columns: repeat(3, [col] 35px);
-    grid-template-rows: repeat(3, [row] 35px);
-  }
-
-  .X {
-    background-size: 1.65em;
-  }
-
-  .O {
-    background-size: 3em;
-  }
-
-  main {
-    width: 100%;
   }
 }
 
@@ -274,7 +255,7 @@ main {
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 420px) {
   .box {
     grid-template-columns: repeat(3, [col] 34px);
     grid-template-rows: repeat(3, [row] 34px);
