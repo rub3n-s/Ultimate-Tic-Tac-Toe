@@ -11,6 +11,7 @@
 html,
 body {
   margin: 0;
+  height: 100%;
   min-height: 760px;
   min-width: 360px;
 }
@@ -35,5 +36,8 @@ body {
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: space-between;
-  height: 100vh;
+  min-height: 760px;
+  height: 100%;
+  width: 100%;
+  margin: 0;
 }
