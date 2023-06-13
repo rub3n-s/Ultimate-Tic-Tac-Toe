@@ -1,14 +1,15 @@
 import React from "react";
 import "./players-info.css";
 
-const PlayersInfo = ({ player1Info, player2Info, turnInfo, timeLeft }) => {
+const PlayersInfo = ({ player1Info, player2Info, turnInfo, timeLeft, playerTimer }) => {
   return (
     <div className="playersInfo">
       <div className="container">
         <p className="title">Turn</p>
         {turnInfo != null && turnInfo}
         <p>
-          Time Left: <span id="player-timer">{timeLeft}</span>
+          {/* Time Left: <span id="player-timer">{timeLeft}</span> */}
+          Time Left: <span ref={playerTimer}>{timeLeft}</span>
         </p>
       </div>
       <div className="container">

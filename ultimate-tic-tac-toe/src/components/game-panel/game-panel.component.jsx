@@ -29,6 +29,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const [timerRunning, setTimerRunning] = useState(true);
   const [timeLeft, setTimeLeft] = useState(0);
 
+  // playersInfo time span useRef hook
+  const playerTimer = useRef(null);
+
   /*  =======================================================
                         Build Tables
       =======================================================
@@ -140,8 +143,9 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Each time the player turn state is changed, set the timer with the player's time left
     setTimer(playerTurnState.timeLeft);
 
-    const el = document.getElementById("player-timer");
-    playerTurnState.timeLeft <= 10 ? (el.style.color = "red") : (el.style.color = "black");
+    playerTurnState.timeLeft <= 10
+      ? (playerTimer.current.style.color = "red")
+      : (playerTimer.current.style.color = "black");
 
     // Check if is the computer turn to play
     if (isComputerTurn()) computerPlayHandle();
@@ -519,7 +523,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     // Clear text timer warnings
-    document.getElementById("player-timer").style.color = "black";
+    playerTimer.current.style.color = "black";
   };
 
   const handleQuitRequest = () => {
@@ -717,7 +721,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     setTimeLeft(--timer);
 
     // Change color to warn the player
-    if (timer <= 10) document.getElementById("player-timer").style.color = "red";
+    if (timer <= 10) playerTimer.current.style.color = "red";
 
     // Timer reaches zero
     if (timer === 0) setTimerRunning(false);
@@ -985,7 +989,13 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           <div className="grid-wrapper" ref={mainTable}>
             {buildTables()}
           </div>
-          <PlayersInfo player1Info={player1Info} player2Info={player2Info} turnInfo={turnInfo} timeLeft={timeLeft} />
+          <PlayersInfo
+            player1Info={player1Info}
+            player2Info={player2Info}
+            turnInfo={turnInfo}
+            playerTimer={playerTimer}
+            timeLeft={timeLeft}
+          />
           <Modal openModal={openModal} title={"Game Ended"} info={modalInfo} onHide={handleQuitRequest} />
         </main>
       )}
