@@ -66,7 +66,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   size="16"
                   placeholder="Insert Player's 1 NickName"
                   ref={inputNick1}
-                  onChange={(e) => clearWarning([e.target])}
+                  onChange={() => clearWarning([inputNick1])}
                 />
               </div>
               <div>
@@ -77,7 +77,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   size="16"
                   placeholder="Insert Player's 2 NickName"
                   ref={inputNick2}
-                  onChange={(e) => clearWarning([e.target])}
+                  onChange={() => clearWarning([inputNick2])}
                 />
               </div>
               <div>
@@ -91,7 +91,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   min={5}
                   max={600}
                   ref={inputTimer}
-                  onChange={(e) => clearWarning([e.target])}
+                  onChange={() => clearWarning([inputTimer])}
                 />
               </div>
               <span id="message" ref={spanMessage}></span>
