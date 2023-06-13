@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useRef, useEffect } from "react";
 import "./game-panel.css";
 import { Modal, PlayersInfo } from "../index";
-import { mapTable, checkWin, checkGameEnded, containsClass, randomFirstPlayer, buildTurnInfo } from "../../helpers";
+import { mapTable, checkWin, checkGameEnded, containsClass, randomFirstPlayer } from "../../helpers";
 import { X_PATH, O_PATH } from "../../constants/index";
 
 const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Name, timeOut }) => {
@@ -122,7 +122,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     }
 
     // Update turn info to be displayed in players info panel
-    setTurnInfo(buildTurnInfo(firstPlayer));
+    setTurnInfo(firstPlayer);
 
     // Set the player who gets the first turn to play
     setPlayerTurnState(firstPlayer);
@@ -140,15 +140,22 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // Stop the timer
     clearInterval(timerId);
 
-    // Each time the player turn state is changed, set the timer with the player's time left
-    setTimer(playerTurnState.timeLeft);
-
-    playerTurnState.timeLeft <= 10
-      ? (playerTimer.current.style.color = "red")
-      : (playerTimer.current.style.color = "black");
-
     // Check if is the computer turn to play
-    if (isComputerTurn()) computerPlayHandle();
+    if (isComputerTurn()) {
+      // Computer doesn't have a timer (clear warning/set infinite symbol)
+      playerTimer.current.style.color = "black";
+      setTimeLeft("∞");
+
+      // Handle computer play
+      computerPlayHandle();
+    } else {
+      // Each time the player turn state is changed, set the timer with the player's time left
+      setTimer(playerTurnState.timeLeft);
+
+      playerTurnState.timeLeft <= 10
+        ? (playerTimer.current.style.color = "red")
+        : (playerTimer.current.style.color = "black");
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerTurnState]);
@@ -464,11 +471,11 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     switch (playerTurnState.name) {
       case player1Info.name:
         // Update turn info on players panel
-        setTurnInfo(buildTurnInfo(player2Info));
+        setTurnInfo(player2Info);
         return player2Info;
       case player2Info.name:
         // Update turn info on players panel
-        setTurnInfo(buildTurnInfo(player1Info));
+        setTurnInfo(player1Info);
         return player1Info;
       default:
         console.log("Error setting player turn info");

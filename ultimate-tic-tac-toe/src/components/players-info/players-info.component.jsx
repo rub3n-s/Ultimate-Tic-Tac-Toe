@@ -1,14 +1,22 @@
 import React from "react";
 import "./players-info.css";
 
-const PlayersInfo = ({ player1Info, player2Info, turnInfo, timeLeft, playerTimer }) => {
+const PlayersInfo = ({ player1Info, player2Info, turnInfo, playerTimer, timeLeft }) => {
   return (
     <div className="playersInfo">
       <div className="container">
         <p className="title">Turn</p>
-        {turnInfo != null && turnInfo}
+        {turnInfo != null && (
+          <>
+            <div className="div-symbol">
+              <p>
+                Player: <span>{turnInfo.name}</span>
+              </p>
+              <img src={turnInfo.symbolPath} className={turnInfo.symbol + "-mini"} alt={turnInfo.symbol} />
+            </div>
+          </>
+        )}
         <p>
-          {/* Time Left: <span id="player-timer">{timeLeft}</span> */}
           Time Left: <span ref={playerTimer}>{timeLeft}</span>
         </p>
       </div>
