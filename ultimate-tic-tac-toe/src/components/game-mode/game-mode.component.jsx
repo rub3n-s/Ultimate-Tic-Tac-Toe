@@ -7,6 +7,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
   const inputNick1 = useRef(null);
   const inputNick2 = useRef(null);
   const inputTimer = useRef(null);
+  const spanMessage = useRef(null);
   const [openModal, setOpenModal] = useState(false);
   const [modalInfo, setModalInfo] = useState(null);
   const [gameMode, setGameMode] = useState(null);
@@ -27,7 +28,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   size="16"
                   placeholder="Insert Player's 1 NickName"
                   ref={inputNick1}
-                  onChange={(e) => clearWarning([e.target])}
+                  onChange={() => clearWarning([inputNick1])}
                 />
               </div>
               <div>
@@ -41,10 +42,10 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   min={5}
                   max={600}
                   ref={inputTimer}
-                  onChange={(e) => clearWarning([e.target])}
+                  onChange={() => clearWarning([inputTimer])}
                 />
               </div>
-              <span id="message"></span>
+              <span id="message" ref={spanMessage}></span>
             </div>
             <div className="info-button">
               <button onClick={nickNameValidation}>Ok</button>
@@ -93,7 +94,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
                   onChange={(e) => clearWarning([e.target])}
                 />
               </div>
-              <span id="message"></span>
+              <span id="message" ref={spanMessage}></span>
             </div>
             <div className="info-button">
               <button onClick={nickNameValidation}>Ok</button>
@@ -108,29 +109,24 @@ const GameMode = ({ showGameMode, retrieveData }) => {
   };
 
   const nickNameValidation = () => {
-    const input1 = document.getElementById("inputNick1");
-    const inputTimer = document.getElementById("inputTimer");
-
     switch (gameMode) {
       case "pvc":
         // Verify input values
-        verifyInputs([input1, inputTimer]);
+        verifyInputs([inputNick1, inputTimer]);
 
-        if (existInvalidInputs([input1, inputTimer])) return;
+        if (existInvalidInputs([inputNick1, inputTimer])) return;
 
         // Retrieve players names and timeout data
-        retrieveData(true, gameMode, input1.value, "computer", inputTimer.value);
+        retrieveData(true, gameMode, inputNick1.current.value, "computer", inputTimer.current.value);
         break;
       case "pvp":
-        const input2 = document.getElementById("inputNick2");
-
         // Verify inputs
-        verifyInputs([input1, input2, inputTimer]);
+        verifyInputs([inputNick1, inputNick2, inputTimer]);
 
-        if (existInvalidInputs([input1, input2, inputTimer])) return;
+        if (existInvalidInputs([inputNick1, inputNick2, inputTimer])) return;
 
         // Retrieve players names and timeout data
-        retrieveData(true, gameMode, input1.value, input2.value, inputTimer.value);
+        retrieveData(true, gameMode, inputNick1.current.value, inputNick2.current.value, inputTimer.current.value);
         break;
       default:
     }
@@ -155,8 +151,8 @@ const GameMode = ({ showGameMode, retrieveData }) => {
     // Verify if inputs are empty
     let empty = false;
     inputs.forEach((input) => {
-      if (input.value === "") {
-        invalidInput([input]);
+      if (input.current.value === "") {
+        invalidInput([input.current]);
         empty = true;
       }
     });
@@ -169,8 +165,8 @@ const GameMode = ({ showGameMode, retrieveData }) => {
 
     // Verify input length
     inputs.forEach((input) => {
-      if (input.value.length > 8) {
-        invalidInput([input]);
+      if (input.current.value.length > 8) {
+        invalidInput([input.current]);
         message += "<p>Name maximum length is 8 characters</p>";
       }
     });
@@ -178,14 +174,14 @@ const GameMode = ({ showGameMode, retrieveData }) => {
     // Verify same name
     switch (gameMode) {
       case "pvc":
-        if (inputs[0].value.toLowerCase() === "computer") {
-          invalidInput([inputs[0]]);
+        if (inputNick1.current.value.toLowerCase() === "computer") {
+          invalidInput([inputNick1.current]);
           message += "<p>Player and computer need different names</p>";
         }
         break;
       case "pvp":
-        if (inputs[0].value === inputs[1].value) {
-          invalidInput([inputs[0], inputs[1]]);
+        if (inputNick1.current.value === inputNick2.current.value) {
+          invalidInput([inputNick1.current, inputNick2.current]);
           message += "<p>Names cannot be the same</p>";
         }
         break;
@@ -193,9 +189,8 @@ const GameMode = ({ showGameMode, retrieveData }) => {
     }
 
     // Verify min and max time
-    const timer = inputs[inputs.length - 1];
-    if (timer.value < 5 || timer.value > 600) {
-      invalidInput([timer]);
+    if (inputTimer.current.value < 5 || inputTimer.current.value > 600) {
+      invalidInput([inputTimer.current]);
       message += "<p>Timer needs to be between 5 and 600 (inclusive)</p>";
     }
 
@@ -206,12 +201,12 @@ const GameMode = ({ showGameMode, retrieveData }) => {
   const invalidInput = (inputs) => inputs.map((x) => x.classList.add("warning"));
 
   const clearWarning = (inputs) => {
-    inputs.map((x) => x.classList.remove("warning"));
+    inputs.map((x) => x.current.classList.remove("warning"));
     setMessage("");
   };
 
   const existInvalidInputs = (inputs) => {
-    return inputs.some((x) => x.classList.contains("warning"));
+    return inputs.some((x) => x.current.classList.contains("warning"));
   };
 
   // Create an action on the update of gameMode
@@ -228,7 +223,7 @@ const GameMode = ({ showGameMode, retrieveData }) => {
   useEffect(() => {
     if (gameMode === null || !showGameMode) return;
 
-    document.getElementById("message").innerHTML = message;
+    spanMessage.current.innerHTML = message;
     // eslint-disable-next-line
   }, [message]);
 
