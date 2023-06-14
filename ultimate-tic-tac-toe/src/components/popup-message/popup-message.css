@@ -1,0 +1,25 @@
+.popup-div {
+    display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  top: 105px;
+  height: 30px;
+  padding: 0 1em;
+  border-radius: 0.6em;
+  background-color: rgba(137, 255, 172, 0.85);
+  color: #444444;
+  text-align: center;
+  width: fit-content;
+  transition: ease-out 0.3s;
+  z-index: 1;
+}
+
+.popup-div p {
+  line-height: 0;
+}
+
+.popup-div-hide {
+    display: none;
+}

@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useRef, useEffect } from "react";
 import "./game-panel.css";
-import { Modal, PlayersInfo } from "../index";
+import { Modal, PlayersInfo, PopupMessage } from "../index";
 import { mapTable, checkWin, checkGameEnded, containsClass, randomFirstPlayer } from "../../helpers";
 import { X_PATH, O_PATH } from "../../constants/index";
 
@@ -31,6 +31,10 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
   // playersInfo time span useRef hook
   const playerTimer = useRef(null);
+
+  // Popup message
+  const [isPopupVisible, setPopupVisibility] = useState(false);
+  const [popupMessage, setPopupMessage] = useState(null);
 
   /*  =======================================================
                         Build Tables
@@ -234,7 +238,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const playHandle = (typeHandle, tableIndex, cellIndex) => {
     // Verifies if it's the computer turn to play
     if (isComputerTurn()) {
-      console.log("It's the computer turn to play");
+      displayPopup("It's the computer turn to play");
       return;
     }
 
@@ -243,7 +247,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Verifies if the element (cell) already has been clicked
     if (containsClass(cell)) {
-      console.log(`${typeHandle} event disabled on this cell`);
+      displayPopup(`${typeHandle} event disabled on this cell`);
       return;
     }
 
@@ -804,7 +808,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
 
     // Verifies if it's the computer turn to play
     if (isComputerTurn()) {
-      console.log("It's the computer turn to play");
+      displayPopup("It's the computer turn to play");
       return;
     }
 
@@ -988,10 +992,26 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     // eslint-disable-next-line
   }, [position]);
 
+  /* =======================================================
+                        Popup Message
+     =======================================================
+     -> Changes popup message and visibility
+  */
+  const displayPopup = (message) => {
+    setPopupMessage(message);
+    setPopupVisibility(true);
+    setTimeout(() => {
+      setPopupVisibility(false);
+      setPopupMessage("");
+    }, 1000);
+  };
+
   return (
     <>
       {showGame && (
         <main>
+          <PopupMessage message={popupMessage} isVisible={isPopupVisible} />
+
           <div className="filler"></div>
           <div className="grid-wrapper" ref={mainTable}>
             {buildTables()}
@@ -1003,6 +1023,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
             playerTimer={playerTimer}
             timeLeft={timeLeft}
           />
+
           <Modal openModal={openModal} title={"Game Ended"} info={modalInfo} onHide={handleQuitRequest} />
         </main>
       )}

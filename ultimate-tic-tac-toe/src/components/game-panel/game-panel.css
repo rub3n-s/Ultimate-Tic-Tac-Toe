@@ -35,7 +35,6 @@
 }
 
 .X {
-  /* background: url("../../public/x.png") no-repeat center; */
   background: url("../../../public/assets/images/x.png") no-repeat center;
   background-size: 2em;
   background-color: #ccc;
