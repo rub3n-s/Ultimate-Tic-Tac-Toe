@@ -66,13 +66,11 @@
   background-color: #0000006f;
 }
 
-.filler {
-  width: 33%;
-}
-
 main {
   display: flex;
   flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
 }
 
 .div-symbol {
@@ -102,11 +100,11 @@ main {
 
 .arrow-selected {
   /* background-color: rgba(137, 255, 172, 0.85); */
-  animation: bg .5s ease-in;
-  -webkit-animation: bg .5s ease-in;
-  -moz-animation: bg .5s ease-in;
-  -ms-animation: bg .5s ease-in;
-  -o-animation: bg .5s ease-in;
+  animation: bg 0.5s ease-in;
+  -webkit-animation: bg 0.5s ease-in;
+  -moz-animation: bg 0.5s ease-in;
+  -ms-animation: bg 0.5s ease-in;
+  -o-animation: bg 0.5s ease-in;
 }
 
 @keyframes bg {
@@ -210,7 +208,7 @@ main {
   }
 }
 
-@media (max-width: 850px) {
+@media (max-width: 680px) {
   .box {
     grid-template-columns: repeat(3, [col] 40px);
     grid-template-rows: repeat(3, [row] 40px);
@@ -225,7 +223,18 @@ main {
   }
 }
 
-@media (max-width: 730px) {
+@media (max-width: 620px) {
+  .box {
+    grid-template-columns: repeat(3, [col] 38px);
+    grid-template-rows: repeat(3, [row] 38px);
+  }
+
+  .O {
+    background-size: 3.15em;
+  }
+}
+
+@media (max-width: 600px) {
   main {
     flex-direction: column;
     justify-content: center;
@@ -237,17 +246,15 @@ main {
     grid-template-rows: repeat(3, [row] 40px);
     transition: 1s;
   }
+}
 
+@media (max-width: 470px) {
   .grid-wrapper {
     margin: auto;
   }
 }
 
-@media (max-width: 550px) {
-  main {
-    margin: 1em auto;
-  }
-
+@media (max-width: 450px) {
   .box {
     grid-template-columns: repeat(3, [col] 38px);
     grid-template-rows: repeat(3, [row] 38px);
@@ -256,7 +263,7 @@ main {
 
 @media (max-width: 420px) {
   .box {
-    grid-template-columns: repeat(3, [col] 34px);
-    grid-template-rows: repeat(3, [row] 34px);
+    grid-template-columns: repeat(3, [col] 35px);
+    grid-template-rows: repeat(3, [row] 35px);
   }
 }

@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  width: 33%;
+  width: 170px;
 }
 
 .playersInfo p {
@@ -27,7 +27,7 @@
 /*=================== 
     Media Queries 
 ===================*/
-@media (max-width: 730px) {
+ @media (max-width: 600px) {
   .playersInfo {
     flex-direction: row;
     width: 100%;
@@ -36,11 +36,11 @@
   }
 
   .playersInfo p {
-    font-size: 0.9em;
+    font-size: 1em;
   }
 
   .playersInfo .title {
-    font-size: 1em;
+    font-size: 1.1em;
   }
 
   .container {
@@ -50,27 +50,12 @@
   }
 }
 
-@media (max-width: 550px) {
-  .playersInfo {
-    width: 100%;
-    margin-bottom: -1em;
-  }
-
+@media (max-width: 450px) {
   .playersInfo p {
     font-size: 0.9em;
   }
 
   .playersInfo .title {
     font-size: 1em;
-  }
-}
-
-@media (max-width: 420px) {
-  .playersInfo p {
-    font-size: 0.8em;
-  }
-
-  .playersInfo .title {
-    font-size: 0.9em;
   }
 }

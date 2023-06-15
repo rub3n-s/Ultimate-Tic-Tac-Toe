@@ -1003,7 +1003,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     setTimeout(() => {
       setPopupVisibility(false);
       setPopupMessage("");
-    }, 1000);
+    }, 1200);
   };
 
   return (
@@ -1012,10 +1012,10 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
         <main>
           <PopupMessage message={popupMessage} isVisible={isPopupVisible} />
 
-          <div className="filler"></div>
           <div className="grid-wrapper" ref={mainTable}>
             {buildTables()}
           </div>
+
           <PlayersInfo
             player1Info={player1Info}
             player2Info={player2Info}

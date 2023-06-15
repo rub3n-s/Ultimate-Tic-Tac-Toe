@@ -1,4 +1,4 @@
-.popup-div {
+.mount-div {
   display: block;
   position: absolute;
   left: 0;
@@ -12,10 +12,20 @@
   color: #444444;
   text-align: center;
   width: fit-content;
-  transition: ease-out 0.3s;
+  animation: animateMounting 0.25s;
   z-index: 1;
 }
 
-.popup-div p {
+.mount-div p {
   line-height: 0;
+}
+
+@keyframes animateMounting {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }

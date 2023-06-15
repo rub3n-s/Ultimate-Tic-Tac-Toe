@@ -5,7 +5,7 @@ const PopupMessage = ({ message, isVisible }) => {
   return (
     <>
       {isVisible && (
-        <div className="popup-div">
+        <div className="mount-div">
           <p>{message}</p>
         </div>
       )}
