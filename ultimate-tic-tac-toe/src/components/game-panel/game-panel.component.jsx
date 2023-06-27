@@ -10,7 +10,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const [player1Info, setPlayer1Info] = useState(null);
   const [player2Info, setPlayer2Info] = useState(null);
   const [playerTurnState, setPlayerTurnState] = useState(null);
-  const [turnInfo, setTurnInfo] = useState(null);
 
   // Tables states
   const mainTable = useRef(null);
@@ -124,9 +123,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       // For the first play, map the first table in the array
       keyboardMapTable(mainTable.current.children[0]);
     }
-
-    // Update turn info to be displayed in players info panel
-    setTurnInfo(firstPlayer);
 
     // Set the player who gets the first turn to play
     setPlayerTurnState(firstPlayer);
@@ -474,12 +470,8 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
   const updateTurnInfo = () => {
     switch (playerTurnState.name) {
       case player1Info.name:
-        // Update turn info on players panel
-        setTurnInfo(player2Info);
         return player2Info;
       case player2Info.name:
-        // Update turn info on players panel
-        setTurnInfo(player1Info);
         return player1Info;
       default:
         console.log("Error setting player turn info");
@@ -541,7 +533,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
     setPlayer1Info(null);
     setPlayer2Info(null);
     setPlayerTurnState(null);
-    setTurnInfo(null);
     setOpenModal(false);
     setModalInfo(null);
     setNextTable(null);
@@ -811,7 +802,6 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
       displayPopup("It's the computer turn to play");
       return;
     }
-
     // If the game table isn't open yet, return
     else if (!showGame || !timerRunning) return;
 
@@ -1019,7 +1009,7 @@ const GamePanel = ({ showGame, gameMode, handleCloseGrid, player1Name, player2Na
           <PlayersInfo
             player1Info={player1Info}
             player2Info={player2Info}
-            turnInfo={turnInfo}
+            turnInfo={playerTurnState}
             playerTimer={playerTimer}
             timeLeft={timeLeft}
           />
