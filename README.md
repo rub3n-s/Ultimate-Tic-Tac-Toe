@@ -9,6 +9,9 @@ Install Node.js (Mac OS)
 
 Install Dependencies
   > npm install
-  > 
+
 Run Node.js
   > npm start
+
+Grade
+  > Practical Work: 100%
